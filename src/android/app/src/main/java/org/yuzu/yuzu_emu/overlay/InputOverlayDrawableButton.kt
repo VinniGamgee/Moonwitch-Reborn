@@ -1,0 +1,130 @@
+// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+// SPDX-FileCopyrightText: 2023 yuzu Emulator Project
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+package org.yuzu.yuzu_emu.overlay
+
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
+import android.view.MotionEvent
+import org.yuzu.yuzu_emu.features.input.NativeInput.ButtonState
+import org.yuzu.yuzu_emu.features.input.model.NativeButton
+import org.yuzu.yuzu_emu.features.settings.model.BooleanSetting
+import org.yuzu.yuzu_emu.features.settings.model.IntSetting
+import org.yuzu.yuzu_emu.overlay.model.OverlayControlData
+
+class InputOverlayDrawableButton(
+    res: Resources,
+    defaultStateBitmap: Bitmap,
+    pressedStateBitmap: Bitmap,
+    val button: NativeButton,
+    val overlayControlData: OverlayControlData
+) {
+    var trackId: Int
+    private var buttonPositionX = 0
+    private var buttonPositionY = 0
+    val width: Int
+    val height: Int
+    private val defaultStateBitmap: BitmapDrawable
+    private val pressedStateBitmap: BitmapDrawable
+    private var pressedState = false
+    private var opacity = 255
+    private var previousTouchX = 0
+    private var previousTouchY = 0
+    var controlPositionX = 0
+    var controlPositionY = 0
+
+    init {
+        this.defaultStateBitmap = BitmapDrawable(res, defaultStateBitmap)
+        this.pressedStateBitmap = BitmapDrawable(res, pressedStateBitmap)
+        trackId = -1
+        width = this.defaultStateBitmap.intrinsicWidth
+        height = this.defaultStateBitmap.intrinsicHeight
+    }
+
+    fun updateStatus(event: MotionEvent): Boolean {
+        val pointerIndex = event.actionIndex
+        val xPosition = event.getX(pointerIndex).toInt()
+        val yPosition = event.getY(pointerIndex).toInt()
+        val pointerId = event.getPointerId(pointerIndex)
+        val motionEvent = event.action and MotionEvent.ACTION_MASK
+        val isActionDown = motionEvent == MotionEvent.ACTION_DOWN || motionEvent == MotionEvent.ACTION_POINTER_DOWN
+        val isActionUp = motionEvent == MotionEvent.ACTION_UP || motionEvent == MotionEvent.ACTION_POINTER_UP
+        if (isActionDown) {
+            if (!bounds.contains(xPosition, yPosition)) return false
+            pressedState = true
+            trackId = pointerId
+            return true
+        }
+        if (isActionUp) {
+            if (trackId != pointerId) return false
+            pressedState = false
+            trackId = -1
+            return true
+        }
+        return false
+    }
+
+    fun setPosition(x: Int, y: Int) {
+        buttonPositionX = x
+        buttonPositionY = y
+    }
+
+    fun draw(canvas: Canvas?) {
+        canvas ?: return
+        MoonwitchOverlayStyle.drawButton(canvas, bounds, overlayControlData.id, pressedState, opacity)
+    }
+
+    private val currentStateBitmapDrawable: BitmapDrawable
+        get() = if (pressedState) pressedStateBitmap else defaultStateBitmap
+
+    fun onConfigureTouch(event: MotionEvent): Boolean {
+        val pointerIndex = event.actionIndex
+        val fingerPositionX = event.getX(pointerIndex).toInt()
+        val fingerPositionY = event.getY(pointerIndex).toInt()
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                previousTouchX = fingerPositionX
+                previousTouchY = fingerPositionY
+                controlPositionX = fingerPositionX - (width / 2)
+                controlPositionY = fingerPositionY - (height / 2)
+            }
+            MotionEvent.ACTION_MOVE -> {
+                controlPositionX += fingerPositionX - previousTouchX
+                controlPositionY += fingerPositionY - previousTouchY
+                val finalX = if (BooleanSetting.OVERLAY_SNAP_TO_GRID.getBoolean()) snapToGrid(controlPositionX) else controlPositionX
+                val finalY = if (BooleanSetting.OVERLAY_SNAP_TO_GRID.getBoolean()) snapToGrid(controlPositionY) else controlPositionY
+                setBounds(finalX, finalY, width + finalX, height + finalY)
+                previousTouchX = fingerPositionX
+                previousTouchY = fingerPositionY
+            }
+        }
+        return true
+    }
+
+    private fun snapToGrid(value: Int): Int {
+        val gridSize = IntSetting.OVERLAY_GRID_SIZE.getInt()
+        return ((value + gridSize / 2) / gridSize) * gridSize
+    }
+
+    fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
+        defaultStateBitmap.setBounds(left, top, right, bottom)
+        pressedStateBitmap.setBounds(left, top, right, bottom)
+    }
+
+    fun setOpacity(value: Int) {
+        opacity = value.coerceIn(0, 255)
+        defaultStateBitmap.alpha = opacity
+        pressedStateBitmap.alpha = opacity
+    }
+
+    val status: Int
+        get() = if (pressedState) ButtonState.PRESSED else ButtonState.RELEASED
+    val bounds: Rect
+        get() = defaultStateBitmap.bounds
+}

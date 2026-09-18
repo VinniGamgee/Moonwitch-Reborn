@@ -1,0 +1,228 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+// SPDX-FileCopyrightText: 2017 Citra Emulator Project
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#include <algorithm>
+#include <chrono>
+#include <iterator>
+#include <mutex>
+#include <numeric>
+#include <sstream>
+#include <thread>
+#include <fmt/chrono.h>
+#include <fmt/ranges.h>
+#include "common/adpf.h"
+#include "common/fs/file.h"
+#include "common/fs/fs.h"
+#include "common/fs/path_util.h"
+#include "common/moonwitch_unleashed.h"
+#include "common/moonwitch_core_director.h"
+#include "common/settings.h"
+#include "core/perf_stats.h"
+
+using namespace std::chrono_literals;
+using DoubleSecs = std::chrono::duration<double, std::chrono::seconds::period>;
+using std::chrono::duration_cast;
+using std::chrono::microseconds;
+
+// Purposefully ignore the first five frames, as there's a significant amount of overhead in
+// booting that we shouldn't account for
+constexpr std::size_t IgnoreFrames = 5;
+
+namespace Core {
+
+PerfStats::PerfStats(u64 title_id_) : title_id(title_id_) {}
+
+PerfStats::~PerfStats() {
+    if (!Settings::values.record_frame_times || title_id == 0) {
+        return;
+    }
+
+    const std::time_t t = std::time(nullptr);
+    std::ostringstream stream;
+    std::copy(perf_history.begin() + IgnoreFrames, perf_history.begin() + current_index,
+              std::ostream_iterator<double>(stream, "\n"));
+
+    const auto path = Common::FS::GetEdenPath(Common::FS::EdenPath::LogDir);
+    // %F Date format expanded is "%Y-%m-%d"
+    const auto filename = fmt::format("{}_{:016X}.csv",
+        [&] {
+            std::ostringstream oss;
+            oss << std::put_time(std::localtime(&t), "%F-%H-%M");
+            return oss.str();
+        }(),
+        title_id);
+
+    const auto filepath = path / filename;
+
+    if (Common::FS::CreateParentDir(filepath)) {
+        Common::FS::IOFile file(filepath, Common::FS::FileAccessMode::Write,
+                                Common::FS::FileType::TextFile);
+        void(file.WriteString(stream.str()));
+    }
+}
+
+void PerfStats::BeginSystemFrame() {
+    std::scoped_lock lock{object_mutex};
+
+    frame_begin = Clock::now();
+}
+
+void PerfStats::EndSystemFrame() {
+    std::scoped_lock lock{object_mutex};
+
+    auto frame_end = Clock::now();
+    const auto frame_time = frame_end - frame_begin;
+    const double frame_time_ms =
+        std::chrono::duration<double, std::milli>(frame_time).count();
+
+    // Feed Android Dynamic Performance Framework with the same work-only duration used by the
+    // emulator's frametime metric. This excludes frame-limiter/v-sync sleeps, so the hint session
+    // receives actual emulation work instead of an inflated wall-clock frame interval.
+    const auto frame_work_ns =
+        std::chrono::duration_cast<std::chrono::nanoseconds>(frame_time);
+    Common::ADPF::ReportActualWorkDuration(frame_work_ns);
+    Common::MoonwitchUnleashed::ReportFrameWorkDuration(
+        frame_work_ns, Common::ADPF::GetTargetWorkDuration());
+    Common::MoonwitchCoreDirector::Maintain();
+
+    if (current_index < perf_history.size()) {
+        perf_history[current_index++] = frame_time_ms;
+    }
+
+    ++lifetime_system_frames;
+    if (lifetime_system_frames > IgnoreFrames) {
+        recent_frame_history[recent_frame_index] = frame_time_ms;
+        recent_frame_index = (recent_frame_index + 1) % recent_frame_history.size();
+        recent_frame_count = std::min(recent_frame_count + 1, recent_frame_history.size());
+    }
+
+    accumulated_frametime += frame_time;
+    system_frames += 1;
+
+    previous_frame_length = frame_end - previous_frame_end;
+    previous_frame_end = frame_end;
+}
+
+void PerfStats::EndGameFrame() {
+    game_frames.fetch_add(1, std::memory_order_relaxed);
+}
+
+double PerfStats::GetMeanFrametime() const {
+    std::scoped_lock lock{object_mutex};
+
+    if (current_index <= IgnoreFrames) {
+        return 0;
+    }
+
+    const double sum = std::accumulate(perf_history.begin() + IgnoreFrames,
+                                       perf_history.begin() + current_index, 0.0);
+    return sum / static_cast<double>(current_index - IgnoreFrames);
+}
+
+RecentFrameTimeStats PerfStats::GetRecentFrameTimeStats() const {
+    std::scoped_lock lock{object_mutex};
+
+    if (recent_frame_count == 0) {
+        return {};
+    }
+
+    // Percentiles do not depend on sample order, so a compact copy of the valid ring-buffer
+    // entries is enough even after the write index has wrapped.
+    std::array<double, RecentFrameWindow> sorted_samples{};
+    std::copy_n(recent_frame_history.begin(), recent_frame_count, sorted_samples.begin());
+    std::sort(sorted_samples.begin(), sorted_samples.begin() + recent_frame_count);
+
+    const double sum = std::accumulate(sorted_samples.begin(),
+                                       sorted_samples.begin() + recent_frame_count, 0.0);
+
+    const auto nearest_rank = [&](std::size_t percentile) {
+        const std::size_t rank =
+            std::max<std::size_t>(1, (recent_frame_count * percentile + 99) / 100);
+        return sorted_samples[std::min(rank - 1, recent_frame_count - 1)];
+    };
+
+    return RecentFrameTimeStats{
+        .mean_ms = sum / static_cast<double>(recent_frame_count),
+        .median_ms = nearest_rank(50),
+        .p95_ms = nearest_rank(95),
+        .p99_ms = nearest_rank(99),
+        .max_ms = sorted_samples[recent_frame_count - 1],
+        .sample_count = static_cast<u32>(recent_frame_count),
+        .total_system_frames = lifetime_system_frames,
+    };
+}
+
+PerfStatsResults PerfStats::GetAndResetStats(microseconds current_system_time_us) {
+    std::scoped_lock lock{object_mutex};
+
+    const auto now = Clock::now();
+    // Walltime elapsed since stats were reset
+    const auto interval = duration_cast<DoubleSecs>(now - reset_point).count();
+
+    const auto system_us_per_second = (current_system_time_us - reset_point_system_us) / interval;
+    const auto current_frames = static_cast<double>(game_frames.load(std::memory_order_relaxed));
+    const auto current_fps = current_frames / interval;
+    const PerfStatsResults results{
+        .system_fps = static_cast<double>(system_frames) / interval,
+        .average_game_fps = (current_fps + previous_fps) / 2.0,
+        .frametime = duration_cast<DoubleSecs>(accumulated_frametime).count() /
+                     static_cast<double>(system_frames),
+        .emulation_speed = system_us_per_second.count() / 1'000'000.0,
+    };
+
+    // Reset counters
+    reset_point = now;
+    reset_point_system_us = current_system_time_us;
+    accumulated_frametime = Clock::duration::zero();
+    system_frames = 0;
+    game_frames.store(0, std::memory_order_relaxed);
+    previous_fps = current_fps;
+
+    return results;
+}
+
+double PerfStats::GetLastFrameTimeScale() const {
+    std::scoped_lock lock{object_mutex};
+
+    constexpr double FRAME_LENGTH = 1.0 / 60;
+    return duration_cast<DoubleSecs>(previous_frame_length).count() / FRAME_LENGTH;
+}
+
+void SpeedLimiter::DoSpeedLimiting(microseconds current_system_time_us) {
+    if (Settings::values.use_multi_core.GetValue() ||
+        !Settings::values.use_speed_limit.GetValue()) {
+        return;
+    }
+
+    auto now = Clock::now();
+
+    const double sleep_scale = Settings::SpeedLimit() / 100.0;
+
+    // Max lag caused by slow frames. Shouldn't be more than the length of a frame at the current
+    // speed percent or it will clamp too much and prevent this from properly limiting to that
+    // percent. High values means it'll take longer after a slow frame to recover and start
+    // limiting
+    const microseconds max_lag_time_us = duration_cast<microseconds>(
+        std::chrono::duration<double, std::chrono::microseconds::period>(25ms / sleep_scale));
+    speed_limiting_delta_err += duration_cast<microseconds>(
+        std::chrono::duration<double, std::chrono::microseconds::period>(
+            (current_system_time_us - previous_system_time_us) / sleep_scale));
+    speed_limiting_delta_err -= duration_cast<microseconds>(now - previous_walltime);
+    speed_limiting_delta_err =
+        std::clamp(speed_limiting_delta_err, -max_lag_time_us, max_lag_time_us);
+
+    if (speed_limiting_delta_err > microseconds::zero()) {
+        std::this_thread::sleep_for(speed_limiting_delta_err);
+        auto now_after_sleep = Clock::now();
+        speed_limiting_delta_err -= duration_cast<microseconds>(now_after_sleep - now);
+        now = now_after_sleep;
+    }
+
+    previous_system_time_us = current_system_time_us;
+    previous_walltime = now;
+}
+
+} // namespace Core

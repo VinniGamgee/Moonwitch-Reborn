@@ -1,0 +1,178 @@
+diff --git a/src/android/app/src/main/java/org/yuzu/yuzu_emu/fragments/EmulationFragment.kt b/src/android/app/src/main/java/org/yuzu/yuzu_emu/fragments/EmulationFragment.kt
+--- a/src/android/app/src/main/java/org/yuzu/yuzu_emu/fragments/EmulationFragment.kt
++++ b/src/android/app/src/main/java/org/yuzu/yuzu_emu/fragments/EmulationFragment.kt
+@@ -66,7 +66,8 @@
+ import kotlinx.coroutines.launch
+ import kotlinx.coroutines.withContext
+ import org.yuzu.yuzu_emu.HomeNavigationDirections
+ import org.yuzu.yuzu_emu.NativeLibrary
++import org.yuzu.yuzu_emu.core.MoonwitchKenjiCore
+ import org.yuzu.yuzu_emu.R
+ import org.yuzu.yuzu_emu.activities.EmulationActivity
+ import org.yuzu.yuzu_emu.databinding.DialogOverlayAdjustBinding
+@@ -2232,7 +2233,9 @@
+-    private class EmulationState(
++    private inner class EmulationState(
+         private val gamePath: String,
+         private val emulationCanStart: () -> Boolean
+     ) {
++        // This CI-only first-boot build deliberately forces the real Kenji/Ryujinx core.
++        private val usesKenji = true
+         private var state: State
+         private var surface: Surface? = null
+         lateinit var emulationThread: Thread
+@@ -2257,12 +2260,13 @@
+         @Synchronized
+         fun stop() {
+             if (state != State.STOPPED) {
+                 Log.debug("[EmulationFragment] Stopping emulation.")
+-                NativeLibrary.stopEmulation()
++                if (usesKenji) MoonwitchKenjiCore.stop() else NativeLibrary.stopEmulation()
+                 state = State.STOPPED
++                if (usesKenji) emulationViewModel.setEmulationStopped(true)
+             } else {
+                 Log.warning("[EmulationFragment] Stop called while already stopped.")
+-                NativeLibrary.stopEmulation()
++                if (usesKenji) MoonwitchKenjiCore.stop() else NativeLibrary.stopEmulation()
+             }
+         }
+ 
+@@ -2270,12 +2277,16 @@
+         fun pause() {
+             if (state != State.PAUSED) {
+                 Log.debug("[EmulationFragment] Pausing emulation.")
+ 
+-                NativeLibrary.pauseEmulation()
+-                NativeLibrary.playTimeManagerStop()
++                if (usesKenji) {
++                    MoonwitchKenjiCore.pause()
++                } else {
++                    NativeLibrary.pauseEmulation()
++                    NativeLibrary.playTimeManagerStop()
++                }
+ 
+                 state = State.PAUSED
+             } else {
+                 Log.warning("[EmulationFragment] Pause called while already paused.")
+             }
+         }
+@@ -2284,7 +2295,9 @@
+         @Synchronized
+         fun run(isActivityRecreated: Boolean, programIndex: Int = 0) {
+             if (isActivityRecreated) {
+-                if (NativeLibrary.isRunning()) {
++                if ((usesKenji && MoonwitchKenjiCore.isRunning) ||
++                    (!usesKenji && NativeLibrary.isRunning())
++                ) {
+                     state = State.PAUSED
+                 }
+             } else {
+@@ -2308,17 +2321,25 @@
+                 return
+             }
+ 
+-            NativeLibrary.surfaceChanged(currentSurface)
+             Log.debug("[EmulationFragment] Resuming emulation.")
+-            NativeLibrary.unpauseEmulation()
+-            NativeLibrary.playTimeManagerStart()
++            if (usesKenji) {
++                MoonwitchKenjiCore.resume(currentSurface)
++            } else {
++                NativeLibrary.surfaceChanged(currentSurface)
++                NativeLibrary.unpauseEmulation()
++                NativeLibrary.playTimeManagerStart()
++            }
+             state = State.RUNNING
+         }
+ 
+         @Synchronized
+         fun changeProgram(programIndex: Int) {
++            if (usesKenji) {
++                Log.warning("[EmulationFragment] Program switching is disabled in Kenji first-boot mode.")
++                return
++            }
+             emulationThread.join()
+             emulationThread = Thread({
+                 Log.debug("[EmulationFragment] Starting emulation thread.")
+                 NativeLibrary.run(gamePath, programIndex, false)
+             }, "NativeEmulation")
+@@ -2337,15 +2360,23 @@
+         @Synchronized
+         fun updateSurface() {
+             if (surface != null && state == State.RUNNING) {
+-                NativeLibrary.surfaceChanged(surface)
++                if (usesKenji) {
++                    MoonwitchKenjiCore.updateSurface(surface!!)
++                } else {
++                    NativeLibrary.surfaceChanged(surface)
++                }
+             }
+         }
+ 
+         @Synchronized
+         fun updateSurfaceReference(surface: Surface?) {
+             this.surface = surface
+             if (this.surface != null && state == State.RUNNING) {
+-                NativeLibrary.surfaceChanged(this.surface)
++                if (usesKenji) {
++                    MoonwitchKenjiCore.updateSurface(this.surface!!)
++                } else {
++                    NativeLibrary.surfaceChanged(this.surface)
++                }
+             }
+         }
+ 
+@@ -2358,7 +2389,11 @@
+                 if (state == State.RUNNING) {
+                     pause()
+                 }
+-                NativeLibrary.surfaceDestroyed()
++                if (usesKenji) {
++                    MoonwitchKenjiCore.detachSurface()
++                } else {
++                    NativeLibrary.surfaceDestroyed()
++                }
+                 surface = null
+                 Log.debug("[EmulationFragment] Surface destroyed.")
+                 when (state) {
+@@ -2387,10 +2422,35 @@
+             when (state) {
+                 State.STOPPED -> {
+-                    NativeLibrary.surfaceChanged(currentSurface)
+-                    emulationThread = Thread({
+-                        Log.debug("[EmulationFragment] Starting emulation thread.")
+-                        NativeLibrary.run(gamePath, programIndex, true)
+-                    }, "NativeEmulation")
++                    if (usesKenji) {
++                        Log.info("[EmulationFragment] Starting real Kenji/Ryujinx first boot.")
++                        emulationThread = Thread({
++                            try {
++                                val prepared = MoonwitchKenjiCore.prepare(
++                                    requireContext().applicationContext,
++                                    gamePath,
++                                    currentSurface
++                                )
++                                if (prepared) {
++                                    emulationViewModel.setEmulationStarted(true)
++                                    MoonwitchKenjiCore.runLoop()
++                                } else {
++                                    Log.error("[EmulationFragment] Kenji core failed to prepare.")
++                                }
++                            } finally {
++                                synchronized(this) {
++                                    state = State.STOPPED
++                                }
++                                emulationViewModel.setEmulationStarted(false)
++                                emulationViewModel.setEmulationStopped(true)
++                            }
++                        }, "KenjiEmulation")
++                    } else {
++                        NativeLibrary.surfaceChanged(currentSurface)
++                        emulationThread = Thread({
++                            Log.debug("[EmulationFragment] Starting emulation thread.")
++                            NativeLibrary.run(gamePath, programIndex, true)
++                        }, "NativeEmulation")
++                    }
+                     emulationThread.start()
+                     state = State.RUNNING
+                 }
