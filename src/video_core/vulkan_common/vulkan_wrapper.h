@@ -1357,7 +1357,9 @@ public:
         std::array<VkMemoryBarrier, MaxBarriers> conservative_memory{};
         std::array<VkBufferMemoryBarrier, MaxBarriers> conservative_buffer{};
         std::array<VkImageMemoryBarrier, MaxBarriers> conservative_image{};
-        if (Settings::values.moonwitch_conservative_vulkan_barriers.GetValue()) {
+        if (Settings::values.moonwitch_conservative_vulkan_barriers.GetValue() &&
+            memory_barriers.size() <= MaxBarriers && buffer_barriers.size() <= MaxBarriers &&
+            image_barriers.size() <= MaxBarriers) {
             for (u32 i = 0; i < memory_barriers.size(); ++i) {
                 conservative_memory[i] = memory_barriers[i];
                 conservative_memory[i].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
