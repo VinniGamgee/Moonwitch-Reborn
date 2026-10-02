@@ -508,7 +508,7 @@ struct Values {
     // Moonwitch diagnostic: serialize Vulkan scheduler flushes through GPU completion.
     // Disabled by default; intended for synchronization/race-condition experiments.
     SwitchableSetting<bool> moonwitch_conservative_vulkan_sync{
-        linkage, false, "moonwitch_conservative_vulkan_sync", Category::RendererAdvanced};
+        linkage, true, "moonwitch_conservative_vulkan_sync", Category::RendererAdvanced};
     SwitchableSetting<bool> moonwitch_conservative_vulkan_barriers{
         linkage, true, "moonwitch_conservative_vulkan_barriers", Category::RendererAdvanced};
     // *nix platforms may have issues with the borderless windowed fullscreen mode.
