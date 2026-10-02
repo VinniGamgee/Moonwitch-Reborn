@@ -83,7 +83,7 @@ NvResult nvhost_gpu::Ioctl1(DeviceFD fd, Ioctl command, std::span<const u8> inpu
         case 0x1a:
             return WrapFixed(this, &nvhost_gpu::AllocGPFIFOEx2, input, output, fd);
         case 0x1b:
-            return WrapFixedVariable(this, &nvhost_gpu::SubmitGPFIFOBase1, input, output, true);
+            return WrapFixedVariable(this, &nvhost_gpu::SubmitGPFIFOBase1, input, output, fd, true);
         case 0x1d:
             return WrapFixed(this, &nvhost_gpu::ChannelSetTimeslice, input, output);
         default:
@@ -132,6 +132,18 @@ void nvhost_gpu::OnOpen(NvCore::SessionId session_id, DeviceFD fd) {
 
 void nvhost_gpu::OnClose(DeviceFD fd) {
     sessions.erase(fd);
+}
+
+IMemory& nvhost_gpu::GetSessionMemory(DeviceFD fd) {
+    if (const auto it = sessions.find(fd); it != sessions.end()) {
+        if (auto* const session = core.GetSession(it->second);
+            session != nullptr && session->process != nullptr) {
+            return session->process->GetMemory();
+        }
+    }
+
+    LOG_ERROR(Service_NVDRV, "No session for fd={}, falling back to application memory", fd);
+    return system.ApplicationMemory();
 }
 
 NvResult nvhost_gpu::SetNVMAPfd(IoctlSetNvmapFD& params) {
@@ -388,7 +400,8 @@ NvResult nvhost_gpu::SubmitGPFIFOImpl(IoctlSubmitGpfifo& params, Tegra::CommandL
 }
 
 NvResult nvhost_gpu::SubmitGPFIFOBase1(IoctlSubmitGpfifo& params,
-                                       std::span<Tegra::CommandListHeader> commands, bool kickoff) {
+                                       std::span<Tegra::CommandListHeader> commands,
+                                       DeviceFD fd, bool kickoff) {
     if (params.num_entries > commands.size()) {
         UNIMPLEMENTED();
         return NvResult::InvalidSize;
@@ -396,8 +409,8 @@ NvResult nvhost_gpu::SubmitGPFIFOBase1(IoctlSubmitGpfifo& params,
 
     Tegra::CommandList entries(params.num_entries);
     if (kickoff) {
-        system.ApplicationMemory().ReadBlock(params.address, entries.command_lists.data(),
-                                             params.num_entries * sizeof(Tegra::CommandListHeader));
+        GetSessionMemory(fd).ReadBlock(params.address, entries.command_lists.data(),
+                                       params.num_entries * sizeof(Tegra::CommandListHeader));
     } else {
         std::memcpy(entries.command_lists.data(), commands.data(),
                     params.num_entries * sizeof(Tegra::CommandListHeader));
