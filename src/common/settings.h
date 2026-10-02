@@ -509,6 +509,8 @@ struct Values {
     // Disabled by default; intended for synchronization/race-condition experiments.
     SwitchableSetting<bool> moonwitch_conservative_vulkan_sync{
         linkage, false, "moonwitch_conservative_vulkan_sync", Category::RendererAdvanced};
+    SwitchableSetting<bool> moonwitch_conservative_vulkan_barriers{
+        linkage, false, "moonwitch_conservative_vulkan_barriers", Category::RendererAdvanced};
     // *nix platforms may have issues with the borderless windowed fullscreen mode.
     // Default to exclusive fullscreen on these platforms for now.
     SwitchableSetting<FullscreenMode, true> fullscreen_mode{linkage,
