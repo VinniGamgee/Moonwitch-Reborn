@@ -1638,6 +1638,15 @@ void BufferCache<P>::TouchBuffer(Buffer& buffer, BufferId buffer_id) noexcept {
 
 template <class P>
 bool BufferCache<P>::SynchronizeBuffer(Buffer& buffer, DAddr device_addr, u32 size) {
+    // Diagnostic: a GPU-written region can be followed by a CPU-side stale write
+    // before the guest has consumed the GPU result. In that case an ordinary
+    // CPU upload can overwrite the data that a later draw expects. Keep the
+    // CPU dirty range intact and skip this upload for the test.
+    if (Settings::values.moonwitch_preserve_gpu_modified_buffer_data.GetValue() &&
+        memory_tracker.IsRegionGpuModified(device_addr, size)) {
+        return true;
+    }
+
     upload_copies.clear();
     u64 total_size_bytes = 0;
     u64 largest_copy = 0;
