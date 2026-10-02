@@ -609,46 +609,24 @@ void RasterizerVulkan::DispatchCompute() {
         return;
     }
 
-    // Moonwitch: Tears of the Kingdom can lose compute-produced foliage data on Android
-    // while the guest-side objects remain alive. Keep this workaround title-specific so
-    // other games retain the normal, cheaper synchronization path.
-#ifdef __ANDROID__
-    static constexpr u64 TOTK_PROGRAM_ID = 0x0100F2C0115B6000ULL;
-    const bool apply_totk_compute_visibility_workaround = program_id == TOTK_PROGRAM_ID;
-#else
-    const bool apply_totk_compute_visibility_workaround = false;
-#endif
-    const bool totk_compute_may_write_guest_memory =
-        apply_totk_compute_visibility_workaround && pipeline->MayWriteGuestMemory();
-    const auto record_totk_compute_visibility_barrier =
-        [this, totk_compute_may_write_guest_memory] {
-            if (!totk_compute_may_write_guest_memory) {
-                return;
-            }
-            scheduler.Record([](vk::CommandBuffer cmdbuf) {
-                static constexpr VkMemoryBarrier visibility_barrier{
-                    .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
-                    .pNext = nullptr,
-                    .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_MEMORY_WRITE_BIT,
-                    .dstAccessMask = VK_ACCESS_INDIRECT_COMMAND_READ_BIT |
-                                     VK_ACCESS_INDEX_READ_BIT |
-                                     VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT |
-                                     VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_SHADER_READ_BIT |
-                                     VK_ACCESS_MEMORY_READ_BIT,
-                };
-                static constexpr VkPipelineStageFlags destination_stages =
-                    VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_VERTEX_INPUT_BIT |
-                    VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
-                    VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT |
-                    VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT |
-                    VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT |
-                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
-                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
-                    VK_PIPELINE_STAGE_TRANSFER_BIT;
-                cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, destination_stages,
-                                       0, visibility_barrier);
-            });
-        };
+    // Moonwitch diagnostic: close the compute -> subsequent consumer gap.
+    // Lemon found this exact missing dependency to cause intermittent black geometry
+    // (including procedural grass/shadows) when a later draw reads storage-buffer data
+    // written by this dispatch. Keep this broad and unconditional for the test: the
+    // shader metadata path cannot reliably identify every guest-memory write involved.
+    static constexpr VkMemoryBarrier COMPUTE_WRITE_BARRIER{
+        .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+        .pNext = nullptr,
+        .srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT,
+        .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+    };
+    const auto record_compute_write_barrier = [this] {
+        scheduler.Record([](vk::CommandBuffer cmdbuf) {
+            cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                                   vk::PIPELINE_STAGE_GRAPHICS_COMPUTE, 0,
+                                   COMPUTE_WRITE_BARRIER);
+        });
+    };
 
     const auto& qmd{kepler_compute->launch_description};
     auto indirect_address = kepler_compute->GetIndirectComputeAddress();
