@@ -1,90 +1,39 @@
-<!--
-# SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
-# SPDX-License-Identifier: GPL-3.0-or-later
+<p align="center">
+  <img src="assets/icon.png" alt="Ícone do Moonwitch: controle de videogame sobre uma lua crescente" width="180">
+</p>
 
-# SPDX-FileCopyrightText: 2018 yuzu Emulator Project
-# SPDX-License-Identifier: GPL-2.0-or-later
--->
-<!-- lang: en-GB -->
-
-<h1 align="center">
-  <br>
-  <a href="https://git.eden-emu.dev/eden-emu/eden"><img src="./dist/qt_themes/default/icons/256x256/eden.png" alt="Eden" width="200"></a>
-  <br>
-  <b>Eden</b>
-  <br>
-</h1>
-
-<h4 align="center"><b>Eden</b> is a free and opensource (FOSS) Switch 1 emulator started by developer Camille LaVey.
-<br>
-Written in C++, with builds for Windows, Linux, macOS, Android, FreeBSD and more.
-</h4>
+<h1 align="center">Moonwitch</h1>
 
 <p align="center">
-    </a>
-    <a href="https://discord.gg/HstXbPch7X">
-        <img src="https://img.shields.io/discord/1367654015269339267?color=5865F2&label=Eden&logo=discord&logoColor=white"
-            alt="Discord">
-    </a>
-    <a href="https://stt.gg/qKgFEAbH">
-        <img src="https://img.shields.io/revolt/invite/qKgFEAbH?color=d61f3a&label=Stoat"
-            alt="Stoat">
-    </a>
+  Emulador para dispositivos <b>Qualcomm Adreno</b>.
 </p>
 
 <p align="center">
-  <a href="#compatibility">Compatibility</a> |
-  <a href="#development">Development</a> |
-  <a href="#building">Building</a> |
-  <a href="#download">Download</a> |
-  <a href="#support">Support</a> |
-  <a href="#license">License</a>
+  <a href="https://github.com/VinniGamgee/Moonwitch/actions/workflows/build-android-baseline.yml">
+    <img src="https://github.com/VinniGamgee/Moonwitch/actions/workflows/build-android-baseline.yml/badge.svg" alt="Build Android">
+  </a>
 </p>
 
-## Compatibility
+---
 
-The emulator is capable of running most commercial games at full speed, provided you meet the necessary hardware requirements.
+## Sobre
 
-A list of supported games will be available in future. Please be patient.
+O Moonwitch é um emulador voltado para dispositivos com GPU Qualcomm Adreno, com foco em desempenho e compatibilidade nesse hardware.
 
-Check out our [website](https://eden-emu.dev) for the latest news on exciting features, monthly progress reports, and more!
+## Build
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/eden-emulator.svg)](https://repology.org/project/eden-emulator/versions)
+A build estável mais recente está no workflow
+[`build-android-baseline`](https://github.com/VinniGamgee/Moonwitch/actions/workflows/build-android-baseline.yml).
+Baixe o artefato da execução mais recente na aba **Actions**.
 
-## Contribute
+## Créditos
 
-To contribute to Eden; be it financially, code, bug reports, or otherwise, see our [Contributing guidelines](./CONTRIBUTING.md).
+O Moonwitch é um fork do [Eden Emulator](https://eden-emu.dev). Todo o crédito pelo trabalho original vai para a equipe e os colaboradores do Eden.
 
-## Documentation
+## Contribuições
 
-We have a user manual! See our [User Handbook](./docs/user/README.md).
+Este projeto é mantido exclusivamente por seu autor e **não aceita contribuições externas**.
 
-## Building
+## Licença
 
-See the [General Build Guide](docs/Build.md)
-
-For information on provided development tooling, see the [Tools directory](./tools)
-
-## Download
-
-You can download the latest releases from [our release page](https://git.eden-emu.dev/eden-emu/eden/releases).
-
-Save us some bandwidth! We have [mirrors available](./docs/user/ThirdParty.md#mirrors) as well.
-
-## License
-
-Eden is licensed under the GPLv3 (or any later version). Refer to the [LICENSE.txt](https://git.eden-emu.dev/eden-emu/eden/src/branch/master/LICENSE.txt) file.
-
-## Special thanks
-
-Super special thanks to Cloudflare for preventing the git server from blowing up.
-
-- Yuzu
-- Ryujinx
-- Sudachi
-- Citron
-- Torzu
-- Suyu
-- Ryubing
-
-And everyone who continues or had contributed to the project! <3
+Este projeto segue a licença do projeto original, o Eden Emulator. Veja o arquivo `LICENSE` no repositório.
