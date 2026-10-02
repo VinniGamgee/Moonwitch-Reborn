@@ -196,8 +196,10 @@ private:
 
     NvResult SubmitGPFIFOImpl(IoctlSubmitGpfifo& params, Tegra::CommandList&& entries);
 
+    IMemory& GetSessionMemory(DeviceFD fd);
     NvResult SubmitGPFIFOBase1(IoctlSubmitGpfifo& params,
-                               std::span<Tegra::CommandListHeader> commands, bool kickoff = false);
+                               std::span<Tegra::CommandListHeader> commands, DeviceFD fd,
+                               bool kickoff = false);
     NvResult SubmitGPFIFOBase2(IoctlSubmitGpfifo& params,
                                std::span<const Tegra::CommandListHeader> commands);
 
