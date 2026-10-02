@@ -644,7 +644,7 @@ void RasterizerVulkan::DispatchCompute() {
             }
             cmdbuf.DispatchIndirect(indirect_buffer, indirect_offset);
         });
-        record_totk_compute_visibility_barrier();
+        record_compute_write_barrier();
         return;
     }
     const std::array<u32, 3> dim{qmd.grid_dim_x, qmd.grid_dim_y, qmd.grid_dim_z};
@@ -667,7 +667,7 @@ void RasterizerVulkan::DispatchCompute() {
         }
         cmdbuf.Dispatch(dim[0], dim[1], dim[2]);
     });
-    record_totk_compute_visibility_barrier();
+    record_compute_write_barrier();
 
     // Log compute dispatch
     if (GPU::Logging::IsActive() &&
