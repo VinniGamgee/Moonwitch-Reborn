@@ -504,6 +504,11 @@ struct Values {
         true,
 #endif
         "use_asynchronous_gpu_emulation", Category::Renderer};
+
+    // Moonwitch diagnostic: serialize Vulkan scheduler flushes through GPU completion.
+    // Disabled by default; intended for synchronization/race-condition experiments.
+    SwitchableSetting<bool> moonwitch_conservative_vulkan_sync{
+        linkage, false, "moonwitch_conservative_vulkan_sync", Category::RendererAdvanced};
     // *nix platforms may have issues with the borderless windowed fullscreen mode.
     // Default to exclusive fullscreen on these platforms for now.
     SwitchableSetting<FullscreenMode, true> fullscreen_mode{linkage,
