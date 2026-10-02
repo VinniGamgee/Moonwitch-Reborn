@@ -135,6 +135,7 @@ void DmaPusher::ProcessCommands(std::span<const CommandHeader> commands) {
                         index++;
                         break;
                     }
+                    dma_state.is_last_call = dma_state.method_count <= 1;
                     subchannel->method_sink.emplace_back(dma_state.method, commands[index].argument);
                     dma_state.method++;
                     dma_state.method_count--;
