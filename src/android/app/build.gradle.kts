@@ -37,10 +37,6 @@ android {
 
     compileSdkVersion = "android-36"
     ndkVersion = "28.2.13676358"
-
-    val isNightly =
-        providers.gradleProperty("nightly").orNull?.toBooleanStrictOrNull() ?: false
-
     buildFeatures {
         viewBinding = true
     }
@@ -91,13 +87,6 @@ android {
                         *extraCMakeArgs.toTypedArray()
                     )
                 )
-
-                if (isNightly) {
-                    arguments.addAll(listOf(
-                        "-DENABLE_UPDATE_CHECKER=ON",
-                        "-DNIGHTLY_BUILD=ON",
-                    ))
-                }
 
                 abiFilters("arm64-v8a")
             }
@@ -266,11 +255,8 @@ android {
 
     productFlavors.all {
         val currentName = manifestPlaceholders["appNameBase"] as? String ?: "Moonwitch"
-        val suffix = if (isNightly) " Nightly" else ""
-
-        // apply nightly suffix I/A
-        resValue("string", "app_name_suffixed", "$currentName$suffix")
-        resValue("string", "app_name", "$currentName$suffix")
+        resValue("string", "app_name_suffixed", currentName)
+        resValue("string", "app_name", currentName)
     }
 }
 
