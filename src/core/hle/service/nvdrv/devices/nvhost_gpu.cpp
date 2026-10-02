@@ -69,7 +69,7 @@ NvResult nvhost_gpu::Ioctl1(DeviceFD fd, Ioctl command, std::span<const u8> inpu
         case 0x3:
             return WrapFixed(this, &nvhost_gpu::ChannelSetTimeout, input, output);
         case 0x8:
-            return WrapFixedVariable(this, &nvhost_gpu::SubmitGPFIFOBase1, input, output, false);
+            return WrapFixedVariable(this, &nvhost_gpu::SubmitGPFIFOBase1, input, output, fd, false);
         case 0x9:
             return WrapFixed(this, &nvhost_gpu::AllocateObjectContext, input, output);
         case 0xb:
@@ -134,7 +134,7 @@ void nvhost_gpu::OnClose(DeviceFD fd) {
     sessions.erase(fd);
 }
 
-IMemory& nvhost_gpu::GetSessionMemory(DeviceFD fd) {
+Core::Memory::Memory& nvhost_gpu::GetSessionMemory(DeviceFD fd) {
     if (const auto it = sessions.find(fd); it != sessions.end()) {
         if (auto* const session = core.GetSession(it->second);
             session != nullptr && session->process != nullptr) {
