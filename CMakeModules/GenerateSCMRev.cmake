@@ -24,33 +24,21 @@ else()
     set(IS_DEV_BUILD true)
 endif()
 
-if (NIGHTLY_BUILD)
-    set(IS_NIGHTLY_BUILD true)
-else()
-    set(IS_NIGHTLY_BUILD false)
-endif()
+set(IS_NIGHTLY_BUILD false)
 
 set(GIT_DESC ${BUILD_VERSION})
 
 # Generate cpp with Git revision from template
 
 # TODO(crueter): Stable releases feed.
-set(BUILD_AUTO_UPDATE_STABLE_REPO "eden-emu/eden")
-set(BUILD_AUTO_UPDATE_STABLE_API "git.eden-emu.dev")
-set(BUILD_AUTO_UPDATE_STABLE_API_PATH "/api/v1/repos/")
-
+set(BUILD_AUTO_UPDATE_STABLE_REPO "VinniGamgee/Moonwitch-Reborn")
+set(BUILD_AUTO_UPDATE_STABLE_API "github.com")
+set(BUILD_AUTO_UPDATE_STABLE_API_PATH "/")
 set(BUILD_AUTO_UPDATE_API_PATH "/latest/release.json")
-if (NIGHTLY_BUILD)
-    set(BUILD_AUTO_UPDATE_WEBSITE "https://git.eden-emu.dev")
-    set(BUILD_AUTO_UPDATE_API "nightly.eden-emu.dev")
-    set(BUILD_AUTO_UPDATE_REPO "eden-ci/nightly")
-    set(REPO_NAME "Eden Nightly")
-else()
-    set(BUILD_AUTO_UPDATE_WEBSITE "https://git.eden-emu.dev")
-    set(BUILD_AUTO_UPDATE_API "stable.eden-emu.dev")
-    set(BUILD_AUTO_UPDATE_REPO "eden-emu/eden")
-    set(REPO_NAME "Eden")
-endif()
+set(BUILD_AUTO_UPDATE_WEBSITE "")
+set(BUILD_AUTO_UPDATE_API "")
+set(BUILD_AUTO_UPDATE_REPO "")
+set(REPO_NAME "Moonwitch")
 
 set(BUILD_ID ${GIT_REFSPEC})
 set(BUILD_FULLNAME "${REPO_NAME} ${BUILD_VERSION} ")
