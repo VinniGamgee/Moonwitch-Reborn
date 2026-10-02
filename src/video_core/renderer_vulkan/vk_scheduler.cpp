@@ -61,8 +61,13 @@ u64 Scheduler::Flush(VkSemaphore signal_semaphore, VkSemaphore wait_semaphore) {
     // This deliberately sacrifices performance to test whether asynchronous command
     // submission/visibility is involved in a rendering corruption issue.
     if (Settings::values.moonwitch_conservative_vulkan_sync.GetValue()) {
-        Finish(signal_semaphore, wait_semaphore);
-        return CurrentTick();
+        // Submit this exact batch, then wait for the tick created by this submission.
+        // Do not call Finish()/Wait() here: Wait() may call Flush(), which would recurse
+        // while this diagnostic mode is enabled.
+        const u64 signal_value = SubmitExecution(signal_semaphore, wait_semaphore);
+        master_semaphore->Wait(signal_value);
+        AllocateNewContext();
+        return signal_value;
     }
 
     // When flushing, we only send data to the worker thread; no waiting is necessary.
