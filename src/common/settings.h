@@ -511,6 +511,12 @@ struct Values {
         linkage, false, "moonwitch_conservative_vulkan_sync", Category::RendererAdvanced};
     SwitchableSetting<bool> moonwitch_conservative_vulkan_barriers{
         linkage, false, "moonwitch_conservative_vulkan_barriers", Category::RendererAdvanced};
+
+    // Moonwitch diagnostic: if a region is already marked GPU-modified, do not
+    // immediately upload overlapping CPU-dirty data back into the same buffer.
+    // This isolates CPU/GPU cache-coherency interference from Vulkan barriers.
+    SwitchableSetting<bool> moonwitch_preserve_gpu_modified_buffer_data{
+        linkage, false, "moonwitch_preserve_gpu_modified_buffer_data", Category::RendererAdvanced};
     // *nix platforms may have issues with the borderless windowed fullscreen mode.
     // Default to exclusive fullscreen on these platforms for now.
     SwitchableSetting<FullscreenMode, true> fullscreen_mode{linkage,
