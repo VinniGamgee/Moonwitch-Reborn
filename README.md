@@ -1,4 +1,4 @@
-![Moonwitch](icone-controle-lua.svg)
+![Moonwitch](icone-lua-controle.svg)
 
 <h1 align="center">Moonwitch</h1>
 
