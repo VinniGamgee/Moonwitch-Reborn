@@ -643,7 +643,8 @@ void RasterizerVulkan::DispatchCompute() {
                     VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT |
                     VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT |
                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT |
-                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+                    VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
+                    VK_PIPELINE_STAGE_TRANSFER_BIT;
                 cmdbuf.PipelineBarrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, destination_stages,
                                        0, visibility_barrier);
             });
