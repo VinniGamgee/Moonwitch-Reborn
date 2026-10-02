@@ -19,6 +19,7 @@
 #include <string>
 
 #include "common/common_types.h"
+#include "common/settings.h"
 #include "video_core/vulkan_common/vulkan.h"
 
 #ifdef _MSC_VER
@@ -1348,6 +1349,36 @@ public:
                          Span<VkBufferMemoryBarrier> buffer_barriers,
                          Span<VkImageMemoryBarrier> image_barriers) const noexcept {
         static constexpr u32 MaxBarriers = 16;
+
+        // Diagnostic mode: widen every explicit barrier to ALL_COMMANDS + generic
+        // memory access. Layout transitions remain unchanged. This intentionally
+        // over-synchronizes resources to test whether a narrow stage/access dependency
+        // is allowing stale or incomplete GPU visibility.
+        std::array<VkMemoryBarrier, MaxBarriers> conservative_memory{};
+        std::array<VkBufferMemoryBarrier, MaxBarriers> conservative_buffer{};
+        std::array<VkImageMemoryBarrier, MaxBarriers> conservative_image{};
+        if (Settings::values.moonwitch_conservative_vulkan_barriers.GetValue()) {
+            for (u32 i = 0; i < memory_barriers.size(); ++i) {
+                conservative_memory[i] = memory_barriers[i];
+                conservative_memory[i].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                conservative_memory[i].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+            }
+            for (u32 i = 0; i < buffer_barriers.size(); ++i) {
+                conservative_buffer[i] = buffer_barriers[i];
+                conservative_buffer[i].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                conservative_buffer[i].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+            }
+            for (u32 i = 0; i < image_barriers.size(); ++i) {
+                conservative_image[i] = image_barriers[i];
+                conservative_image[i].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+                conservative_image[i].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+            }
+            memory_barriers = Span(conservative_memory.data(), memory_barriers.size());
+            buffer_barriers = Span(conservative_buffer.data(), buffer_barriers.size());
+            image_barriers = Span(conservative_image.data(), image_barriers.size());
+            src_stage_mask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+            dst_stage_mask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        }
         if (dld->vkCmdPipelineBarrier2 && memory_barriers.size() <= MaxBarriers &&
             buffer_barriers.size() <= MaxBarriers && image_barriers.size() <= MaxBarriers) {
             const auto src_stage_mask2 = static_cast<VkPipelineStageFlags2>(src_stage_mask);
