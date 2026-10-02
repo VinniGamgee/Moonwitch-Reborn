@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/icon.png" alt="Ícone do Moonwitch: controle de videogame sobre uma lua crescente" width="180">
-</p>
+![Moonwitch]()
 
 <h1 align="center">Moonwitch</h1>
 
