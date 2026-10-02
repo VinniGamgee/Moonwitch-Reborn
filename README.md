@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/VinniGamgee/Moonwitch/actions/workflows/build-android-baseline.yml">
-    <img src="https://github.com/VinniGamgee/Moonwitch/actions/workflows/build-android-baseline.yml/badge.svg" alt="Build Android">
+  <a href="https://github.com/VinniGamgee/Moonwitch-Reborn/actions/workflows/build-android-pgo.yml">
+    <img src="https://github.com/VinniGamgee/Moonwitch-Reborn/actions/workflows/build-android-pgo.yml/badge.svg" alt="Build Android">
   </a>
 </p>
 
@@ -21,7 +21,7 @@ O Moonwitch é um emulador voltado para dispositivos com GPU Qualcomm Adreno, co
 ## Build
 
 A build estável mais recente está no workflow
-[`build-android-baseline`](https://github.com/VinniGamgee/Moonwitch/actions/workflows/build-android-baseline.yml).
+[`build-android-baseline`](https://github.com/VinniGamgee/Moonwitch-Reborn/actions/workflows/build-android-pgo.yml).
 Baixe o artefato da execução mais recente na aba **Actions**.
 
 ## Créditos
