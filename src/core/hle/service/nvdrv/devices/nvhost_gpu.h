@@ -16,7 +16,7 @@
 #include "core/hle/service/nvdrv/nvdata.h"
 #include "video_core/dma_pusher.h"
 
-namespace Tegra {
+namespace Core::Memory {\nclass Memory;\n}\n\nnamespace Tegra {
 namespace Control {
 struct ChannelState;
 }
@@ -196,7 +196,7 @@ private:
 
     NvResult SubmitGPFIFOImpl(IoctlSubmitGpfifo& params, Tegra::CommandList&& entries);
 
-    IMemory& GetSessionMemory(DeviceFD fd);
+    Core::Memory::Memory& GetSessionMemory(DeviceFD fd);
     NvResult SubmitGPFIFOBase1(IoctlSubmitGpfifo& params,
                                std::span<Tegra::CommandListHeader> commands, DeviceFD fd,
                                bool kickoff = false);
