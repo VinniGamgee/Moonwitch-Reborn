@@ -124,12 +124,7 @@ android {
                 signingConfigs.getByName("default")
             }
 
-            if (isNightly) {
-                applicationIdSuffix = ".nightly"
-                manifestPlaceholders += mapOf("appNameSuffix" to " Nightly")
-            } else {
-                manifestPlaceholders += mapOf("appNameSuffix" to "")
-            }
+            manifestPlaceholders += mapOf("appNameSuffix" to "")
 
             isMinifyEnabled = true
             isDebuggable = false
