@@ -7,6 +7,7 @@
 #pragma once
 
 #include <limits>
+#include <vector>
 
 #include "video_core/buffer_cache/buffer_cache_base.h"
 #include "video_core/buffer_cache/memory_tracker_base.h"
@@ -97,6 +98,32 @@ public:
 
     void TickFrame(Common::SlotVector<Buffer>& slot_buffers) noexcept;
 
+    void ResetMultiRange() noexcept {
+        multi_range_sources.clear();
+        multi_range_total = 0;
+    }
+
+    void PushMultiRangeSource(const Buffer& buffer, u32 offset, u32 size) {
+        multi_range_sources.push_back(MultiRangeSource{
+            .handle = buffer.Handle(),
+            .offset = offset,
+            .size = size,
+            .write_tick = buffer.getWriteTick(),
+        });
+        multi_range_total += size;
+    }
+
+    bool BindMultiRangeStorageBuffer(u64 key, bool is_written);
+
+    void InvalidateMultiRange(u64 key) {
+        for (auto& entry : multi_range_entries) {
+            if (entry.key == key) {
+                entry.dirty = true;
+                break;
+            }
+        }
+    }
+
     u64 CurrentTick();
 
     u64 KnownGpuTick();
@@ -184,6 +211,30 @@ public:
     }
 
 private:
+    struct MultiRangeSource {
+        VkBuffer handle{};
+        u32 offset{};
+        u32 size{};
+        u64 write_tick{};
+    };
+
+    struct MultiRangeEntry {
+        u64 key{};
+        u64 signature{};
+        vk::Buffer buffer{};
+        u64 retire_tick{};
+        bool dirty{true};
+    };
+
+    struct RetiredMultiRangeBuffer {
+        vk::Buffer buffer{};
+        u64 tick{};
+    };
+
+    void DrainRetiredMultiRangeBuffers();
+
+    [[nodiscard]] u64 MultiRangeSignature() const noexcept;
+
     void BindBuffer(const Buffer& buffer, u32 offset, u32 size) {
         const VkBuffer handle = buffer.Handle();
         if (handle == VK_NULL_HANDLE) {
@@ -212,6 +263,11 @@ private:
     std::unique_ptr<Uint8Pass> uint8_pass;
     QuadIndexedPass quad_index_pass;
 
+    std::vector<MultiRangeSource> multi_range_sources;
+    std::vector<MultiRangeEntry> multi_range_entries;
+    std::vector<RetiredMultiRangeBuffer> retired_multi_range_buffers;
+    u64 multi_range_total{};
+    
     bool limit_dynamic_storage_buffers = false;
     u32 max_dynamic_storage_buffers = (std::numeric_limits<u32>::max)();
 
