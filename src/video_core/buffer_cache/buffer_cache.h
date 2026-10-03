@@ -1048,7 +1048,7 @@ void BufferCache<P>::ResolveMultiRangeStorage(Binding& binding, bool is_written,
                 return;
             }
             const BufferId buffer_id =
-                FindBuffer(*device_addr, static_cast<u32>(segment_size), false);
+                FindBuffer(*device_addr, static_cast<u32>(segment_size));
             if (!buffer_id) {
                 pool.resize(first);
                 return;
