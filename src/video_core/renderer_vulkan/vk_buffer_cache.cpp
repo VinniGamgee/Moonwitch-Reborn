@@ -480,27 +480,15 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
         .flags = 0,
         .size = multi_range_total,
         .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+                 (device.IsBufferDeviceAddressSupported()
+                      ? VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+                      : VkBufferUsageFlags{}),
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .queueFamilyIndexCount = 0,
         .pQueueFamilyIndices = nullptr,
     };
-    if (device.IsBufferDeviceAddressSupported()) {
-        // Recreate the flags with shader device address support.
-        const VkBufferCreateInfo address_create_info{
-            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-            .pNext = nullptr,
-            .flags = VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT,
-            .size = create_info.size,
-            .usage = create_info.usage | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-            .sharingMode = create_info.sharingMode,
-            .queueFamilyIndexCount = 0,
-            .pQueueFamilyIndices = nullptr,
-        };
-        entry->buffer = memory_allocator.CreateBuffer(address_create_info, MemoryUsage::DeviceLocal);
-    } else {
-        entry->buffer = memory_allocator.CreateBuffer(create_info, MemoryUsage::DeviceLocal);
-    }
+    entry->buffer = memory_allocator.CreateBuffer(create_info, MemoryUsage::DeviceLocal);
 
     PreCopyBarrier();
     u64 dst_offset = 0;
