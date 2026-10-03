@@ -55,6 +55,7 @@ BufferCache<P>::~BufferCache() = default;
 
 template <class P>
 void BufferCache<P>::RunGarbageCollector() {
+    if (Settings::values.moonwitch_preserve_buffer_cache.GetValue()) return;
     const bool aggressive_gc = total_used_memory >= critical_memory;
     const u64 ticks_to_destroy = aggressive_gc ? 60 : 120;
     int num_iterations = aggressive_gc ? 64 : 32;
