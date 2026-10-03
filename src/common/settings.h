@@ -673,6 +673,12 @@ struct Values {
         linkage, false, "moonwitch_preserve_buffer_cache", Category::RendererAdvanced,
         Specialization::Default, true, true};
 
+    // Diagnostic: force CPU-write invalidation to continue through texture/pipeline caches even
+    // when the buffer cache reports a GPU-modified region. This isolates cross-cache stale-resource
+    // invalidation without changing normal behavior by default.
+    SwitchableSetting<bool> moonwitch_force_cpu_write_invalidation{
+        linkage, false, "moonwitch_force_cpu_write_invalidation", Category::RendererAdvanced,
+        Specialization::Default, true, true};
 #ifdef __ANDROID__
     SwitchableSetting<bool> use_optimized_vertex_buffers{linkage,
                                                  false,
