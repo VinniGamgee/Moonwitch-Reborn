@@ -7,7 +7,6 @@
 #pragma once
 
 #include <array>
-#include <condition_variable>
 #include <span>
 #include <vector>
 #include <boost/container/small_vector.hpp>
@@ -176,15 +175,10 @@ public:
     std::array<Engines::EngineTypes, max_subchannels> subchannel_type;
 
     Engines::Puller puller;
-    std::mutex sync_mutex;
-    std::condition_variable sync_cv;
-
     VideoCore::RasterizerInterface* rasterizer = nullptr;
 
     const bool ib_enable : 1 = true; ///< IB mode enabled
     bool dma_increment_once : 1 = false;
-    bool signal_sync : 1 = false;
-    bool synced : 1 = false;
 };
 
 } // namespace Tegra
