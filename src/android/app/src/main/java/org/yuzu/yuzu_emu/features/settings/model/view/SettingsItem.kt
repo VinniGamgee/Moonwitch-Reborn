@@ -1056,6 +1056,13 @@ abstract class SettingsItem(
                 )
             )
             put(
+                SwitchSetting(
+                    BooleanSetting.MOONWITCH_FORCE_CPU_WRITE_INVALIDATION,
+                    titleId = R.string.mw_force_cpu_write_invalidation_title,
+                    descriptionId = R.string.mw_force_cpu_write_invalidation_description
+                )
+            )
+            put(
                 SingleChoiceSetting(
                     IntSetting.MOONWITCH_SHADER_PRECISION_MODE,
                     titleId = R.string.mw_shader_precision_title,
