@@ -55,6 +55,11 @@ public:
         ReleaseFences(true);
     }
 
+    /// Wait for deferred rasterizer/fence operations to complete.
+    virtual void WaitForFence() {
+        ReleaseFences(true);
+    }
+
     virtual void FlushAll() = 0;
     virtual void FlushRegion(DAddr addr, u64 size,
                              VideoCommon::CacheType which = VideoCommon::CacheType::All) = 0;
