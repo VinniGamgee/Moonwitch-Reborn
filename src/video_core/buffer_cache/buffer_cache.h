@@ -1000,10 +1000,79 @@ void BufferCache<P>::BindHostGraphicsUniformBuffer(size_t stage, u32 index, u32 
 }
 
 template <class P>
+bool BufferCache<P>::BindMultiRangeStorage(const Binding& binding, bool is_written,
+                                           std::span<const MultiRangeSegment> pool) {
+    if constexpr (requires { runtime.BindMultiRangeStorageBuffer(u64{}, bool{}); }) {
+        if (is_written || binding.segment_count < 2 ||
+            binding.segment_first + binding.segment_count > pool.size()) {
+            return false;
+        }
+        const u64 key = (static_cast<u64>(gpu_memory->GetID()) << 48) ^
+                        binding.gpu_addr ^ (static_cast<u64>(binding.size) << 16);
+        runtime.ResetMultiRange();
+        for (u32 index = 0; index < binding.segment_count; ++index) {
+            const MultiRangeSegment& segment = pool[binding.segment_first + index];
+            Buffer& buffer = slot_buffers[segment.buffer_id];
+            TouchBuffer(buffer, segment.buffer_id);
+            if (SynchronizeBuffer(buffer, segment.device_addr, segment.size)) {
+                runtime.InvalidateMultiRange(key);
+            }
+            const u32 offset = buffer.Offset(segment.device_addr);
+            buffer.MarkUsage(offset, segment.size);
+            runtime.PushMultiRangeSource(buffer, offset, segment.size);
+        }
+        return runtime.BindMultiRangeStorageBuffer(key, false);
+    } else {
+        return false;
+    }
+}
+
+template <class P>
+void BufferCache<P>::ResolveMultiRangeStorage(Binding& binding, bool is_written,
+                                               std::vector<MultiRangeSegment>& pool) {
+    binding.segment_first = 0;
+    binding.segment_count = 0;
+    if constexpr (requires { runtime.BindMultiRangeStorageBuffer(u64{}, bool{}); }) {
+        if (is_written || binding.gpu_addr == 0 || binding.size == 0) {
+            return;
+        }
+        const auto segments = gpu_memory->GetSubmappedRange(binding.gpu_addr, binding.size);
+        if (segments.size() < 2) {
+            return;
+        }
+        const u32 first = static_cast<u32>(pool.size());
+        for (const auto& [gpu_segment, segment_size] : segments) {
+            const auto device_addr = gpu_memory->GpuToCpuAddress(gpu_segment);
+            if (!device_addr) {
+                pool.resize(first);
+                return;
+            }
+            const BufferId buffer_id =
+                FindBuffer(*device_addr, static_cast<u32>(segment_size), false);
+            if (!buffer_id) {
+                pool.resize(first);
+                return;
+            }
+            pool.push_back(MultiRangeSegment{
+                .buffer_id = buffer_id,
+                .device_addr = *device_addr,
+                .size = static_cast<u32>(segment_size),
+            });
+        }
+        binding.segment_first = first;
+        binding.segment_count = static_cast<u32>(segments.size());
+    }
+}
+
+template <class P>
 void BufferCache<P>::BindHostGraphicsStorageBuffers(size_t stage) {
     u32 binding_index = 0;
     ForEachEnabledBit(channel_state->enabled_storage_buffers[stage], [&](u32 index) {
         const Binding& binding = channel_state->storage_buffers[stage][index];
+        const bool is_written = ((channel_state->written_storage_buffers[stage] >> index) & 1) != 0;
+        if (BindMultiRangeStorage(binding, is_written, graphics_segments)) {
+            return;
+        }
         Buffer& buffer = slot_buffers[binding.buffer_id];
         TouchBuffer(buffer, binding.buffer_id);
         const u32 size = binding.size;
@@ -1011,7 +1080,6 @@ void BufferCache<P>::BindHostGraphicsStorageBuffers(size_t stage) {
 
         const u32 offset = buffer.Offset(binding.device_addr);
         buffer.MarkUsage(offset, size);
-        const bool is_written = ((channel_state->written_storage_buffers[stage] >> index) & 1) != 0;
 
         if (is_written) {
             MarkWrittenBuffer(binding.buffer_id, binding.device_addr, size);
@@ -1140,6 +1208,11 @@ void BufferCache<P>::BindHostComputeStorageBuffers() {
     u32 binding_index = 0;
     ForEachEnabledBit(channel_state->enabled_compute_storage_buffers, [&](u32 index) {
         const Binding& binding = channel_state->compute_storage_buffers[index];
+        const bool is_written =
+            ((channel_state->written_compute_storage_buffers >> index) & 1) != 0;
+        if (BindMultiRangeStorage(binding, is_written, compute_segments)) {
+            return;
+        }
         Buffer& buffer = slot_buffers[binding.buffer_id];
         TouchBuffer(buffer, binding.buffer_id);
         const u32 size = binding.size;
@@ -1147,8 +1220,6 @@ void BufferCache<P>::BindHostComputeStorageBuffers() {
 
         const u32 offset = buffer.Offset(binding.device_addr);
         buffer.MarkUsage(offset, size);
-        const bool is_written =
-            ((channel_state->written_compute_storage_buffers >> index) & 1) != 0;
 
         if (is_written) {
             MarkWrittenBuffer(binding.buffer_id, binding.device_addr, size);
@@ -1194,6 +1265,7 @@ void BufferCache<P>::BindHostComputeTextureBuffers() {
 
 template <class P>
 void BufferCache<P>::DoUpdateGraphicsBuffers(bool is_indexed) {
+    graphics_segments.clear();
     BufferOperations([&]() {
         if (is_indexed) {
             UpdateIndexBuffer();
@@ -1213,6 +1285,7 @@ void BufferCache<P>::DoUpdateGraphicsBuffers(bool is_indexed) {
 
 template <class P>
 void BufferCache<P>::DoUpdateComputeBuffers() {
+    compute_segments.clear();
     BufferOperations([&]() {
         UpdateComputeUniformBuffers();
         UpdateComputeStorageBuffers();
@@ -1355,6 +1428,8 @@ void BufferCache<P>::UpdateStorageBuffers(size_t stage) {
         Binding& binding = channel_state->storage_buffers[stage][index];
         const BufferId buffer_id = FindBuffer(binding.device_addr, binding.size);
         binding.buffer_id = buffer_id;
+        const bool is_written = ((channel_state->written_storage_buffers[stage] >> index) & 1) != 0;
+        ResolveMultiRangeStorage(binding, is_written, graphics_segments);
     });
 }
 
@@ -1418,6 +1493,9 @@ void BufferCache<P>::UpdateComputeStorageBuffers() {
         // Resolve buffer
         Binding& binding = channel_state->compute_storage_buffers[index];
         binding.buffer_id = FindBuffer(binding.device_addr, binding.size);
+        const bool is_written =
+            ((channel_state->written_compute_storage_buffers >> index) & 1) != 0;
+        ResolveMultiRangeStorage(binding, is_written, compute_segments);
     });
 }
 
@@ -1939,6 +2017,7 @@ Binding BufferCache<P>::StorageBufferBinding(GPUVAddr ssbo_addr, u32 cbuf_index,
         .device_addr = *aligned_device_addr,
         .size = is_written ? aligned_size : static_cast<u32>(cpu_end - *aligned_device_addr),
         .buffer_id = BufferId{},
+        .gpu_addr = aligned_gpu_addr,
     };
     return binding;
 }
