@@ -39,6 +39,7 @@ enum class BooleanSetting(override val key: String) : AbstractBooleanSetting {
     MOONWITCH_MAXIMUM_COMPATIBILITY("moonwitch_maximum_compatibility"),
     MOONWITCH_RENDER_TARGET_INIT_ALIAS_GUARD("moonwitch_render_target_init_alias_guard"),
     MOONWITCH_TEXTURE_COHERENCY("moonwitch_texture_coherency"),
+    MOONWITCH_FORCE_CPU_WRITE_INVALIDATION("moonwitch_force_cpu_write_invalidation"),
     SYNC_MEMORY_OPERATIONS("sync_memory_operations"),
     BUFFER_REORDER_DISABLE("disable_buffer_reorder"),
     RENDERER_DEBUG("debug"),
