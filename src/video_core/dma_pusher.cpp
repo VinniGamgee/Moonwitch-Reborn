@@ -22,8 +22,6 @@ DmaPusher::DmaPusher(Core::System& system_, MemoryManager& memory_manager_, Cont
     : system{system_}
     , memory_manager{memory_manager_}
     , channel_state{channel_state_}
-    , signal_sync{false}
-    , synced{false}
 {}
 
 DmaPusher::~DmaPusher() = default;
@@ -66,11 +64,8 @@ bool DmaPusher::Step() {
     const CommandListHeader& header = current_command;
     dma_state.dma_get = header.addr;
 
-    if (signal_sync && !synced) {
-        std::unique_lock lk(sync_mutex);
-        sync_cv.wait(lk, [this]() { return synced; });
-        signal_sync = false;
-        synced = false;
+    if (header.sync && Settings::values.sync_memory_operations.GetValue()) {
+        rasterizer->WaitForFence();
     }
 
     if (header.size > 0 && dma_state.method >= MacroRegistersStart && subchannels[dma_state.subchannel]) {
@@ -91,16 +86,6 @@ bool DmaPusher::Step() {
     if (++dma_pushbuffer_subindex >= command_list_size) {
         dma_pushbuffer.pop();
         dma_pushbuffer_subindex = 0;
-    } else {
-        signal_sync = command_list.command_lists[dma_pushbuffer_subindex].sync && Settings::values.sync_memory_operations.GetValue();
-    }
-
-    if (signal_sync) {
-        rasterizer->SignalFence([this]() {
-            std::scoped_lock lk(sync_mutex);
-            synced = true;
-            sync_cv.notify_all();
-        });
     }
 
     return true;
