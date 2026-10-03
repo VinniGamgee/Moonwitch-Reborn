@@ -666,6 +666,13 @@ struct Values {
                                                   true,
                                                   true};
 
+    // Diagnostic: keep Vulkan buffer-cache entries alive instead of evicting them through the
+    // normal LRU garbage collector. This isolates buffer lifetime/reuse corruption without
+    // changing synchronization or upload semantics.
+    SwitchableSetting<bool> moonwitch_preserve_buffer_cache{
+        linkage, false, "moonwitch_preserve_buffer_cache", Category::RendererAdvanced,
+        Specialization::Default, true, true};
+
 #ifdef __ANDROID__
     SwitchableSetting<bool> use_optimized_vertex_buffers{linkage,
                                                  false,
