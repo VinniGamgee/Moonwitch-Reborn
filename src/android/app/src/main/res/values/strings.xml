@@ -1238,6 +1238,8 @@
 
     <!-- Moonwitch Texture Coherency -->
     <string name="mw_texture_coherency_title">Texture Coherency</string>
+    <string name="mw_force_cpu_write_invalidation_title">Force CPU-write invalidation</string>
+    <string name="mw_force_cpu_write_invalidation_description">Diagnostic: when a CPU write hits a GPU-modified buffer region, continue invalidating texture and pipeline caches instead of returning early. Does not change synchronization.</string>
     <string name="mw_texture_coherency_description">Adds a targeted Vulkan visibility barrier when a GPU-modified image is consumed again as a texture. It runs once per modification and does not force GPU WaitIdle.</string>
 
     <!-- Moonwitch Selective Shader Precision -->
