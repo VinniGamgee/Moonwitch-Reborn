@@ -83,6 +83,15 @@ struct Binding {
     DAddr device_addr{};
     u32 size{};
     BufferId buffer_id;
+    GPUVAddr gpu_addr{};
+    u32 segment_first{};
+    u32 segment_count{};
+};
+
+struct MultiRangeSegment {
+    BufferId buffer_id;
+    DAddr device_addr{};
+    u32 size{};
 };
 
 struct TextureBufferBinding : Binding {
@@ -234,6 +243,12 @@ public:
     void UpdateGraphicsBuffers(bool is_indexed);
 
     void UpdateComputeBuffers();
+
+    bool BindMultiRangeStorage(const Binding& binding, bool is_written,
+                               std::span<const MultiRangeSegment> pool);
+
+    void ResolveMultiRangeStorage(Binding& binding, bool is_written,
+                                  std::vector<MultiRangeSegment>& pool);
 
     void BindHostGeometryBuffers(bool is_indexed);
 
@@ -491,6 +506,8 @@ private:
     std::array<Binding, 32> v_buffer{};
 
     boost::container::small_vector<BufferCopy, 4> upload_copies;
+    std::vector<MultiRangeSegment> graphics_segments;
+    std::vector<MultiRangeSegment> compute_segments;
 
     MemoryTracker memory_tracker;
     Common::RangeSet<DAddr> uncommitted_gpu_modified_ranges;
