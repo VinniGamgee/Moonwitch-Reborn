@@ -402,11 +402,128 @@ u32 BufferCacheRuntime::GetStorageBufferAlignment() const {
 }
 
 void BufferCacheRuntime::TickFrame(Common::SlotVector<Buffer>& slot_buffers) noexcept {
+    DrainRetiredMultiRangeBuffers();
     for (auto it = slot_buffers.begin(); it != slot_buffers.end(); it++) {
         if (scheduler.IsFree(it->LastUsageTick())) {
             it->ResetUsageTracking();
         }
     }
+}
+
+u64 BufferCacheRuntime::MultiRangeSignature() const noexcept {
+    // The source write ticks let us reuse the gathered buffer until one of its
+    // physical segments changes. Geometry changes are handled by the key.
+    u64 hash = 1469598103934665603ULL;
+    for (const MultiRangeSource& source : multi_range_sources) {
+        hash ^= static_cast<u64>(reinterpret_cast<uintptr_t>(source.handle));
+        hash *= 1099511628211ULL;
+        hash ^= source.offset;
+        hash *= 1099511628211ULL;
+        hash ^= source.size;
+        hash *= 1099511628211ULL;
+        hash ^= source.write_tick;
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}
+
+void BufferCacheRuntime::DrainRetiredMultiRangeBuffers() {
+    size_t index = 0;
+    while (index < retired_multi_range_buffers.size()) {
+        if (scheduler.IsFree(retired_multi_range_buffers[index].tick)) {
+            retired_multi_range_buffers[index] =
+                std::move(retired_multi_range_buffers.back());
+            retired_multi_range_buffers.pop_back();
+        } else {
+            ++index;
+        }
+    }
+}
+
+bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
+    if (is_written || multi_range_sources.size() < 2 || multi_range_total == 0) {
+        return false;
+    }
+
+    const u64 signature = MultiRangeSignature();
+    MultiRangeEntry* entry = nullptr;
+    for (auto& candidate : multi_range_entries) {
+        if (candidate.key == key) {
+            entry = &candidate;
+            break;
+        }
+    }
+
+    if (!entry) {
+        multi_range_entries.push_back(MultiRangeEntry{.key = key});
+        entry = &multi_range_entries.back();
+    }
+
+    if (entry->buffer && !entry->dirty && entry->signature == signature) {
+        const VkDeviceAddress address =
+            device.IsBufferDeviceAddressSupported()
+                ? device.GetLogical().GetBufferDeviceAddress(*entry->buffer)
+                : 0;
+        guest_descriptor_queue.AddBuffer(*entry->buffer, address, 0, multi_range_total);
+        return true;
+    }
+
+    if (entry->buffer) {
+        retired_multi_range_buffers.push_back(
+            RetiredMultiRangeBuffer{.buffer = std::move(entry->buffer),
+                                    .tick = scheduler.CurrentTick()});
+    }
+
+    const VkBufferCreateInfo create_info{
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .size = multi_range_total,
+        .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 0,
+        .pQueueFamilyIndices = nullptr,
+    };
+    if (device.IsBufferDeviceAddressSupported()) {
+        // Recreate the flags with shader device address support.
+        const VkBufferCreateInfo address_create_info{
+            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = VK_BUFFER_CREATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT,
+            .size = create_info.size,
+            .usage = create_info.usage | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+            .sharingMode = create_info.sharingMode,
+            .queueFamilyIndexCount = 0,
+            .pQueueFamilyIndices = nullptr,
+        };
+        entry->buffer = memory_allocator.CreateBuffer(address_create_info, MemoryUsage::DeviceLocal);
+    } else {
+        entry->buffer = memory_allocator.CreateBuffer(create_info, MemoryUsage::DeviceLocal);
+    }
+
+    PreCopyBarrier();
+    u64 dst_offset = 0;
+    for (const MultiRangeSource& source : multi_range_sources) {
+        const std::array<VideoCommon::BufferCopy, 1> copy{
+            VideoCommon::BufferCopy{
+                .src_offset = source.offset,
+                .dst_offset = dst_offset,
+                .size = source.size,
+            }};
+        CopyBuffer(*entry->buffer, source.handle, copy, false);
+        dst_offset += source.size;
+    }
+    PostCopyBarrier();
+
+    entry->signature = signature;
+    entry->dirty = false;
+    const VkDeviceAddress address =
+        device.IsBufferDeviceAddressSupported()
+            ? device.GetLogical().GetBufferDeviceAddress(*entry->buffer)
+            : 0;
+    guest_descriptor_queue.AddBuffer(*entry->buffer, address, 0, multi_range_total);
+    return true;
 }
 
 u64 BufferCacheRuntime::CurrentTick() {
