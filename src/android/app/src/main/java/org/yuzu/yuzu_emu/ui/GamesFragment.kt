@@ -343,7 +343,7 @@ class GamesFragment : Fragment() {
         }
 
         binding.clearButton.setOnClickListener { binding.searchText.setText("") }
-        binding.searchBackground?.setOnClickListener { focusSearch() }
+        binding.searchBackground.setOnClickListener { focusSearch() }
 
         // Setup view button
         binding.viewButton.setOnClickListener { showViewMenu(it) }
