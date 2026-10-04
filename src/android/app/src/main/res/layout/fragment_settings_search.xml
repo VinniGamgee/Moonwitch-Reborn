@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/moonwitch_background">
 
     <RelativeLayout
         android:id="@+id/relativeLayout"
@@ -49,8 +50,9 @@
 
     <FrameLayout
         android:id="@+id/frame_search"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="12dp"
         android:clipToPadding="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,10 +60,13 @@
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/search_background"
-            style="?attr/materialCardViewFilledStyle"
+            
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            app:cardCornerRadius="28dp">
+            android:layout_height="54dp"
+            app:cardBackgroundColor="@color/mw_ui_surface"
+            app:cardCornerRadius="18dp"
+            app:strokeColor="@color/mw_ui_border_accent"
+            app:strokeWidth="1dp">
 
             <LinearLayout
                 android:id="@+id/search_container"

@@ -280,26 +280,17 @@ class CarouselRecyclerView @JvmOverloads constructor(
     }
 
     fun cardSize(bottomInset: Int): Int {
-        val internalFactor = resources.getFraction(R.fraction.carousel_card_size_factor, 1, 1)
-        val userFactor = preferences.getFloat(CAROUSEL_CARD_SIZE_FACTOR, internalFactor).coerceIn(
-            0f,
-            1f
-        )
-        val scaledHeight = height * userFactor
-        val availableHeight = height - bottomInset
-
-        // Tall phones (target: POCO F5 / 20:9) should feel composed rather than stretched.
-        // The centered card occupies most of the usable width while still revealing
-        // neighboring games as a clear swipe affordance.
-        val portraitWidthCap = if (
-            resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT && width > 0
-        ) {
-            (width * 0.78f).toInt()
-        } else {
-            Int.MAX_VALUE
+        val availableHeight = (height - bottomInset).coerceAtLeast(1)
+        val density = resources.displayMetrics.density
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT && width > 0) {
+            val minSize = (88f * density).toInt()
+            val maxSize = (112f * density).toInt()
+            val preferred = (width * 0.255f).toInt().coerceIn(minSize, maxSize)
+            return minOf(preferred, availableHeight)
         }
-
-        return minOf(scaledHeight.toInt(), availableHeight.toInt(), portraitWidthCap)
+        val internalFactor = resources.getFraction(R.fraction.carousel_card_size_factor, 1, 1)
+        val userFactor = preferences.getFloat(CAROUSEL_CARD_SIZE_FACTOR, internalFactor).coerceIn(0f, 1f)
+        return minOf((height * userFactor).toInt(), availableHeight)
     }
 
     fun setupCarousel(enabled: Boolean) {
@@ -319,7 +310,8 @@ class CarouselRecyclerView @JvmOverloads constructor(
             val cardSize = gameAdapter.cardSize
 
             val internalOverlapFactor = resources.getFraction(R.fraction.carousel_overlap_factor,1,1)
-            overlapFactor = preferences.getFloat(CAROUSEL_OVERLAP_FACTOR, internalOverlapFactor).coerceIn(0f,1f)
+            overlapFactor = if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) 0f
+                else preferences.getFloat(CAROUSEL_OVERLAP_FACTOR, internalOverlapFactor).coerceIn(0f,1f)
             overlapPx = (cardSize * overlapFactor).toInt()
 
             val internalFlingMultiplier = resources.getFraction(R.fraction.carousel_fling_multiplier,1,1)

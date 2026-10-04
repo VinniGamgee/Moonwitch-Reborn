@@ -211,7 +211,7 @@ class GameAdapter(private val activity: AppCompatActivity) :
         private fun bindCarouselView(model: Game) {
             val carouselBinding = binding as CardGameCarouselBinding
 
-            carouselBinding.imageGameScreen.scaleType = ImageView.ScaleType.CENTER_CROP
+            carouselBinding.imageGameScreen.scaleType = ImageView.ScaleType.FIT_CENTER
             GameIconUtils.loadGameIcon(model, carouselBinding.imageGameScreen)
 
             carouselBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
