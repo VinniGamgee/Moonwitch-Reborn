@@ -19,8 +19,6 @@
 namespace GPU::Logging {
 
 namespace {
-constexpr std::string_view kBlackBoxPrefix{"[BLACKBOX]"};
-
 std::chrono::microseconds NowSteady() {
     return std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::steady_clock::now().time_since_epoch());
@@ -68,7 +66,6 @@ bool BlackBoxRecorder::ShouldAutoDump(std::chrono::microseconds now,
 void BlackBoxRecorder::Record(std::string_view event, u64 address, u64 size, u64 extra) {
     const auto now = NowSteady();
     bool auto_dump = false;
-    Entry snapshot_entry{};
 
     {
         std::lock_guard lock(mutex);
@@ -85,7 +82,6 @@ void BlackBoxRecorder::Record(std::string_view event, u64 address, u64 size, u64
         ring_index = (ring_index + 1) % RING_SIZE;
         entry_count = std::min(entry_count + 1, RING_SIZE);
         auto_dump = ShouldAutoDump(now, event);
-        snapshot_entry = entry;
     }
 
     if (auto_dump) {
