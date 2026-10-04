@@ -8,7 +8,6 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.pm.ShortcutInfoCompat
@@ -215,9 +214,8 @@ class GameAdapter(private val activity: AppCompatActivity) :
             carouselBinding.imageGameScreen.scaleType = ImageView.ScaleType.CENTER_CROP
             GameIconUtils.loadGameIcon(model, carouselBinding.imageGameScreen)
 
-            val carouselTitle = carouselBinding.root.findViewById<TextView>(R.id.text_game_title)
-            carouselTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
-            carouselTitle.marquee()
+            carouselBinding.textGameTitle.text = model.title.replace("[\\t\\n\\r]+".toRegex(), " ")
+            carouselBinding.textGameTitle.marquee()
             carouselBinding.cardGameCarousel.setOnClickListener { onClick(model) }
             carouselBinding.cardGameCarousel.setOnLongClickListener { onLongClick(model) }
 
