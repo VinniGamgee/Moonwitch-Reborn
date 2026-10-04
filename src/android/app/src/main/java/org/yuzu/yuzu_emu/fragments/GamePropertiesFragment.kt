@@ -602,7 +602,7 @@ class GamePropertiesFragment : Fragment() {
     }
 
     private fun refreshFavoriteAction() {
-        binding.actionFavoriteIcon?.setImageResource(
+        binding.actionFavoriteIcon.setImageResource(
             if (isFavorite()) R.drawable.ic_mw_star_filled else R.drawable.ic_mw_star
         )
     }
