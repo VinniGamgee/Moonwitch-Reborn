@@ -683,7 +683,6 @@ class SettingsFragmentPresenter(
             add(IntSetting.MOONWITCH_SAFE_GPU_BARRIERS_MODE.key)
             add(BooleanSetting.MOONWITCH_RENDER_TARGET_INIT_ALIAS_GUARD.key)
             add(BooleanSetting.MOONWITCH_TEXTURE_COHERENCY.key)
-            add(BooleanSetting.MOONWITCH_FORCE_CPU_WRITE_INVALIDATION.key)
             add(IntSetting.MOONWITCH_SHADER_PRECISION_MODE.key)
 
             add(BooleanSetting.SYNC_MEMORY_OPERATIONS.key)
