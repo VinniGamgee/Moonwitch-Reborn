@@ -5,5 +5,5 @@
         android:top="12dp"
         android:right="12dp"
         android:bottom="12dp"
-        android:drawable="@drawable/ic_moonwitch_mark" />
+        android:drawable="@drawable/moonwitch_app_icon" />
 </layer-list>

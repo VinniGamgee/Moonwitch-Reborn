@@ -13,7 +13,7 @@
         android:layout_height="390dp"
         android:alpha="0.04"
         android:contentDescription="@null"
-        android:src="@drawable/ic_moonwitch_mark"
+        android:src="@drawable/moonwitch_app_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +43,7 @@
                 android:layout_height="44dp"
                 android:layout_marginStart="14dp"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_moonwitch_mark"
+                android:src="@drawable/moonwitch_app_icon"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -4,6 +4,7 @@
 package org.yuzu.yuzu_emu.ui
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
@@ -286,7 +287,19 @@ class CarouselRecyclerView @JvmOverloads constructor(
         )
         val scaledHeight = height * userFactor
         val availableHeight = height - bottomInset
-        return minOf(scaledHeight.toInt(), availableHeight.toInt())
+
+        // Tall phones (target: POCO F5 / 20:9) should feel composed rather than stretched.
+        // The centered card occupies most of the usable width while still revealing
+        // neighboring games as a clear swipe affordance.
+        val portraitWidthCap = if (
+            resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT && width > 0
+        ) {
+            (width * 0.78f).toInt()
+        } else {
+            Int.MAX_VALUE
+        }
+
+        return minOf(scaledHeight.toInt(), availableHeight.toInt(), portraitWidthCap)
     }
 
     fun setupCarousel(enabled: Boolean) {

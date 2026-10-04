@@ -111,9 +111,14 @@ class GamesFragment : Fragment() {
 
     private fun getCurrentViewType(): Int {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val key = if (isLandscape) CarouselRecyclerView.CAROUSEL_VIEW_TYPE_LANDSCAPE else CarouselRecyclerView.CAROUSEL_VIEW_TYPE_PORTRAIT
-        val fallback = if (isLandscape) GameAdapter.VIEW_TYPE_CAROUSEL else GameAdapter.VIEW_TYPE_GRID
-        return preferences.getInt(key, fallback)
+
+        // Reformulation: portrait is intentionally a single, swipe-first library.
+        // Keeping this deterministic also prevents an old grid preference from restoring
+        // the Eden/Yuzu-style library after installing the experimental build.
+        if (!isLandscape) return GameAdapter.VIEW_TYPE_CAROUSEL
+
+        val key = CarouselRecyclerView.CAROUSEL_VIEW_TYPE_LANDSCAPE
+        return preferences.getInt(key, GameAdapter.VIEW_TYPE_CAROUSEL)
     }
 
     private fun setCurrentViewType(type: Int) {
@@ -148,6 +153,9 @@ class GamesFragment : Fragment() {
 
         binding.libraryHeroOpen?.setOnClickListener {
             highlightedGame?.let(::openGameHub)
+        }
+        binding.libraryHeroPlay?.setOnClickListener {
+            highlightedGame?.let(::launchGame)
         }
 
         binding.swipeRefresh.apply {
@@ -225,7 +233,7 @@ class GamesFragment : Fragment() {
         (binding.gridGames as? RecyclerView)?.apply {
             val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             val currentViewType = getCurrentViewType()
-            val savedViewType = if (isLandscape || currentViewType != GameAdapter.VIEW_TYPE_CAROUSEL) currentViewType else GameAdapter.VIEW_TYPE_GRID
+            val savedViewType = currentViewType
 
             //This prevents Grid/List views from reusing scaled or otherwise modified ViewHolders left over from the carousel.
             adapter = null
@@ -506,6 +514,7 @@ class GamesFragment : Fragment() {
             heroTitle.setText(R.string.mw_home_frontend_empty_title)
             heroMeta.setText(R.string.mw_home_frontend_empty_meta)
             heroOpen.isEnabled = false
+            currentBinding.libraryHeroPlay?.isEnabled = false
             heroBackdrop.setImageDrawable(null)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) heroBackdrop.setRenderEffect(null)
             return
@@ -548,6 +557,7 @@ class GamesFragment : Fragment() {
         heroTitle.text = game.title.replace("[\\t\\n\\r]+".toRegex(), " ")
         heroMeta.text = buildHeroMeta(game)
         heroOpen.isEnabled = true
+        currentBinding.libraryHeroPlay?.isEnabled = true
         if (!same || forceArtworkReload) loadLibraryHeroArtwork(game)
     }
 
@@ -625,6 +635,16 @@ class GamesFragment : Fragment() {
             return
         }
         findNavController().navigate(HomeNavigationDirections.actionGlobalPerGamePropertiesFragment(game))
+    }
+
+    private fun launchGame(game: Game) {
+        val exists = DocumentFile.fromSingleUri(requireContext(), android.net.Uri.parse(game.path))?.exists() == true
+        if (!exists) {
+            Toast.makeText(requireContext(), R.string.loader_error_file_not_found, Toast.LENGTH_LONG).show()
+            gamesViewModel.reloadGames(true)
+            return
+        }
+        findNavController().navigate(HomeNavigationDirections.actionGlobalEmulationActivity(game))
     }
 
     private fun focusSearch() {

@@ -1,17 +1,20 @@
-name: Moonwitch Android PGO
+name: Moonwitch Reformulation Android
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - reformulation
 
 jobs:
-  build-pgo:
+  build-reformulation:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
       PGO: 'true'
       CCACHE: 'false'
     steps:
-      - name: Checkout
+      - name: Checkout reformulation
         uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -31,16 +34,16 @@ jobs:
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.31.6"
 
-      - name: Build PGO APK
+      - name: Build experimental APK
         shell: bash
         run: |
           chmod +x .ci/android/build.sh src/android/gradlew
           .ci/android/build.sh -n -t standard -b Release
 
-      - name: Upload PGO APK
+      - name: Upload experimental APK
         uses: actions/upload-artifact@v4
         with:
-          name: MOONWITCH-ANDROID-PGO
+          name: MOONWITCH-REFORMULATION
           path: artifacts/*
           if-no-files-found: error
           retention-days: 7
