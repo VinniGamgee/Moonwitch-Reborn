@@ -784,6 +784,9 @@ void RasterizerVulkan::InvalidateRegion(DAddr addr, u64 size, VideoCommon::Cache
     if (addr == 0 || size == 0) {
         return;
     }
+
+    GPU::Logging::BlackBoxRecorder::GetInstance().Record(
+        "CACHE_INVALIDATE", addr, size, static_cast<u64>(which));
     if (True(which & VideoCommon::CacheType::TextureCache)) {
         std::scoped_lock lock{texture_cache.mutex};
         texture_cache.WriteMemory(addr, size);
@@ -995,6 +998,7 @@ void RasterizerVulkan::FlushCommands() {
 
 void RasterizerVulkan::TickFrame() {
     draw_counter = 0;
+    GPU::Logging::BlackBoxRecorder::GetInstance().Frame();
 
     if (++moonwitch_barrier_report_frames >= 300) {
         if (moonwitch_fragment_barrier_count != 0 || moonwitch_tiled_barrier_count != 0) {
