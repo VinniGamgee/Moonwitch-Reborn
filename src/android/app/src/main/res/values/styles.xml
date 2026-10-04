@@ -202,9 +202,12 @@
     </style>
 
     <style name="Widget.Eden.TransparentTopToolbar" parent="">
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">@drawable/mw_reformulation_toolbar_surface</item>
         <item name="android:elevation">0dp</item>
         <item name="backgroundTint">@android:color/transparent</item>
+        <item name="titleTextColor">@color/mw_ui_text</item>
+        <item name="subtitleTextColor">@color/mw_ui_text_2</item>
+        <item name="navigationIconTint">@color/mw_ui_text</item>
     </style>
 
     <style name="EdenPopupMenu" parent="Widget.Material3.PopupMenu">

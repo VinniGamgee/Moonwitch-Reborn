@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.Yuzu.Splash.Main" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/eden_background</item>
+        <item name="windowSplashScreenBackground">@color/mw_ui_bg</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_moonwitch_splash</item>
         <item name="postSplashScreenTheme">@style/Theme.Moonwitch.Main</item>
     </style>
@@ -29,35 +29,35 @@
 
     <style name="Theme.Moonwitch.Main" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary colors -->
-        <item name="colorPrimary">@color/eden_primary</item>
-        <item name="colorOnPrimary">@color/eden_on_primary</item>
-        <item name="colorPrimaryContainer">@color/eden_primary_variant</item>
-        <item name="colorOnPrimaryContainer">@color/eden_on_primary</item>
+        <item name="colorPrimary">@color/mw_ui_accent</item>
+        <item name="colorOnPrimary">@color/mw_ui_text</item>
+        <item name="colorPrimaryContainer">@color/mw_ui_accent_variant</item>
+        <item name="colorOnPrimaryContainer">@color/mw_ui_text</item>
         <!-- Secondary colors -->
-        <item name="colorSecondary">@color/eden_secondary</item>
-        <item name="colorOnSecondary">@color/eden_on_secondary</item>
-        <item name="colorSecondaryContainer">@color/eden_secondary_variant</item>
-        <item name="colorOnSecondaryContainer">@color/eden_on_secondary</item>
+        <item name="colorSecondary">@color/mw_ui_accent_hi</item>
+        <item name="colorOnSecondary">@color/mw_ui_bg</item>
+        <item name="colorSecondaryContainer">@color/mw_ui_accent_hi_variant</item>
+        <item name="colorOnSecondaryContainer">@color/mw_ui_bg</item>
         <!-- Tertiary colors -->
-        <item name="colorTertiary">@color/eden_accent_purple</item>
-        <item name="colorOnTertiary">@color/eden_on_primary</item>
-        <item name="colorTertiaryContainer">@color/eden_accent_blue</item>
-        <item name="colorOnTertiaryContainer">@color/eden_on_primary</item>
+        <item name="colorTertiary">@color/mw_ui_accent_hi</item>
+        <item name="colorOnTertiary">@color/mw_ui_text</item>
+        <item name="colorTertiaryContainer">@color/mw_ui_accent</item>
+        <item name="colorOnTertiaryContainer">@color/mw_ui_text</item>
         <!-- Background and surface -->
-        <item name="android:colorBackground">@color/eden_background</item>
-        <item name="colorOnBackground">@color/eden_on_background</item>
-        <item name="colorSurface">@color/eden_surface</item>
-        <item name="colorOnSurface">@color/eden_on_surface</item>
-        <item name="colorSurfaceVariant">@color/eden_surface_variant</item>
-        <item name="colorOnSurfaceVariant">@color/eden_on_surface</item>
+        <item name="android:colorBackground">@color/mw_ui_bg</item>
+        <item name="colorOnBackground">@color/mw_ui_text</item>
+        <item name="colorSurface">@color/mw_ui_surface</item>
+        <item name="colorOnSurface">@color/mw_ui_text</item>
+        <item name="colorSurfaceVariant">@color/mw_ui_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/mw_ui_text</item>
         <!-- Outline and borders -->
-        <item name="colorOutline">@color/eden_border</item>
-        <item name="colorOutlineVariant">@color/eden_border_light</item>
+        <item name="colorOutline">@color/mw_ui_border</item>
+        <item name="colorOutlineVariant">@color/mw_ui_border_accent</item>
         <!-- Error colors -->
         <item name="colorError">@color/eden_error</item>
         <item name="colorErrorContainer">@color/eden_error</item>
-        <item name="colorOnError">@color/eden_on_primary</item>
-        <item name="colorOnErrorContainer">@color/eden_on_primary</item>
+        <item name="colorOnError">@color/mw_ui_text</item>
+        <item name="colorOnErrorContainer">@color/mw_ui_text</item>
         <!-- System UI -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -73,7 +73,7 @@
         <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
         <!-- Popup menu theme -->
         <item name="popupMenuStyle">@style/EdenPopupMenu</item>
-        <item name="android:textColorPrimary">@color/eden_on_background</item>
+        <item name="android:textColorPrimary">@color/mw_ui_text</item>
         <item name="android:itemTextAppearance">@style/TextAppearance.Material3.BodyLarge</item>
     </style>
 
