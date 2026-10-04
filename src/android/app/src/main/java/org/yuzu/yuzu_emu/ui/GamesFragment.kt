@@ -112,10 +112,9 @@ class GamesFragment : Fragment() {
     private fun getCurrentViewType(): Int {
         val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        // Reformulation: portrait is intentionally a single, swipe-first library.
-        // Keeping this deterministic also prevents an old grid preference from restoring
-        // the Eden/Yuzu-style library after installing the experimental build.
-        if (!isLandscape) return GameAdapter.VIEW_TYPE_CAROUSEL
+        // GameHub-style portrait library: dense 16:9 tiles with a featured game above.
+        // Keep it deterministic so legacy Eden/Yuzu view preferences cannot leak back in.
+        if (!isLandscape) return GameAdapter.VIEW_TYPE_GRID_COMPACT
 
         val key = CarouselRecyclerView.CAROUSEL_VIEW_TYPE_LANDSCAPE
         return preferences.getInt(key, GameAdapter.VIEW_TYPE_CAROUSEL)
@@ -252,7 +251,11 @@ class GamesFragment : Fragment() {
                     GridLayoutManager(context, columns)
                 }
                 GameAdapter.VIEW_TYPE_GRID_COMPACT -> {
-                    val columns = resources.getInteger(R.integer.game_columns_grid)
+                    val columns = if (isLandscape) {
+                        resources.getInteger(R.integer.game_columns_grid)
+                    } else {
+                        2
+                    }
                     GridLayoutManager(context, columns)
                 }
                 GameAdapter.VIEW_TYPE_LIST -> {
@@ -363,6 +366,39 @@ class GamesFragment : Fragment() {
 
         // Setup settings button
         binding.settingsButton.setOnClickListener { navigateToSettings() }
+
+        binding.libraryTabAll?.setOnClickListener {
+            currentFilter = R.id.alphabetical
+            preferences.edit { putInt(PREF_SORT_TYPE, currentFilter) }
+            filterAndSearch()
+            updateGameHubTabs()
+        }
+        binding.libraryTabRecent?.setOnClickListener {
+            currentFilter = R.id.filter_recently_played
+            preferences.edit { putInt(PREF_SORT_TYPE, currentFilter) }
+            filterAndSearch()
+            updateGameHubTabs()
+        }
+        binding.libraryTabFavorites?.setOnClickListener {
+            currentFilter = R.id.filter_favorites
+            preferences.edit { putInt(PREF_SORT_TYPE, currentFilter) }
+            filterAndSearch()
+            updateGameHubTabs()
+        }
+        binding.bottomSettings?.setOnClickListener { navigateToSettings() }
+        binding.bottomLibrary?.setOnClickListener { scrollToTop() }
+        updateGameHubTabs()
+    }
+
+    private fun updateGameHubTabs() {
+        val selectedAlpha = 1f
+        val idleAlpha = 0.48f
+        binding.libraryTabAll?.alpha =
+            if (currentFilter == R.id.alphabetical || currentFilter == R.id.filter_recently_added) selectedAlpha else idleAlpha
+        binding.libraryTabRecent?.alpha =
+            if (currentFilter == R.id.filter_recently_played) selectedAlpha else idleAlpha
+        binding.libraryTabFavorites?.alpha =
+            if (currentFilter == R.id.filter_favorites) selectedAlpha else idleAlpha
     }
 
     private fun navigateToSettings() {
@@ -452,6 +488,7 @@ class GamesFragment : Fragment() {
             currentFilter = item.itemId
             preferences.edit { putInt(PREF_SORT_TYPE, currentFilter) }
             filterAndSearch()
+            updateGameHubTabs()
             true
         }
 
