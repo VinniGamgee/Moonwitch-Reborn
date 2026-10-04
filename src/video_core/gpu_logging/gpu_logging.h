@@ -4,6 +4,8 @@
 #pragma once
 
 #include <array>
+#include <atomic>
+#include <string_view>
 #include <chrono>
 #include <memory>
 #include <mutex>
@@ -193,5 +195,57 @@ inline const char* GetShaderStageName(size_t stage_index) {
     };
     return stage_index < stage_names.size() ? stage_names[stage_index] : "unknown";
 }
+
+/**
+ * Independent Vulkan black-box recorder.
+ *
+ * This deliberately does not depend on GPULogger log level. It keeps a bounded
+ * in-memory history of cache/resource lifecycle events and only touches the
+ * filesystem when an anomaly is detected or a dump is explicitly requested.
+ */
+class BlackBoxRecorder {
+public:
+    static BlackBoxRecorder& GetInstance();
+
+    BlackBoxRecorder(const BlackBoxRecorder&) = delete;
+    BlackBoxRecorder& operator=(const BlackBoxRecorder&) = delete;
+
+    void Record(std::string_view event, u64 address = 0, u64 size = 0, u64 extra = 0);
+    void Frame();
+    void TriggerDump(std::string_view reason);
+    bool IsEnabled() const noexcept;
+
+private:
+    struct Entry {
+        std::chrono::microseconds timestamp{};
+        u64 frame = 0;
+        u64 address = 0;
+        u64 size = 0;
+        u64 extra = 0;
+        std::array<char, 24> event{};
+    };
+
+    BlackBoxRecorder() = default;
+    ~BlackBoxRecorder() = default;
+
+    void Dump(std::string_view reason, std::span<const Entry> entries);
+    bool ShouldAutoDump(std::chrono::microseconds now, std::string_view event);
+
+    static constexpr size_t RING_SIZE = 65536;
+    static constexpr std::chrono::seconds HISTORY = std::chrono::seconds(60);
+    static constexpr std::chrono::milliseconds BURST_WINDOW =
+        std::chrono::milliseconds(500);
+    static constexpr u32 BURST_THRESHOLD = 512;
+
+    std::array<Entry, RING_SIZE> ring{};
+    size_t ring_index = 0;
+    size_t entry_count = 0;
+    u64 frame_counter = 0;
+    std::chrono::microseconds last_auto_dump{};
+    u32 burst_count = 0;
+    std::chrono::microseconds burst_start{};
+    mutable std::mutex mutex;
+    std::atomic<bool> dumping{false};
+};
 
 } // namespace GPU::Logging
