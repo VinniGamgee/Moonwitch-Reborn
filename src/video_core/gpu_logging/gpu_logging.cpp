@@ -317,6 +317,12 @@ void GPULogger::Shutdown() {
 
 void GPULogger::LogVulkanCall(const std::string& call_name, const std::string& params,
                               int result) {
+    auto& blackbox = BlackBoxRecorder::GetInstance();
+    if (result != 0) {
+        blackbox.Record("VULKAN_RESULT", 0, 0, static_cast<u64>(static_cast<s64>(result)));
+        blackbox.TriggerDump("Vulkan call returned an error");
+    }
+
     if (!initialized || current_level == LogLevel::Off) {
         return;
     }
