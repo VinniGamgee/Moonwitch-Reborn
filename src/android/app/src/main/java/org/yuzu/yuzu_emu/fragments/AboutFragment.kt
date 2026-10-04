@@ -88,7 +88,7 @@ class AboutFragment : Fragment() {
         val buildVersion = NativeLibrary.getBuildVersion()
         val fullVersionText = "$buildName ($buildVersion)"
 
-        binding.textVersionName.text = fullVersionText
+        binding.textVersionName.setText(fullVersionText)
         binding.buttonVersionName.setOnClickListener {
             val clipBoard =
                 requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
