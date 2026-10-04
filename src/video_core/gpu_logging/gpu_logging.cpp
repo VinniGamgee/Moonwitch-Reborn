@@ -4,6 +4,8 @@
 #include "video_core/gpu_logging/gpu_logging.h"
 
 #include <fmt/format.h>
+#include <ctime>
+#include <span>
 #include <mutex>
 #include <thread>
 
@@ -15,6 +17,160 @@
 #include "common/settings.h"
 
 namespace GPU::Logging {
+
+namespace {
+constexpr std::string_view kBlackBoxPrefix{"[BLACKBOX]"};
+
+std::chrono::microseconds NowSteady() {
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::steady_clock::now().time_since_epoch());
+}
+} // namespace
+
+BlackBoxRecorder& BlackBoxRecorder::GetInstance() {
+    static BlackBoxRecorder recorder;
+    return recorder;
+}
+
+bool BlackBoxRecorder::IsEnabled() const noexcept {
+    return true;
+}
+
+bool BlackBoxRecorder::ShouldAutoDump(std::chrono::microseconds now,
+                                      std::string_view event) {
+    if (event != "CACHE_INVALIDATE" && event != "CPU_WRITE") {
+        return false;
+    }
+
+    if (burst_start.count() == 0 ||
+        now - burst_start > std::chrono::duration_cast<std::chrono::microseconds>(BURST_WINDOW)) {
+        burst_start = now;
+        burst_count = 1;
+    } else {
+        ++burst_count;
+    }
+
+    if (burst_count < BURST_THRESHOLD) {
+        return false;
+    }
+
+    constexpr auto cooldown = std::chrono::seconds(15);
+    if (last_auto_dump.count() != 0 &&
+        now - last_auto_dump < std::chrono::duration_cast<std::chrono::microseconds>(cooldown)) {
+        return false;
+    }
+
+    last_auto_dump = now;
+    burst_count = 0;
+    return true;
+}
+
+void BlackBoxRecorder::Record(std::string_view event, u64 address, u64 size, u64 extra) {
+    const auto now = NowSteady();
+    bool auto_dump = false;
+    Entry snapshot_entry{};
+
+    {
+        std::lock_guard lock(mutex);
+        auto& entry = ring[ring_index];
+        entry.timestamp = now;
+        entry.frame = frame_counter;
+        entry.address = address;
+        entry.size = size;
+        entry.extra = extra;
+        entry.event.fill('\0');
+        const size_t copy_size = std::min(event.size(), entry.event.size() - 1);
+        std::copy_n(event.data(), copy_size, entry.event.data());
+
+        ring_index = (ring_index + 1) % RING_SIZE;
+        entry_count = std::min(entry_count + 1, RING_SIZE);
+        auto_dump = ShouldAutoDump(now, event);
+        snapshot_entry = entry;
+    }
+
+    if (auto_dump) {
+        TriggerDump("invalidation/write burst");
+    }
+}
+
+void BlackBoxRecorder::Frame() {
+    std::lock_guard lock(mutex);
+    ++frame_counter;
+}
+
+void BlackBoxRecorder::TriggerDump(std::string_view reason) {
+    if (dumping.exchange(true)) {
+        return;
+    }
+
+    std::vector<Entry> entries;
+    {
+        std::lock_guard lock(mutex);
+        entries.reserve(entry_count);
+
+        const size_t start = entry_count == RING_SIZE ? ring_index : 0;
+        const auto now = NowSteady();
+        const auto history_us =
+            std::chrono::duration_cast<std::chrono::microseconds>(HISTORY);
+
+        for (size_t i = 0; i < entry_count; ++i) {
+            const auto& entry = ring[(start + i) % RING_SIZE];
+            if (entry.timestamp.count() != 0 && now - entry.timestamp <= history_us) {
+                entries.push_back(entry);
+            }
+        }
+    }
+
+    Dump(reason, entries);
+    dumping.store(false);
+}
+
+void BlackBoxRecorder::Dump(std::string_view reason, std::span<const Entry> entries) {
+    using namespace Common::FS;
+
+    const auto& log_dir = GetEdenPath(EdenPath::LogDir);
+    [[maybe_unused]] const bool created = CreateDir(log_dir);
+    const auto blackbox_dir = log_dir / "moonwitch_gpu_blackbox";
+    [[maybe_unused]] const bool blackbox_created = CreateDir(blackbox_dir);
+
+    const auto now = std::chrono::system_clock::now();
+    const std::time_t time = std::chrono::system_clock::to_time_t(now);
+    std::tm tm{};
+#ifdef _WIN32
+    localtime_s(&tm, &time);
+#else
+    localtime_r(&time, &tm);
+#endif
+
+    const auto path = blackbox_dir /
+        fmt::format("blackbox_{:04}{:02}{:02}_{:02}{:02}{:02}.log",
+                    tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+                    tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+    std::string output;
+    output.reserve(entries.size() * 96 + 512);
+    output += "=== MOONWITCH GPU BLACK BOX ===\n";
+    output += fmt::format("Reason: {}\n", reason);
+    output += fmt::format("Events: {}\n", entries.size());
+    output += "This is an independent resource-lifecycle recorder; it is not the normal Eden GPU log.\n\n";
+    output += "timestamp_us,frame,event,address,size,extra\n";
+
+    for (const auto& entry : entries) {
+        output += fmt::format("{},{},{},{:#x},{:#x},{:#x}\n",
+                              entry.timestamp.count(), entry.frame,
+                              entry.event.data(), entry.address, entry.size, entry.extra);
+    }
+
+    if (WriteStringToFile(path, FileType::TextFile, output) == 0) {
+        LOG_ERROR(Render_Vulkan, "[GPU BlackBox] Failed to write {}", path.string());
+        return;
+    }
+
+    LOG_WARNING(Render_Vulkan,
+                "[GPU BlackBox] Automatic diagnostic dump written: {} (reason: {})",
+                path.string(), reason);
+}
+
 
 // Static instance
 static GPULogger* g_instance = nullptr;
