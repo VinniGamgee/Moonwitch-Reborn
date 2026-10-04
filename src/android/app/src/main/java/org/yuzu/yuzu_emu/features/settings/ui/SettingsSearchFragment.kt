@@ -75,7 +75,6 @@ class SettingsSearchFragment : Fragment() {
         focusSearch()
 
         binding.backButton.setOnClickListener { settingsViewModel.setShouldNavigateBack(true) }
-        binding.searchBackground.setOnClickListener { focusSearch() }
         binding.clearButton.setOnClickListener { binding.searchText.setText("") }
         binding.searchText.doOnTextChanged { _, _, _, _ ->
             search()
@@ -166,10 +165,6 @@ class SettingsSearchFragment : Fragment() {
             )
 
             binding.settingsList.updateMargins(
-                left = leftInsets + sideMargin,
-                right = rightInsets + sideMargin
-            )
-            binding.divider.updateMargins(
                 left = leftInsets + sideMargin,
                 right = rightInsets + sideMargin
             )
