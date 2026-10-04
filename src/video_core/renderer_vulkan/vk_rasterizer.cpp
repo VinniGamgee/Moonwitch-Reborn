@@ -826,9 +826,7 @@ bool RasterizerVulkan::OnCPUWrite(DAddr addr, u64 size) {
     {
         std::scoped_lock lock{buffer_cache.mutex};
         if (buffer_cache.OnCPUWrite(addr, size)) {
-            if (!Settings::values.moonwitch_force_cpu_write_invalidation.GetValue()) {
-                return true;
-            }
+            return true;
         }
     }
     {
