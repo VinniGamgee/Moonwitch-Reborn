@@ -7,6 +7,6 @@
  <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="5dp">
   <com.google.android.material.imageview.ShapeableImageView android:id="@+id/image_game_screen" android:layout_width="match_parent" android:layout_height="match_parent"
    android:contentDescription="@string/game_image_desc" android:scaleType="fitCenter" app:shapeAppearanceOverlay="@style/ShapeAppearance.Eden.CarouselImage"/>
-  <TextView android:id="@+id/text_game_title" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone"/>
+  <com.google.android.material.textview.MaterialTextView android:id="@+id/text_game_title" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone"/>
  </FrameLayout>
 </org.yuzu.yuzu_emu.views.GradientBorderCardView>
