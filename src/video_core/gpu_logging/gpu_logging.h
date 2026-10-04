@@ -236,7 +236,7 @@ private:
     static constexpr std::chrono::seconds HISTORY = std::chrono::seconds(60);
     static constexpr std::chrono::milliseconds BURST_WINDOW =
         std::chrono::milliseconds(500);
-    static constexpr u32 BURST_THRESHOLD = 512;
+    static constexpr u32 BURST_THRESHOLD = 128;
 
     std::array<Entry, RING_SIZE> ring{};
     size_t ring_index = 0;
