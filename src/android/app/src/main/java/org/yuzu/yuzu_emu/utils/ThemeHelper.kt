@@ -50,12 +50,3 @@ object ThemeHelper {
     }
 
 }
-
-enum class Theme(val int: Int) {
-    Default(0),
-    MaterialYou(1);
-
-    companion object {
-        fun from(int: Int): Theme = entries.firstOrNull { it.int == int } ?: Default
-    }
-}
