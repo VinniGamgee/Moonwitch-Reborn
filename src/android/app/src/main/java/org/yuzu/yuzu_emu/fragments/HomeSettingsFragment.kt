@@ -339,7 +339,8 @@ class HomeSettingsFragment : Fragment() {
         }
 
         allOptions = optionsList
-        fun pick(vararg ids: Int) = ids.mapNotNull { id -> allOptions.firstOrNull { it.titleId == id } }
+        fun pick(vararg ids: Int): List<HomeSetting> =
+            ids.asIterable().mapNotNull { id -> allOptions.firstOrNull { it.titleId == id } }
         fun group(title: Int, description: Int, icon: Int, options: List<HomeSetting>) =
             HomeSetting(title, description, icon, { showOptions(options, title) })
         val systemOptions = listOf(
