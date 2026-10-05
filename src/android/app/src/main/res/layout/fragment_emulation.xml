@@ -224,14 +224,14 @@
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:focusedByDefault="true"
-        android:background="?attr/colorSurface"
+        android:background="@color/mw_reform_bg"
         tools:visibility="gone">
 
         <include layout="@layout/layout_quick_settings" />
 
     </com.google.android.material.navigation.NavigationView>
 
-    <com.google.android.material.navigation.NavigationView
+    <org.yuzu.yuzu_emu.views.MoonwitchControlPanel
     android:id="@+id/in_game_menu"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
@@ -239,7 +239,7 @@
     android:focusedByDefault="true"
     app:headerLayout="@layout/header_in_game"
     app:menu="@menu/menu_in_game"
-    android:background="?attr/colorSurface"
+    android:background="@color/mw_reform_bg"
     tools:visibility="gone" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

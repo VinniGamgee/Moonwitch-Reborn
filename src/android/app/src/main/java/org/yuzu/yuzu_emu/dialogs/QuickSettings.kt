@@ -47,7 +47,20 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
             )
         )
 
-        container.addView(statusView)
+        addTile(container, statusView)
+    }
+
+    private fun addTile(container: ViewGroup, item: View, wide: Boolean = true) {
+        val grid = container as? android.widget.GridLayout
+        if (grid == null) { container.addView(item); return }
+        val gap = (4 * item.resources.displayMetrics.density).toInt()
+        item.layoutParams = android.widget.GridLayout.LayoutParams().apply {
+            width = 0
+            height = ViewGroup.LayoutParams.WRAP_CONTENT
+            columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, if (wide) 2 else 1, 1f)
+            setMargins(gap, gap, gap, gap)
+        }
+        grid.addView(item)
     }
 
     // settings
@@ -107,7 +120,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
             }
         }
 
-        container.addView(itemView)
+        addTile(container, itemView)
     }
 
     fun addBooleanSetting(
@@ -135,7 +148,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         switchContainer.setOnClickListener {
             switchView.toggle()
         }
-        container.addView(itemView)
+        addTile(container, itemView, wide = false)
     }
 
     fun addCustomToggle(
@@ -156,6 +169,9 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         titleView.text = YuzuApplication.appContext.getString(name)
         switchContainer.visibility = View.VISIBLE
 
+        switchView.isEnabled = isEnabled
+        switchContainer.isEnabled = isEnabled
+        switchContainer.alpha = if (isEnabled) 1f else 0.45f
         switchView.isChecked = isChecked
 
         switchView.setOnCheckedChangeListener { _, checked ->
@@ -166,7 +182,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         switchContainer.setOnClickListener {
             switchView.toggle()
         }
-        container.addView(itemView)
+        addTile(container, itemView, wide = false)
 
         return switchView
     }
@@ -229,12 +245,10 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
             false
         }
 
-        container.addView(itemView)
+        addTile(container, itemView)
     }
 
     fun addDivider(container: ViewGroup) {
-        val inflater = LayoutInflater.from(emulationFragment.requireContext())
-        val dividerView = inflater.inflate(R.layout.item_quick_settings_divider, container, false)
-        container.addView(dividerView)
+        // Cards provide their own separation.
     }
 }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
+    android:layout_marginHorizontal="6dp"
     android:layout_marginVertical="5dp"
     android:clickable="true"
     android:focusable="true"
@@ -23,9 +23,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:minHeight="74dp"
-            android:orientation="horizontal"
+            android:gravity="start"
+            android:minHeight="172dp"
+            android:orientation="vertical"
             android:paddingHorizontal="14dp"
             android:paddingVertical="11dp">
 
@@ -49,10 +49,10 @@
             </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
+                android:layout_marginTop="12dp"
+
                 android:orientation="vertical">
 
                 <TextView
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
                     android:textColor="@color/moonwitch_text"
-                    android:textSize="12.5sp"
+                    android:textSize="16sp"
                     tools:text="Configurações" />
 
                 <TextView
@@ -71,7 +71,7 @@
                     android:layout_marginTop="2dp"
                     android:maxLines="2"
                     android:textColor="@color/moonwitch_text_muted"
-                    android:textSize="9.5sp"
+                    android:textSize="12sp"
                     tools:text="Edite configurações específicas para este jogo" />
 
                 <TextView
@@ -82,7 +82,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:textColor="@color/moonwitch_cyan"
-                    android:textSize="9.5sp"
+                    android:textSize="12sp"
                     android:visibility="gone"
                     tools:text="Turnip Adreno Driver"
                     tools:visibility="visible" />
@@ -111,7 +111,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end|center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:paddingHorizontal="12dp"
             android:paddingVertical="6dp"
             android:visibility="gone"
