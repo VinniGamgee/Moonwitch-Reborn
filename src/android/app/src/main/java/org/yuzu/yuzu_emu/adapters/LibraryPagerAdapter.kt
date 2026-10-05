@@ -82,7 +82,7 @@ class LibraryPagerAdapter(
             binding.previous.setOnClickListener { step(-1) }
             binding.next.setOnClickListener { step(1) }
             val artwork = findArtwork(game)
-            binding.gameIcon.isVisible = artwork == null
+            binding.gameIconFrame.isVisible = artwork == null
             binding.artwork.alpha = if (artwork != null) 1f else 0.35f
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 binding.artwork.setRenderEffect(if (artwork == null) RenderEffect.createBlurEffect(28f, 28f, Shader.TileMode.CLAMP) else null)
@@ -94,7 +94,7 @@ class LibraryPagerAdapter(
                 .target(binding.artwork).error(R.drawable.ic_moonwitch_mark).build())
             if (artwork == null) {
                 iconRequest = loader.enqueue(ImageRequest.Builder(context).data(game).lifecycle(owner)
-                    .size(256, 256).target(binding.gameIcon).error(R.drawable.ic_moonwitch_mark).build())
+                    .size(512, 512).target(binding.gameIcon).error(R.drawable.ic_moonwitch_mark).build())
             }
         }
     }
