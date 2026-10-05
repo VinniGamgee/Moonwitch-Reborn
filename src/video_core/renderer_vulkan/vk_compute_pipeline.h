@@ -58,33 +58,6 @@ public:
         return static_cast<bool>(pipeline);
     }
 
-    [[nodiscard]] bool MayWriteGuestMemory() const noexcept {
-        if (info.stores_global_memory || info.uses_global_increment ||
-            info.uses_global_decrement || info.uses_atomic_f32_add ||
-            info.uses_atomic_f16x2_add || info.uses_atomic_f16x2_min ||
-            info.uses_atomic_f16x2_max || info.uses_atomic_f32x2_add ||
-            info.uses_atomic_f32x2_min || info.uses_atomic_f32x2_max ||
-            info.uses_atomic_s32_min || info.uses_atomic_s32_max ||
-            info.uses_int64_bit_atomics || info.uses_atomic_image_u32) {
-            return true;
-        }
-        for (const auto& desc : info.storage_buffers_descriptors) {
-            if (desc.is_written) {
-                return true;
-            }
-        }
-        for (const auto& desc : info.image_buffer_descriptors) {
-            if (desc.is_written) {
-                return true;
-            }
-        }
-        for (const auto& desc : info.image_descriptors) {
-            if (desc.is_written) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 private:
     const Device& device;

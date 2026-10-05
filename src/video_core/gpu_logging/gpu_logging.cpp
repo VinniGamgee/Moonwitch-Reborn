@@ -31,7 +31,7 @@ BlackBoxRecorder& BlackBoxRecorder::GetInstance() {
 }
 
 bool BlackBoxRecorder::IsEnabled() const noexcept {
-    return true;
+    return Settings::values.renderer_debug.GetValue();
 }
 
 bool BlackBoxRecorder::ShouldAutoDump(std::chrono::microseconds now,
@@ -64,6 +64,9 @@ bool BlackBoxRecorder::ShouldAutoDump(std::chrono::microseconds now,
 }
 
 void BlackBoxRecorder::Record(std::string_view event, u64 address, u64 size, u64 extra) {
+    if (!IsEnabled()) {
+        return;
+    }
     const auto now = NowSteady();
     bool auto_dump = false;
 
@@ -90,11 +93,17 @@ void BlackBoxRecorder::Record(std::string_view event, u64 address, u64 size, u64
 }
 
 void BlackBoxRecorder::Frame() {
+    if (!IsEnabled()) {
+        return;
+    }
     std::lock_guard lock(mutex);
     ++frame_counter;
 }
 
 void BlackBoxRecorder::TriggerDump(std::string_view reason) {
+    if (!IsEnabled()) {
+        return;
+    }
     if (dumping.exchange(true)) {
         return;
     }
