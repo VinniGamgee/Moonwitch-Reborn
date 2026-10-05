@@ -2298,23 +2298,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.quickSettingsSheet) { v, insets ->
-            val systemBarsInsets: Insets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-           if (v.layoutDirection == View.LAYOUT_DIRECTION_LTR) {
-                v.setPadding(
-                    systemBarsInsets.left,
-                    systemBarsInsets.top,
-                    0,
-                    systemBarsInsets.bottom
-                )
-            } else {
-                v.setPadding(
-                    0,
-                    systemBarsInsets.top,
-                    systemBarsInsets.right,
-                    systemBarsInsets.bottom
-                )
-            }
-            insets
+            val safe = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.setPadding(safe.left, safe.top, safe.right, safe.bottom)
+            WindowInsetsCompat.CONSUMED
         }
     }
 

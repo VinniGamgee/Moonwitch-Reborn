@@ -50,17 +50,12 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         addTile(container, statusView)
     }
 
-    private fun addTile(container: ViewGroup, item: View, wide: Boolean = true) {
-        val grid = container as? android.widget.GridLayout
-        if (grid == null) { container.addView(item); return }
+    private fun addTile(container: ViewGroup, item: View) {
         val gap = (4 * item.resources.displayMetrics.density).toInt()
-        item.layoutParams = android.widget.GridLayout.LayoutParams().apply {
-            width = 0
-            height = ViewGroup.LayoutParams.WRAP_CONTENT
-            columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, if (wide) 2 else 1, 1f)
-            setMargins(gap, gap, gap, gap)
-        }
-        grid.addView(item)
+        item.layoutParams = android.widget.LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply { setMargins(gap, gap, gap, gap) }
+        container.addView(item)
     }
 
     // settings
@@ -148,7 +143,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         switchContainer.setOnClickListener {
             switchView.toggle()
         }
-        addTile(container, itemView, wide = false)
+        addTile(container, itemView)
     }
 
     fun addCustomToggle(
@@ -182,7 +177,7 @@ class QuickSettings(val emulationFragment: EmulationFragment) {
         switchContainer.setOnClickListener {
             switchView.toggle()
         }
-        addTile(container, itemView, wide = false)
+        addTile(container, itemView)
 
         return switchView
     }

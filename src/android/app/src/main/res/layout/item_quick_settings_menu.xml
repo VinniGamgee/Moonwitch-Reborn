@@ -9,7 +9,7 @@
         android:id="@+id/setting_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"
         android:paddingTop="12dp"
@@ -43,8 +43,8 @@
 
         <ImageView
             android:id="@+id/expand_icon"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="16dp"
             android:src="@drawable/ic_dropdown_arrow"
@@ -110,10 +110,11 @@
 
     <LinearLayout
         android:id="@+id/switch_container"
-        android:minHeight="112dp"
+        android:minHeight="64dp"
+        android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"
         android:paddingTop="12dp"
@@ -126,7 +127,7 @@
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/switch_title"
             style="@style/TextAppearance.Material3.TitleSmall"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
