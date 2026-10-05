@@ -506,22 +506,6 @@ class SettingsFragmentPresenter(
         sl.apply {
             add(
                 SubmenuSetting(
-                    titleId = R.string.mw_cat_general,
-                    descriptionId = R.string.mw_cat_general_desc,
-                    iconId = R.drawable.ic_settings,
-                    menuKey = MenuTag.SECTION_GENERAL
-                )
-            )
-            add(
-                SubmenuSetting(
-                    titleId = R.string.preferences_system,
-                    descriptionId = R.string.preferences_system_description,
-                    iconId = R.drawable.ic_system_settings,
-                    menuKey = MenuTag.SECTION_SYSTEM
-                )
-            )
-            add(
-                SubmenuSetting(
                     titleId = R.string.preferences_graphics,
                     descriptionId = R.string.preferences_graphics_description,
                     iconId = R.drawable.ic_graphics,
@@ -1460,6 +1444,24 @@ class SettingsFragmentPresenter(
     private fun addThemeSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
             add(HeaderSetting(R.string.app_settings))
+            val glassSetting = object : AbstractBooleanSetting {
+                override val key = "moonwitch_liquid_glass"
+                override val isRuntimeModifiable = false
+                override val pairedSettingKey = ""
+                override val isSwitchable = false
+                override var global = true
+                override val isSaveable = false
+                override val defaultValue = false
+                override fun getBoolean(needsGlobal: Boolean) = org.yuzu.yuzu_emu.utils.LiquidGlass.isEnabled(context)
+                override fun setBoolean(value: Boolean) {
+                    androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(key, value).apply()
+                    settingsViewModel.setShouldRecreate(true)
+                }
+                override fun getValueAsString(needsGlobal: Boolean) = getBoolean(needsGlobal).toString()
+                override fun reset() = setBoolean(false)
+            }
+            add(SwitchSetting(glassSetting, titleId = R.string.mw_liquid_glass, descriptionId = R.string.mw_liquid_glass_description))
+
 
             if (NativeLibrary.isUpdateCheckerEnabled()) {
                 add(BooleanSetting.ENABLE_UPDATE_CHECKS.key)

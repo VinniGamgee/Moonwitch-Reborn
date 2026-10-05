@@ -1048,7 +1048,7 @@ class GamePropertiesFragment : Fragment() {
             }
         }
         binding.listProperties.apply {
-            layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), if (resources.configuration.fontScale > 1.3f) 1 else 2).apply {
+            layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), if (resources.configuration.screenWidthDp / resources.configuration.fontScale < 500) 1 else 2).apply {
                 spanSizeLookup = object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {
                     override fun getSpanSize(position: Int): Int =
                         if (properties[position] is org.yuzu.yuzu_emu.model.InstallableProperty) spanCount else 1

@@ -32,7 +32,7 @@ object ThemeHelper {
 
     fun setTheme(activity: AppCompatActivity) {
         setThemeMode(activity)
-        activity.setTheme(R.style.Theme_Moonwitch_Main)
+        activity.setTheme(if (LiquidGlass.isEnabled(activity)) R.style.Theme_Moonwitch_Glass else R.style.Theme_Moonwitch_Main)
         setDarkModeSystemBars(WindowCompat.getInsetsController(activity.window, activity.window.decorView))
     }
 

@@ -18,7 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@string/profile_new_user"
             app:navigationIcon="@drawable/ic_back"
-            app:titleCentered="false" ><ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="end" android:layout_marginEnd="12dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/></com.google.android.material.appbar.MaterialToolbar>
+            app:titleCentered="false" ><ImageView android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="end" android:layout_marginEnd="12dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/></com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

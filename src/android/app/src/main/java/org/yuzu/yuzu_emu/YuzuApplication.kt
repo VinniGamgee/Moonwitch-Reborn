@@ -74,6 +74,7 @@ class YuzuApplication : Application() {
         PowerStateUpdater.start()
         Log.logDeviceInfo()
         ControllerNavigationGlobalHook.install(this)
+        org.yuzu.yuzu_emu.utils.LiquidGlass.install(this)
 
         createNotificationChannels()
     }
