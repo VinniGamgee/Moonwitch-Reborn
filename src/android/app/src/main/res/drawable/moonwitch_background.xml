@@ -1,1 +1,1 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/mw_reform_bg"/></shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"><item android:drawable="?attr/mwCanvas"/></selector>

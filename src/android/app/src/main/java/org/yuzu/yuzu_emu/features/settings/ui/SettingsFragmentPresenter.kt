@@ -1444,24 +1444,25 @@ class SettingsFragmentPresenter(
     private fun addThemeSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
             add(HeaderSetting(R.string.app_settings))
-            val glassSetting = object : AbstractBooleanSetting {
-                override val key = "moonwitch_liquid_glass"
+            val themeSetting = object : AbstractIntSetting {
+                override val key = org.yuzu.yuzu_emu.utils.MoonwitchTheme.KEY
                 override val isRuntimeModifiable = false
                 override val pairedSettingKey = ""
                 override val isSwitchable = false
                 override var global = true
                 override val isSaveable = false
-                override val defaultValue = false
-                override fun getBoolean(needsGlobal: Boolean) = org.yuzu.yuzu_emu.utils.LiquidGlass.isEnabled(context)
-                override fun setBoolean(value: Boolean) {
-                    androidx.preference.PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(key, value).apply()
+                override val defaultValue = 0
+                override fun getInt(needsGlobal: Boolean) = org.yuzu.yuzu_emu.utils.MoonwitchTheme.selected(context)
+                override fun setInt(value: Int) {
+                    org.yuzu.yuzu_emu.utils.MoonwitchTheme.select(context, value)
                     settingsViewModel.setShouldRecreate(true)
                 }
-                override fun getValueAsString(needsGlobal: Boolean) = getBoolean(needsGlobal).toString()
-                override fun reset() = setBoolean(false)
+                override fun getValueAsString(needsGlobal: Boolean) = getInt(needsGlobal).toString()
+                override fun reset() = setInt(defaultValue)
             }
-            add(SwitchSetting(glassSetting, titleId = R.string.mw_liquid_glass, descriptionId = R.string.mw_liquid_glass_description))
-
+            add(SingleChoiceSetting(themeSetting, titleId = R.string.mw_theme_title,
+                descriptionId = R.string.mw_theme_description,
+                choicesId = R.array.mw_theme_names, valuesId = R.array.mw_theme_values))
 
             if (NativeLibrary.isUpdateCheckerEnabled()) {
                 add(BooleanSetting.ENABLE_UPDATE_CHECKS.key)

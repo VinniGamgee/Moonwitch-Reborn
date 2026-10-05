@@ -8,11 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.LinearGradient
-import android.graphics.Paint
-import android.graphics.Path
-import android.graphics.RectF
-import android.graphics.Shader
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -41,6 +36,7 @@ class MoonwitchSplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
+        setTheme(org.yuzu.yuzu_emu.utils.MoonwitchTheme.style(this))
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -102,7 +98,7 @@ private class MoonwitchSplashView(context: Context) : View(context) {
     fun cancelAnimation() { animator?.removeAllListeners(); animator?.cancel(); animator = null }
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas.drawColor(context.getColor(R.color.mw_reform_bg))
+        canvas.drawColor(com.google.android.material.color.MaterialColors.getColor(this, R.attr.mwBackground))
         val size = (min(132f * resources.displayMetrics.density, min(width, height) * 0.4f) * (0.92f + 0.08f * progress)).toInt()
         val left = (width - size) / 2
         val top = (height - size) / 2

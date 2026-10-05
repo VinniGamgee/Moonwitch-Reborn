@@ -27,37 +27,46 @@
         <item name="popupMenuStyle">@style/YuzuPopupMenu</item>
     </style>
 
-    <style name="Theme.Moonwitch.Main" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Theme.Moonwitch.Main" parent="Theme.Moonwitch.Palette">
+        <item name="android:windowBackground">?attr/mwCanvas</item>
+        <item name="colorSurfaceContainer">?attr/mwSurface</item>
+        <item name="colorSurfaceContainerLow">?attr/mwBackgroundSoft</item>
+        <item name="colorSurfaceContainerHigh">?attr/mwSurfaceHigh</item>
+        <item name="colorSurfaceContainerHighest">?attr/mwSurfaceHighest</item>
+        <item name="colorSurfaceContainerLowest">?attr/mwBackground</item>
+        <item name="colorSurfaceDim">?attr/mwBackground</item>
+        <item name="colorSurfaceBright">?attr/mwSurfaceHigh</item>
+        <item name="android:textColorSecondary">?attr/mwMuted</item>
         <!-- Primary colors -->
-        <item name="colorPrimary">@color/mw_ui_accent</item>
-        <item name="colorOnPrimary">@color/mw_ui_bg</item>
-        <item name="colorPrimaryContainer">@color/mw_ui_accent_soft</item>
-        <item name="colorOnPrimaryContainer">@color/mw_ui_text</item>
+        <item name="colorPrimary">?attr/mwAccent</item>
+        <item name="colorOnPrimary">?attr/mwBackground</item>
+        <item name="colorPrimaryContainer">?attr/mwAccentSoft</item>
+        <item name="colorOnPrimaryContainer">?attr/mwText</item>
         <!-- Secondary colors -->
-        <item name="colorSecondary">@color/mw_ui_accent_hi</item>
-        <item name="colorOnSecondary">@color/mw_ui_bg</item>
-        <item name="colorSecondaryContainer">@color/mw_ui_surface_3</item>
-        <item name="colorOnSecondaryContainer">@color/mw_ui_bg</item>
+        <item name="colorSecondary">?attr/mwAccentHigh</item>
+        <item name="colorOnSecondary">?attr/mwBackground</item>
+        <item name="colorSecondaryContainer">?attr/mwSurfaceHighest</item>
+        <item name="colorOnSecondaryContainer">?attr/mwText</item>
         <!-- Tertiary colors -->
-        <item name="colorTertiary">@color/mw_ui_accent_hi</item>
-        <item name="colorOnTertiary">@color/mw_ui_bg</item>
-        <item name="colorTertiaryContainer">@color/mw_ui_accent</item>
-        <item name="colorOnTertiaryContainer">@color/mw_ui_text</item>
+        <item name="colorTertiary">?attr/mwAccentHigh</item>
+        <item name="colorOnTertiary">?attr/mwBackground</item>
+        <item name="colorTertiaryContainer">?attr/mwAccent</item>
+        <item name="colorOnTertiaryContainer">?attr/mwBackground</item>
         <!-- Background and surface -->
-        <item name="android:colorBackground">@color/mw_ui_bg</item>
-        <item name="colorOnBackground">@color/mw_ui_text</item>
-        <item name="colorSurface">@color/mw_ui_surface</item>
-        <item name="colorOnSurface">@color/mw_ui_text</item>
-        <item name="colorSurfaceVariant">@color/mw_ui_surface_2</item>
-        <item name="colorOnSurfaceVariant">@color/mw_ui_text</item>
+        <item name="android:colorBackground">?attr/mwBackground</item>
+        <item name="colorOnBackground">?attr/mwText</item>
+        <item name="colorSurface">?attr/mwSurface</item>
+        <item name="colorOnSurface">?attr/mwText</item>
+        <item name="colorSurfaceVariant">?attr/mwSurfaceHigh</item>
+        <item name="colorOnSurfaceVariant">?attr/mwText</item>
         <!-- Outline and borders -->
-        <item name="colorOutline">@color/mw_ui_border</item>
-        <item name="colorOutlineVariant">@color/mw_ui_border_accent</item>
+        <item name="colorOutline">?attr/mwOutline</item>
+        <item name="colorOutlineVariant">?attr/mwAccent</item>
         <!-- Error colors -->
         <item name="colorError">@color/eden_error</item>
         <item name="colorErrorContainer">@color/eden_error</item>
-        <item name="colorOnError">@color/mw_ui_text</item>
-        <item name="colorOnErrorContainer">@color/mw_ui_text</item>
+        <item name="colorOnError">?attr/mwText</item>
+        <item name="colorOnErrorContainer">?attr/mwText</item>
         <!-- System UI -->
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
@@ -73,7 +82,7 @@
         <item name="materialAlertDialogTheme">@style/EdenMaterialDialog</item>
         <!-- Popup menu theme -->
         <item name="popupMenuStyle">@style/EdenPopupMenu</item>
-        <item name="android:textColorPrimary">@color/mw_ui_text</item>
+        <item name="android:textColorPrimary">?attr/mwText</item>
         <item name="android:itemTextAppearance">@style/TextAppearance.Material3.BodyLarge</item>
     </style>
 

@@ -11,9 +11,9 @@
     android:transitionName="card_game"
     app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/moonwitch_panel_soft"
+    app:cardBackgroundColor="?attr/mwSurface"
     app:rippleColor="@color/game_card_ripple"
-    app:strokeColor="@color/moonwitch_border_soft"
+    app:strokeColor="?attr/mwOutline"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,7 +29,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium"
-            app:strokeColor="@color/eden_card_background"
+            app:strokeColor="?attr/mwSurface"
             app:strokeWidth="4dp"
             tools:src="@drawable/default_icon" />
 
@@ -61,7 +61,7 @@
             android:textAlignment="viewStart"
             android:singleLine="true"
             android:textSize="12sp"
-            android:textColor="@color/moonwitch_text_muted"
+            android:textColor="?attr/mwMuted"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/image_game_screen"

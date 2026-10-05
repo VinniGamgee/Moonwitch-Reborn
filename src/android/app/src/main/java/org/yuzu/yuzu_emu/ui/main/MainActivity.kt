@@ -79,7 +79,6 @@ class MainActivity : AppCompatActivity(), ThemeProvider {
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { !DirectoryInitialization.areDirectoriesReady }
 
-        ThemeHelper.ThemeChangeListener(this)
         ThemeHelper.setTheme(this)
         super.onCreate(savedInstanceState)
         NativeLibrary.initMultiplayer()

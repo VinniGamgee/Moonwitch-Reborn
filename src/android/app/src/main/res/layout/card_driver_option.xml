@@ -10,9 +10,9 @@
     android:background="@android:color/transparent"
     android:clickable="true"
     android:focusable="true"
-    app:cardBackgroundColor="@color/mw_ui_surface"
+    app:cardBackgroundColor="?attr/mwSurface"
     app:cardElevation="0dp"
-    app:strokeColor="@color/mw_ui_border"
+    app:strokeColor="?attr/mwOutline"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -78,7 +78,7 @@
             android:contentDescription="@string/delete"
             android:tooltipText="@string/delete"
             app:icon="@drawable/ic_delete"
-            app:iconTint="@color/mw_ui_text_2" />
+            app:iconTint="?attr/mwMuted" />
 
     </LinearLayout>
 

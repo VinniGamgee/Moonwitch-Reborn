@@ -6,10 +6,10 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="5dp"
-    app:cardBackgroundColor="@color/moonwitch_panel_soft"
+    app:cardBackgroundColor="?attr/mwSurface"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/moonwitch_border_soft"
+    app:strokeColor="?attr/mwOutline"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -24,10 +24,10 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="42dp"
             android:layout_height="42dp"
-            app:cardBackgroundColor="@color/moonwitch_panel_high"
+            app:cardBackgroundColor="?attr/mwSurfaceHigh"
             app:cardCornerRadius="13dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/moonwitch_border"
+            app:strokeColor="?attr/mwOutline"
             app:strokeWidth="1dp">
 
             <ImageView
@@ -36,7 +36,7 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center"
                 android:contentDescription="@null"
-                app:tint="@color/moonwitch_cyan"
+                app:tint="?attr/mwAccent"
                 tools:src="@drawable/ic_save" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/moonwitch_text"
+                android:textColor="?attr/mwText"
                 android:textSize="12.5sp"
                 tools:text="Dados salvos" />
 
@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:maxLines="2"
-                android:textColor="@color/moonwitch_text_muted"
+                android:textColor="?attr/mwMuted"
                 android:textSize="9.5sp"
                 tools:text="Gerencie dados salvos específicos deste jogo" />
         </LinearLayout>
@@ -73,7 +73,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:backgroundTint="@color/moonwitch_red"
+            android:backgroundTint="?attr/mwAccentHigh"
             android:contentDescription="@string/string_import"
             android:tooltipText="@string/string_import"
             android:visibility="gone"
@@ -87,12 +87,12 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="6dp"
-            android:backgroundTint="@color/moonwitch_panel_high"
+            android:backgroundTint="?attr/mwSurfaceHigh"
             android:contentDescription="@string/export"
             android:tooltipText="@string/export"
             android:visibility="gone"
             app:icon="@drawable/ic_export"
-            app:iconTint="@color/moonwitch_cyan"
+            app:iconTint="?attr/mwAccent"
             tools:visibility="visible" />
 
     </LinearLayout>

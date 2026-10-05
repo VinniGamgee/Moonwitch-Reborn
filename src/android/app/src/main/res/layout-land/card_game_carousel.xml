@@ -9,12 +9,12 @@
     android:clickable="true"
     android:clipChildren="true"
     android:focusable="true"
-    app:cardBackgroundColor="@color/moonwitch_panel"
+    app:cardBackgroundColor="?attr/mwSurface"
     app:cardCornerRadius="28dp"
     app:cardElevation="0dp"
     app:cardPreventCornerOverlap="true"
     app:rippleColor="@color/game_card_ripple"
-    app:strokeColor="@color/moonwitch_border_soft"
+    app:strokeColor="?attr/mwOutline"
     app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -60,7 +60,7 @@
                 android:maxLines="1"
                 android:requiresFadingEdge="horizontal"
                 android:text="Game Title"
-                android:textColor="@color/moonwitch_text"
+                android:textColor="?attr/mwText"
                 android:textSize="15sp" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

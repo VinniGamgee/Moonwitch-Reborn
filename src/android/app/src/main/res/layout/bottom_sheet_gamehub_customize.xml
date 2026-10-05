@@ -23,7 +23,7 @@
         android:ellipsize="end"
         android:fontFamily="sans-serif-medium"
         android:maxLines="2"
-        android:textColor="@color/moonwitch_text"
+        android:textColor="?attr/mwText"
         android:textSize="19sp" />
 
     <TextView
@@ -33,7 +33,7 @@
         android:layout_marginTop="4dp"
         android:layout_marginBottom="10dp"
         android:text="@string/mw_gamehub_v23_customize_subtitle"
-        android:textColor="@color/moonwitch_text_muted"
+        android:textColor="?attr/mwMuted"
         android:textSize="11sp" />
 
     <LinearLayout
@@ -46,10 +46,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="22dp">
-        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_edit" app:tint="@color/mw_gamehub_v2_accent" />
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_edit" app:tint="?attr/mwAccentHigh" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v22_cover" android:textColor="@color/moonwitch_text" android:textSize="14sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v22_cover_desc" android:textColor="@color/moonwitch_text_muted" android:textSize="10sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v22_cover" android:textColor="?attr/mwText" android:textSize="14sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v22_cover_desc" android:textColor="?attr/mwMuted" android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -63,10 +63,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="22dp">
-        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_graphics" app:tint="@color/mw_gamehub_v2_accent" />
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_graphics" app:tint="?attr/mwAccentHigh" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v22_hero" android:textColor="@color/moonwitch_text" android:textSize="14sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v22_hero_desc" android:textColor="@color/moonwitch_text_muted" android:textSize="10sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v22_hero" android:textColor="?attr/mwText" android:textSize="14sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v22_hero_desc" android:textColor="?attr/mwMuted" android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -80,10 +80,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="22dp">
-        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_palette" app:tint="@color/mw_gamehub_v2_accent" />
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_palette" app:tint="?attr/mwAccentHigh" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v23_logo" android:textColor="@color/moonwitch_text" android:textSize="14sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v23_logo_desc" android:textColor="@color/moonwitch_text_muted" android:textSize="10sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v23_logo" android:textColor="?attr/mwText" android:textSize="14sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v23_logo_desc" android:textColor="?attr/mwMuted" android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -97,10 +97,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="22dp">
-        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_mw_music" app:tint="@color/mw_gamehub_v2_accent" />
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_mw_music" app:tint="?attr/mwAccentHigh" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_music" android:textColor="@color/moonwitch_text" android:textSize="14sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_music_desc" android:textColor="@color/moonwitch_text_muted" android:textSize="10sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_music" android:textColor="?attr/mwText" android:textSize="14sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_music_desc" android:textColor="?attr/mwMuted" android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -115,14 +115,14 @@
         android:orientation="horizontal"
         android:paddingHorizontal="22dp"
         android:visibility="gone">
-        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_delete" app:tint="@color/moonwitch_red" />
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_delete" app:tint="?attr/mwAccentHigh" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_music_remove" android:textColor="@color/moonwitch_text" android:textSize="14sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_music_remove_desc" android:textColor="@color/moonwitch_text_muted" android:textSize="10sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_music_remove" android:textColor="?attr/mwText" android:textSize="14sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_music_remove_desc" android:textColor="?attr/mwMuted" android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="22dp" android:background="@color/moonwitch_border_soft" />
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginHorizontal="22dp" android:background="?attr/mwOutline" />
 
     <LinearLayout
         android:id="@+id/customize_reset"
@@ -134,10 +134,10 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="22dp">
-        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_restore" app:tint="@color/moonwitch_red" />
+        <ImageView android:layout_width="44dp" android:layout_height="44dp" android:background="@drawable/mw_gamehub_sheet_icon_bg" android:contentDescription="@null" android:padding="10dp" android:src="@drawable/ic_restore" app:tint="?attr/mwAccentHigh" />
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v23_reset_artwork" android:textColor="@color/moonwitch_text" android:textSize="14sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v23_reset_artwork_desc" android:textColor="@color/moonwitch_text_muted" android:textSize="10sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mw_gamehub_v23_reset_artwork" android:textColor="?attr/mwText" android:textSize="14sp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mw_gamehub_v23_reset_artwork_desc" android:textColor="?attr/mwMuted" android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

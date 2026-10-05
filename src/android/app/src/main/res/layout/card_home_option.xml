@@ -10,11 +10,11 @@
     android:layout_marginBottom="6dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardBackgroundColor="@color/mw_ui_surface"
+    app:cardBackgroundColor="?attr/mwSurface"
     app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
     app:rippleColor="@color/game_card_ripple"
-    app:strokeColor="@color/mw_ui_border"
+    app:strokeColor="?attr/mwOutline"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -32,10 +32,10 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="46dp"
             android:layout_height="46dp"
-            app:cardBackgroundColor="@color/mw_ui_accent_soft"
+            app:cardBackgroundColor="?attr/mwAccentSoft"
             app:cardCornerRadius="15dp"
             app:cardElevation="0dp"
-            app:strokeColor="@color/mw_ui_border_accent"
+            app:strokeColor="?attr/mwAccent"
             app:strokeWidth="1dp">
 
             <ImageView
@@ -43,7 +43,7 @@
                 android:layout_width="23dp"
                 android:layout_height="23dp"
                 android:layout_gravity="center"
-                app:tint="@color/mw_ui_accent_hi"
+                app:tint="?attr/mwAccentHigh"
                 tools:src="@drawable/ic_settings" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -59,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="sans-serif-medium"
-                android:textColor="@color/mw_ui_text"
+                android:textColor="?attr/mwText"
                 android:textSize="15sp"
                 tools:text="@string/mw_ui_graphics" />
 
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:maxLines="2"
-                android:textColor="@color/mw_ui_text_2"
+                android:textColor="?attr/mwMuted"
                 android:textSize="11sp"
                 tools:text="@string/mw_ui_graphics_desc" />
 
@@ -81,7 +81,7 @@
                 android:ellipsize="end"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
-                android:textColor="@color/mw_ui_accent_hi"
+                android:textColor="?attr/mwAccentHigh"
                 android:textSize="10sp"
                 android:visibility="gone"
                 tools:text="/tree/primary:Games"

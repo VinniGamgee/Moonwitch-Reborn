@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="mwBackground" format="color"/>
+    <attr name="mwBackgroundSoft" format="color"/>
+    <attr name="mwSurface" format="color"/>
+    <attr name="mwSurfaceHigh" format="color"/>
+    <attr name="mwSurfaceHighest" format="color"/>
+    <attr name="mwOutline" format="color"/>
+    <attr name="mwAccent" format="color"/>
+    <attr name="mwAccentHigh" format="color"/>
+    <attr name="mwAccentSoft" format="color"/>
+    <attr name="mwText" format="color"/>
+    <attr name="mwMuted" format="color"/>
+    <attr name="mwSubtle" format="color"/>
+    <attr name="mwScrimMiddle" format="color"/>
+    <attr name="mwScrimTop" format="color"/>
+    <attr name="mwCanvas" format="reference"/>
+    <style name="Theme.Moonwitch.Palette" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="mwBackground">#0B0E20</item>
+        <item name="mwScrimMiddle">#990B0E20</item>
+        <item name="mwScrimTop">#000B0E20</item>
+        <item name="mwBackgroundSoft">#101429</item>
+        <item name="mwSurface">#171C35</item>
+        <item name="mwSurfaceHigh">#1D233F</item>
+        <item name="mwSurfaceHighest">#242846</item>
+        <item name="mwOutline">#465170</item>
+        <item name="mwAccent">#55E6D2</item>
+        <item name="mwAccentHigh">#88F4E4</item>
+        <item name="mwAccentSoft">#163E3F</item>
+        <item name="mwText">#F7F6FC</item>
+        <item name="mwMuted">#B7BED5</item>
+        <item name="mwSubtle">#9AA4C0</item>
+        <item name="mwCanvas">@drawable/mw_canvas_solid</item>
+    </style>
+    <style name="Theme.Moonwitch.Gaming" parent="Theme.Moonwitch.Main">
+        <item name="mwBackground">#10101A</item>
+        <item name="mwScrimMiddle">#9910101A</item>
+        <item name="mwScrimTop">#0010101A</item>
+        <item name="mwBackgroundSoft">#171522</item>
+        <item name="mwSurface">#201D30</item>
+        <item name="mwSurfaceHigh">#2C2641</item>
+        <item name="mwSurfaceHighest">#392F51</item>
+        <item name="mwOutline">#625777</item>
+        <item name="mwAccent">#BEA1FF</item>
+        <item name="mwAccentHigh">#5EEBD0</item>
+        <item name="mwAccentSoft">#392956</item>
+        <item name="mwText">#FAF7FF</item>
+        <item name="mwMuted">#CEC4DF</item>
+        <item name="mwSubtle">#B0A5C4</item>
+        <item name="mwCanvas">@drawable/mw_canvas_solid</item>
+    </style>
+    <style name="Theme.Moonwitch.Amoled" parent="Theme.Moonwitch.Main">
+        <item name="mwBackground">#000000</item>
+        <item name="mwScrimMiddle">#99000000</item>
+        <item name="mwScrimTop">#00000000</item>
+        <item name="mwBackgroundSoft">#000000</item>
+        <item name="mwSurface">#090909</item>
+        <item name="mwSurfaceHigh">#121212</item>
+        <item name="mwSurfaceHighest">#1C1C1C</item>
+        <item name="mwOutline">#515151</item>
+        <item name="mwAccent">#87EAD9</item>
+        <item name="mwAccentHigh">#B9FFF1</item>
+        <item name="mwAccentSoft">#102C27</item>
+        <item name="mwText">#FFFFFF</item>
+        <item name="mwMuted">#C6CECC</item>
+        <item name="mwSubtle">#A4B0AD</item>
+        <item name="mwCanvas">@drawable/mw_canvas_solid</item>
+    </style>
+    <style name="Theme.Moonwitch.Cyberpunk" parent="Theme.Moonwitch.Main">
+        <item name="mwBackground">#090D14</item>
+        <item name="mwScrimMiddle">#99090D14</item>
+        <item name="mwScrimTop">#00090D14</item>
+        <item name="mwBackgroundSoft">#101520</item>
+        <item name="mwSurface">#171E29</item>
+        <item name="mwSurfaceHigh">#202B38</item>
+        <item name="mwSurfaceHighest">#293649</item>
+        <item name="mwOutline">#526B80</item>
+        <item name="mwAccent">#FFE36E</item>
+        <item name="mwAccentHigh">#66EAFF</item>
+        <item name="mwAccentSoft">#3B3214</item>
+        <item name="mwText">#F8FAFF</item>
+        <item name="mwMuted">#BACBD9</item>
+        <item name="mwSubtle">#9BAFBE</item>
+        <item name="mwCanvas">@drawable/mw_canvas_solid</item>
+    </style>
+    <style name="Theme.Moonwitch.Monochrome" parent="Theme.Moonwitch.Main">
+        <item name="mwBackground">#101010</item>
+        <item name="mwScrimMiddle">#99101010</item>
+        <item name="mwScrimTop">#00101010</item>
+        <item name="mwBackgroundSoft">#161616</item>
+        <item name="mwSurface">#202020</item>
+        <item name="mwSurfaceHigh">#2A2A2A</item>
+        <item name="mwSurfaceHighest">#343434</item>
+        <item name="mwOutline">#606060</item>
+        <item name="mwAccent">#F1F1F1</item>
+        <item name="mwAccentHigh">#CFCFCF</item>
+        <item name="mwAccentSoft">#3B3B3B</item>
+        <item name="mwText">#FAFAFA</item>
+        <item name="mwMuted">#C2C2C2</item>
+        <item name="mwSubtle">#A6A6A6</item>
+        <item name="mwCanvas">@drawable/mw_canvas_solid</item>
+    </style>
+    <style name="Theme.Moonwitch.Atmosphere" parent="Theme.Moonwitch.Main">
+        <item name="mwBackground">#0B171C</item>
+        <item name="mwScrimMiddle">#990B171C</item>
+        <item name="mwScrimTop">#000B171C</item>
+        <item name="mwBackgroundSoft">#112229</item>
+        <item name="mwSurface">#193139</item>
+        <item name="mwSurfaceHigh">#23424A</item>
+        <item name="mwSurfaceHighest">#2E5157</item>
+        <item name="mwOutline">#54787D</item>
+        <item name="mwAccent">#A9DED0</item>
+        <item name="mwAccentHigh">#F2D4AF</item>
+        <item name="mwAccentSoft">#2B4E48</item>
+        <item name="mwText">#F2FAF7</item>
+        <item name="mwMuted">#BED2CF</item>
+        <item name="mwSubtle">#A0BCB8</item>
+        <item name="mwCanvas">@drawable/mw_canvas_atmosphere</item>
+    </style>
+    <string name="mw_theme_title">Tema visual</string>
+    <string name="mw_theme_description">Personalize toda a interface, incluindo os painéis durante o jogo.</string>
+    <string-array name="mw_theme_names">
+        <item>Moonwitch</item><item>Gaming</item><item>AMOLED</item>
+        <item>Cyberpunk</item><item>Monocromático</item><item>Atmosphere</item>
+    </string-array>
+    <integer-array name="mw_theme_values">
+        <item>0</item><item>1</item><item>2</item><item>3</item><item>4</item><item>5</item>
+    </integer-array>
+</resources>

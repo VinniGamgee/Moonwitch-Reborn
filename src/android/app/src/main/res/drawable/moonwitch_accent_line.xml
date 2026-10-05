@@ -3,6 +3,6 @@
     <corners android:radius="2dp" />
     <gradient
         android:angle="0"
-        android:endColor="@color/moonwitch_cyan"
-        android:startColor="@color/moonwitch_red" />
+        android:endColor="?attr/mwAccent"
+        android:startColor="?attr/mwAccentHigh" />
 </shape>

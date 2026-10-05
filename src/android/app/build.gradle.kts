@@ -60,10 +60,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.moonwitch.emulator.reformulation"
+        applicationId = "dev.moonwitch.emulator"
         minSdk = 24
         targetSdk = 36
-        versionName = "0.2.0-reformulation"
+        versionName = "0.3.0"
         versionCode = autoVersion
 
         externalNativeBuild {

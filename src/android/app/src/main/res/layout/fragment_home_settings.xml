@@ -62,5 +62,5 @@
 
     </androidx.core.widget.NestedScrollView>
 
-<com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/settings_navigation" android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="64dp" android:background="@color/mw_reform_bg" app:menu="@menu/mw_reform_navigation" app:labelVisibilityMode="labeled" app:itemIconTint="@color/mw_reform_navigation" app:itemTextColor="@color/mw_reform_navigation" app:itemActiveIndicatorStyle="@null" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
+<com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/settings_navigation" android:layout_width="0dp" android:layout_height="wrap_content" android:minHeight="64dp" android:background="?attr/mwBackground" app:menu="@menu/mw_reform_navigation" app:labelVisibilityMode="labeled" app:itemIconTint="@color/mw_reform_navigation" app:itemTextColor="@color/mw_reform_navigation" app:itemActiveIndicatorStyle="@null" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

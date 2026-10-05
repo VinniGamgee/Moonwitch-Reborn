@@ -1066,7 +1066,7 @@ class InputOverlay(context: Context, attrs: AttributeSet?) :
          */
         private fun getBitmap(context: Context, drawableId: Int, scale: Float): Bitmap {
             val vectorDrawable = (ContextCompat.getDrawable(context, drawableId) as VectorDrawable).mutate() as VectorDrawable
-            // Moonwitch Glass preserves the authored cyan/graphite palette instead of
+            // Moonwitch controls preserve the authored cyan/graphite palette instead of
             // blanket-tinting inherited controls white.
             if (isTransparentStyle(context)) {
                 vectorDrawable.alpha = 220

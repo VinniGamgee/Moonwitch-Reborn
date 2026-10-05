@@ -13,11 +13,11 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
-        app:cardBackgroundColor="@color/mw_ui_surface"
+        app:cardBackgroundColor="?attr/mwSurface"
         app:cardCornerRadius="16dp"
         app:cardElevation="0dp"
         app:rippleColor="@color/game_card_ripple"
-        app:strokeColor="@color/mw_ui_border"
+        app:strokeColor="?attr/mwOutline"
         app:strokeWidth="1dp">
 
         <LinearLayout
@@ -63,7 +63,7 @@
                 android:maxLines="1"
                 android:paddingStart="10dp"
                 android:paddingEnd="10dp"
-                android:textColor="@color/mw_ui_text"
+                android:textColor="?attr/mwText"
                 android:textSize="12sp"
                 tools:text="The Legend of Zelda" />
         </LinearLayout>

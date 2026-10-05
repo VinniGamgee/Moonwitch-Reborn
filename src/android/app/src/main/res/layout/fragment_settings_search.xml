@@ -63,9 +63,9 @@
             
             android:layout_width="match_parent"
             android:layout_height="54dp"
-            app:cardBackgroundColor="@color/mw_ui_surface"
+            app:cardBackgroundColor="?attr/mwSurface"
             app:cardCornerRadius="18dp"
-            app:strokeColor="@color/mw_ui_border_accent"
+            app:strokeColor="?attr/mwAccent"
             app:strokeWidth="1dp">
 
             <LinearLayout

@@ -18,12 +18,12 @@
  <style name="Widget.Moonwitch.Reform.Icon" parent="Widget.AppCompat.ImageButton">
   <item name="android:layout_width">48dp</item><item name="android:layout_height">48dp</item>
   <item name="android:background">?attr/selectableItemBackgroundBorderless</item><item name="android:padding">12dp</item>
-  <item name="tint">@color/mw_reform_text</item>
+  <item name="tint">?attr/mwText</item>
  </style>
  <style name="Widget.Moonwitch.Reform.Button" parent="Widget.Material3.Button">
   <item name="android:minHeight">48dp</item><item name="android:insetTop">0dp</item><item name="android:insetBottom">0dp</item>
-  <item name="cornerRadius">24dp</item><item name="backgroundTint">@color/mw_reform_accent</item>
-  <item name="android:textColor">@color/mw_reform_bg</item><item name="iconTint">@color/mw_reform_bg</item>
+  <item name="cornerRadius">24dp</item><item name="backgroundTint">?attr/mwAccent</item>
+  <item name="android:textColor">?attr/mwBackground</item><item name="iconTint">?attr/mwBackground</item>
   <item name="android:textSize">16sp</item>
  </style>
 </resources>
