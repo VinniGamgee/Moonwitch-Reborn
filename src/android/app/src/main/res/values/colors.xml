@@ -11,3 +11,5 @@
     <color name="moonwitch_border">#334963</color>
     <color name="moonwitch_border_soft">#263449</color>
 </resources>
+    <color 
+name="mw_canvas">#121212</color>
