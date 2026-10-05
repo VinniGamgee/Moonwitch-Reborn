@@ -23,7 +23,7 @@
             android:touchscreenBlocksFocus="false"
             app:title="@string/profile_manager"
             app:navigationIcon="@drawable/ic_back"
-            app:titleCentered="false" />
+            app:titleCentered="false" ><ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="end" android:layout_marginEnd="12dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/></com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

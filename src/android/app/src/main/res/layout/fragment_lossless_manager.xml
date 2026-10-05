@@ -24,7 +24,7 @@
             android:layout_height="?attr/actionBarSize"
             android:touchscreenBlocksFocus="false"
             app:navigationIcon="@drawable/ic_back"
-            app:title="@string/lossless_scaling" />
+            app:title="@string/lossless_scaling" ><ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="end" android:layout_marginEnd="12dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/></com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 

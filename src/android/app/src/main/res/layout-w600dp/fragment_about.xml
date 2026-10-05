@@ -22,7 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             android:touchscreenBlocksFocus="false"
             app:navigationIcon="@drawable/ic_back"
-            app:title="@string/about" />
+            app:title="@string/about" ><ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="end" android:layout_marginEnd="12dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/></com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -57,7 +57,7 @@
                     android:layout_width="200dp"
                     android:layout_height="200dp"
                     android:layout_marginBottom="8dp"
-                    android:src="@drawable/ic_yuzu" />
+                    android:src="@drawable/ic_moonwitch_mark" />
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/TextAppearance.Material3.TitleMedium"

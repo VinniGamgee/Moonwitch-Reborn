@@ -1,27 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="48"
-    android:viewportHeight="48">
-    <!-- Dedicated Moonwitch foreground-service icon. Android renders small notification
-         icons as a monochrome mask, so keep the silhouette recognizable at tiny sizes. -->
-    <path
-        android:fillColor="@android:color/transparent"
-        android:pathData="M4,24 A20,20 0,1 1,44,24 A20,20 0,1 1,4,24"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="2" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M22,10 A15,15 0,1 0,36,34 A12.5,12.5 0,0 1,27,13 A12.5,12.5 0,0 1,22,10 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M29,21 L31,25 L35,27 L31,29 L29,33 L27,29 L23,27 L27,25 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M11,29 L14,29 L14,26 L17,26 L17,29 L20,29 L20,32 L17,32 L17,35 L14,35 L14,32 L11,32 Z" />
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M36,13 A2,2 0,1 1,36,17 A2,2 0,1 1,36,13 M32,17 A2,2 0,1 1,32,21 A2,2 0,1 1,32,17 M40,17 A2,2 0,1 1,40,21 A2,2 0,1 1,40,17 M36,21 A2,2 0,1 1,36,25 A2,2 0,1 1,36,21" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="48" android:viewportHeight="48">
+<path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="1.5" android:pathData="M24,2 A22,22 0,1 1,23.99,2 Z"/>
+<path android:fillColor="#FFFFFFFF" android:pathData="M24,7 C15,7 9,13 10,21 C10,23 11,25 12,26 L22,26 C16,23 14,12 24,7 Z M34,10 L35,13 L38,14 L35,15 L34,18 L33,15 L30,14 L33,13 Z"/>
+<path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M15,28 L33,28 C37,28 38,31 39,34 C42,41 34,43 30,37 L18,37 C14,43 6,41 9,34 C10,31 11,28 15,28 Z M14,30 L14,32 L12,32 L12,34 L14,34 L14,36 L16,36 L16,34 L18,34 L18,32 L16,32 L16,30 Z M32,30 A1.3,1.3 0,1 1,31.99,30 Z M35,33 A1.3,1.3 0,1 1,34.99,33 Z"/>
 </vector>

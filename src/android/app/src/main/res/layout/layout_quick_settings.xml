@@ -19,7 +19,7 @@
             android:elevation="0dp"
             app:title="@string/quick_settings"
             app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
-            android:fitsSystemWindows="true" />
+            android:fitsSystemWindows="true"><ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_gravity="end" android:layout_marginEnd="12dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/></com.google.android.material.appbar.MaterialToolbar>
 
         <LinearLayout
             android:id="@+id/quick_settings_container"

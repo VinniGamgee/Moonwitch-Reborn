@@ -224,19 +224,19 @@
     <!-- Eden Theme Colors -->
 
     <!-- Moonwitch red/cyan identity. The default theme stays dark in both UI modes. -->
-    <color name="eden_primary">#FF3B55</color>
-    <color name="eden_primary_variant">#C9233D</color>
-    <color name="eden_secondary">#35D8FF</color>
-    <color name="eden_secondary_variant">#1597BA</color>
+    <color name="eden_primary">#55E6D2</color>
+    <color name="eden_primary_variant">#163E3F</color>
+    <color name="eden_secondary">#B5A8FA</color>
+    <color name="eden_secondary_variant">#35305F</color>
 
-    <color name="eden_background">#05070F</color>
-    <color name="eden_surface">#0A0F1C</color>
-    <color name="eden_surface_variant">#121A2E</color>
+    <color name="eden_background">#0B0E20</color>
+    <color name="eden_surface">#0B0E20</color>
+    <color name="eden_surface_variant">#171C35</color>
 
     <color name="eden_on_background">#F7F9FF</color>
     <color name="eden_on_surface">#F2F5FF</color>
-    <color name="eden_on_primary">#FFFFFF</color>
-    <color name="eden_on_secondary">#041018</color>
+    <color name="eden_on_primary">#0B0E20</color>
+    <color name="eden_on_secondary">#0B0E20</color>
 
     <!-- Synthwave Accent Colors -->
     <color name="eden_accent_purple">#9D00FF</color> <!-- Electric purple -->
@@ -249,10 +249,10 @@
     <color name="eden_glow_orange">#80FF8000</color> <!-- Orange glow -->
 
     <!-- Neon Border Colors -->
-    <color name="eden_border">#334963</color>
-    <color name="eden_border_light">#49617D</color>
-    <color name="eden_border_gradient_start">#FF3B55</color>
-    <color name="eden_border_gradient_end">#35D8FF</color>
+    <color name="eden_border">#353D60</color>
+    <color name="eden_border_light">#495473</color>
+    <color name="eden_border_gradient_start">#55E6D2</color>
+    <color name="eden_border_gradient_end">#B5A8FA</color>
 
     <!-- Synthwave Status Colors -->
     <color name="eden_error">#FF0040</color> <!-- Neon red -->
@@ -274,8 +274,8 @@
 
     <!-- Transparent versions for gradients -->
     <color name="eden_transparent">#00000000</color>
-    <color name="eden_primary_transparent">#22FF3B55</color>
-    <color name="eden_secondary_transparent">#2235D8FF</color>
+    <color name="eden_primary_transparent">#2255E6D2</color>
+    <color name="eden_secondary_transparent">#22B5A8FA</color>
 
     <!-- Common Colors Across All Themes -->
     <color name="yuzu_outlineVariant">#C6C5D0</color>

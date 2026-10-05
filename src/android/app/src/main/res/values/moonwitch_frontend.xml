@@ -2,12 +2,12 @@
 <resources>
     <!-- Moonwitch frontend visual language. This layer is UI-only and does not alter
          emulator defaults, NativeConfig keys, or per-game configuration behavior. -->
-    <color name="moonwitch_frontend_background">#07070F</color>
-    <color name="moonwitch_frontend_surface">#10101A</color>
-    <color name="moonwitch_frontend_surface_high">#171725</color>
-    <color name="moonwitch_frontend_outline">#34264B</color>
-    <color name="moonwitch_frontend_accent">#9B4DFF</color>
-    <color name="moonwitch_frontend_accent_soft">#26143D</color>
+    <color name="moonwitch_frontend_background">#0B0E20</color>
+    <color name="moonwitch_frontend_surface">#171C35</color>
+    <color name="moonwitch_frontend_surface_high">#1D233F</color>
+    <color name="moonwitch_frontend_outline">#353D60</color>
+    <color name="moonwitch_frontend_accent">#55E6D2</color>
+    <color name="moonwitch_frontend_accent_soft">#163E3F</color>
     <color name="moonwitch_frontend_text">#F7F4FF</color>
     <color name="moonwitch_frontend_text_secondary">#AAA4B5</color>
 

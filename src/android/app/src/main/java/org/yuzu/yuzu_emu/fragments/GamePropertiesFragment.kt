@@ -355,7 +355,7 @@ class GamePropertiesFragment : Fragment() {
             return
         }
 
-        (binding.imageGameBackdrop.parent as? View)?.let { updateViewHeight(it, 430) }
+        (binding.imageGameBackdrop.parent as? View)?.let { updateViewHeight(it, 280) }
         viewLifecycleOwner.lifecycleScope.launch {
             val bitmap = withContext(Dispatchers.IO) { decodeArtwork(heroArtwork, 1920) }
             if (_binding == null || bitmap == null) {
@@ -398,7 +398,7 @@ class GamePropertiesFragment : Fragment() {
     }
 
     private fun applyFallbackBackdrop() {
-        (binding.imageGameBackdrop.parent as? View)?.let { updateViewHeight(it, 330) }
+        (binding.imageGameBackdrop.parent as? View)?.let { updateViewHeight(it, 260) }
         GameIconUtils.loadGameIcon(args.game, binding.imageGameBackdrop)
         binding.imageGameBackdrop.alpha = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 0.30f else 0.16f
         binding.imageGameBackdrop.scaleX = 1.28f

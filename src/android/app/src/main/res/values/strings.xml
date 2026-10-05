@@ -571,9 +571,9 @@
     <string name="fsr_sharpness_description">Determines how sharpened the image will look while using FSR or SGSR filters</string>
     <string name="scaling_filter_nis">NVIDIA Image Scaling (NIS)</string>
     <string name="nis_render_scale">NIS render resolution</string>
-    <string name="nis_render_scale_description">Official NVIDIA Image Scaling input preset. While NIS is selected, this replaces the normal resolution multiplier: the game is rendered at 85%, 77%, 67%, 59% or 50% of native 1x and NVScaler reconstructs it to the display resolution.</string>
+    <string name="nis_render_scale_description" formatted="false">Official NVIDIA Image Scaling input preset. While NIS is selected, this replaces the normal resolution multiplier: the game is rendered at 85%, 77%, 67%, 59% or 50% of native 1x and NVScaler reconstructs it to the display resolution.</string>
     <string name="nis_sharpness">NIS sharpness</string>
-    <string name="nis_sharpness_description">Controls the adaptive sharpening built into NVScaler from 0% to 100%. Scaling and sharpening are performed by the NVIDIA Image Scaling algorithm in the same compute pass.</string>
+    <string name="nis_sharpness_description" formatted="false">Controls the adaptive sharpening built into NVScaler from 0% to 100%. Scaling and sharpening are performed by the NVIDIA Image Scaling algorithm in the same compute pass.</string>
     <string name="renderer_anti_aliasing">Anti-aliasing method</string>
 
 

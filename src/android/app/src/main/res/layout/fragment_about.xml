@@ -53,7 +53,7 @@
                     android:layout_width="112dp"
                     android:layout_height="112dp"
                     android:layout_marginBottom="8dp"
-                    android:src="@drawable/moonwitch_app_icon" />
+                    android:src="@drawable/ic_moonwitch_mark" />
 
                 <com.google.android.material.textview.MaterialTextView
                     style="@style/TextAppearance.Material3.TitleMedium"

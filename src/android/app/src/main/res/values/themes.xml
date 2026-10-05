@@ -30,7 +30,7 @@
     <style name="Theme.Moonwitch.Main" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Primary colors -->
         <item name="colorPrimary">@color/mw_ui_accent</item>
-        <item name="colorOnPrimary">@color/mw_ui_text</item>
+        <item name="colorOnPrimary">@color/mw_ui_bg</item>
         <item name="colorPrimaryContainer">@color/mw_ui_accent_soft</item>
         <item name="colorOnPrimaryContainer">@color/mw_ui_text</item>
         <!-- Secondary colors -->
@@ -40,7 +40,7 @@
         <item name="colorOnSecondaryContainer">@color/mw_ui_bg</item>
         <!-- Tertiary colors -->
         <item name="colorTertiary">@color/mw_ui_accent_hi</item>
-        <item name="colorOnTertiary">@color/mw_ui_text</item>
+        <item name="colorOnTertiary">@color/mw_ui_bg</item>
         <item name="colorTertiaryContainer">@color/mw_ui_accent</item>
         <item name="colorOnTertiaryContainer">@color/mw_ui_text</item>
         <!-- Background and surface -->

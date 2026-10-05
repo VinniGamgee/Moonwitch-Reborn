@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="mw_ui_bg">#05050C</color>
-    <color name="mw_ui_bg_soft">#080812</color>
-    <color name="mw_ui_surface">#10101A</color>
-    <color name="mw_ui_surface_2">#141420</color>
-    <color name="mw_ui_surface_3">#191326</color>
-    <color name="mw_ui_border">#282333</color>
-    <color name="mw_ui_border_accent">#6530A1</color>
-    <color name="mw_ui_accent">#9147FF</color>
-    <color name="mw_ui_accent_hi">#B06BFF</color>
-    <color name="mw_ui_accent_soft">#28133F</color>
-    <color name="mw_ui_text">#F7F5FB</color>
-    <color name="mw_ui_text_2">#A7A2AF</color>
-    <color name="mw_ui_text_3">#777281</color>
-    <color name="mw_ui_divider">#23202D</color>
+    <color name="mw_ui_bg">#0B0E20</color>
+    <color name="mw_ui_bg_soft">#101429</color>
+    <color name="mw_ui_surface">#171C35</color>
+    <color name="mw_ui_surface_2">#1D233F</color>
+    <color name="mw_ui_surface_3">#242846</color>
+    <color name="mw_ui_border">#353D60</color>
+    <color name="mw_ui_border_accent">#55E6D2</color>
+    <color name="mw_ui_accent">#55E6D2</color>
+    <color name="mw_ui_accent_hi">#88F4E4</color>
+    <color name="mw_ui_accent_soft">#163E3F</color>
+    <color name="mw_ui_text">#F7F6FC</color>
+    <color name="mw_ui_text_2">#B7BED5</color>
+    <color name="mw_ui_text_3">#9AA4C0</color>
+    <color name="mw_ui_divider">#353D60</color>
 
     <dimen name="mw_ui_page_hpad">18dp</dimen>
     <dimen name="mw_ui_card_radius">18dp</dimen>

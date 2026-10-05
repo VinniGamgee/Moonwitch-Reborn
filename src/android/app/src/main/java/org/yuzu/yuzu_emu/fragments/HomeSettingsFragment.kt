@@ -21,6 +21,9 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.documentfile.provider.DocumentFile
+import androidx.activity.OnBackPressedCallback
+import androidx.core.widget.doOnTextChanged
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
@@ -49,6 +52,12 @@ class HomeSettingsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var mainActivity: MainActivity
+    private var allOptions: List<HomeSetting> = emptyList()
+    private var rootOptions: List<HomeSetting> = emptyList()
+    private var currentOptions: List<HomeSetting> = emptyList()
+    private var groupTitle: Int? = null
+    private lateinit var groupBack: OnBackPressedCallback
+
 
     private val homeViewModel: HomeViewModel by activityViewModels()
 
@@ -70,10 +79,7 @@ class HomeSettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         homeViewModel.setStatusBarShadeVisibility(visible = false)
         mainActivity = requireActivity() as MainActivity
-        binding.toolbarHomeSettings.setNavigationOnClickListener {
-            findNavController().popBackStack()
-        }
-        binding.toolbarHomeSettings.title = getString(R.string.preferences_settings)
+        binding.toolbarHomeSettings.title = getString(R.string.mw_reform_settings)
 
         val optionsList: MutableList<HomeSetting> = mutableListOf<HomeSetting>().apply {
             add(
@@ -332,19 +338,62 @@ class HomeSettingsFragment : Fragment() {
             )
         }
 
-        binding.homeSettingsList.apply {
-            layoutManager =
-                GridLayoutManager(requireContext(), resources.getInteger(R.integer.grid_columns))
-            adapter = HomeSettingAdapter(
-                requireActivity() as AppCompatActivity,
-                viewLifecycleOwner,
-                optionsList
-            )
-            val spacing = resources.getDimensionPixelSize(R.dimen.spacing_small)
-            addItemDecoration(SpacingItemDecoration(spacing))
+        allOptions = optionsList
+        fun pick(vararg ids: Int) = ids.mapNotNull { id -> allOptions.firstOrNull { it.titleId == id } }
+        fun group(title: Int, description: Int, icon: Int, options: List<HomeSetting>) =
+            HomeSetting(title, description, icon, { showOptions(options, title) })
+        val systemOptions = listOf(
+            HomeSetting(R.string.preferences_system, R.string.preferences_system_description, R.drawable.ic_system, {
+                findNavController().navigate(HomeNavigationDirections.actionGlobalSettingsActivity(null, Settings.MenuTag.SECTION_SYSTEM))
+            }),
+            HomeSetting(R.string.mw_cat_general, R.string.mw_cat_general_desc, R.drawable.ic_settings, {
+                findNavController().navigate(HomeNavigationDirections.actionGlobalSettingsActivity(null, Settings.MenuTag.SECTION_GENERAL))
+            })
+        ) + pick(R.string.profile_manager, R.string.multiplayer, R.string.applets, R.string.advanced_settings)
+        val dataOptions = pick(R.string.manage_game_folders, R.string.manage_yuzu_data, R.string.verify_installed_content, R.string.open_user_folder)
+        val supportOptions = pick(R.string.system_information, R.string.share_log, R.string.share_gpu_log, R.string.about)
+        rootOptions = pick(R.string.mw_ui_graphics, R.string.mw_ui_performance, R.string.mw_ui_audio, R.string.preferences_controls, R.string.mw_drivers_components) +
+            group(R.string.mw_cat_system, R.string.mw_cat_system_desc, R.drawable.ic_system, systemOptions) +
+            pick(R.string.app_settings) +
+            group(R.string.mw_reform_data, R.string.mw_ui_folders_desc, R.drawable.ic_folder_open, dataOptions) +
+            group(R.string.mw_reform_support, R.string.mw_help_center_desc, R.drawable.ic_info_outline, supportOptions)
+        allOptions = allOptions + systemOptions.take(2)
+        groupBack = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() { showOptions(rootOptions, null) }
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, groupBack)
+        binding.toolbarHomeSettings.setNavigationOnClickListener {
+            if (groupTitle != null) showOptions(rootOptions, null) else findNavController().popBackStack()
+        }
+        binding.homeSettingsList.layoutManager = GridLayoutManager(requireContext(), 1)
+        binding.settingsSearch.doOnTextChanged { text, _, _, _ ->
+            val query = text.toString().trim()
+            val options = if (query.isBlank()) currentOptions else allOptions.filter {
+                getString(it.titleId).contains(query, ignoreCase = true) || getString(it.descriptionId).contains(query, ignoreCase = true)
+            }
+            binding.homeSettingsList.adapter = HomeSettingAdapter(requireActivity() as AppCompatActivity, viewLifecycleOwner, options)
+        }
+        binding.settingsNavigation.selectedItemId = R.id.mw_nav_settings
+        binding.settingsNavigation.setOnItemSelectedListener {
+            if (it.itemId == R.id.mw_nav_library) findNavController().popBackStack(R.id.gamesFragment, false)
+            it.itemId == R.id.mw_nav_settings
+        }
+        showOptions(rootOptions, null)
 
         setInsets()
+    }
+
+    private fun showOptions(options: List<HomeSetting>, title: Int?) {
+        groupTitle = title
+        currentOptions = options
+        groupBack.isEnabled = title != null
+        binding.toolbarHomeSettings.setTitle(title ?: R.string.mw_reform_settings)
+        binding.toolbarHomeSettings.navigationIcon = if (title == null) null else
+            androidx.appcompat.content.res.AppCompatResources.getDrawable(requireContext(), R.drawable.ic_back)
+        binding.settingsNavigation.isVisible = title == null
+        binding.settingsSearch.setText("")
+        binding.homeSettingsList.adapter = HomeSettingAdapter(requireActivity() as AppCompatActivity, viewLifecycleOwner, options)
+        binding.scrollViewSettings.scrollTo(0, 0)
     }
 
     override fun onStart() {
@@ -514,25 +563,12 @@ class HomeSettingsFragment : Fragment() {
         }
     }
 
-    private fun setInsets() =
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
-            val barInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val cutoutInsets = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
-
-            binding.appbarHomeSettings.updateMargins(
-                left = barInsets.left + cutoutInsets.left,
-                right = barInsets.right + cutoutInsets.right
-            )
-
-            binding.scrollViewSettings.updatePadding(
-                bottom = barInsets.bottom
-            )
-
-            binding.homeSettingsList.updatePadding(
-                left = barInsets.left + cutoutInsets.left,
-                right = barInsets.right + cutoutInsets.right
-            )
-
-            windowInsets
+    private fun setInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime())
+            view.updatePadding(left = safe.left, top = safe.top, right = safe.right, bottom = safe.bottom)
+            WindowInsetsCompat.CONSUMED
         }
+        ViewCompat.requestApplyInsets(binding.root)
+    }
 }

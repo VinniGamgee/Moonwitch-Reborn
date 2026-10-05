@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#050814</color>
+    <color name="ic_launcher_background">#0B0E20</color>
     <color name="moonwitch_panel">#E60A0F1D</color>
     <color name="moonwitch_panel_soft">#CC10182A</color>
     <color name="moonwitch_panel_high">#FF121B2E</color>

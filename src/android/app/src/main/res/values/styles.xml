@@ -264,7 +264,7 @@
         <item name="android:shadowColor">@color/eden_glow_pink</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">3</item>
+        <item name="android:shadowRadius">0</item>
     </style>
     <style name="SynthwaveText.Header" parent="TextAppearance.Material3.DisplaySmall">
         <item name="android:textColor">@color/eden_primary</item>
@@ -274,7 +274,7 @@
         <item name="android:shadowColor">@color/eden_glow_pink</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">3</item>
+        <item name="android:shadowRadius">0</item>
     </style>
     <style name="SynthwaveText.Body" parent="TextAppearance.Material3.BodyLarge">
         <item name="android:textColor">@color/eden_on_background</item>
@@ -287,7 +287,7 @@
         <item name="android:shadowColor">@color/eden_glow_cyan</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">2</item>
+        <item name="android:shadowRadius">0</item>
     </style>
     <style name="SynthwaveText.Accent" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:textColor">@color/eden_accent_orange</item>
@@ -297,7 +297,7 @@
         <item name="android:shadowColor">@color/eden_glow_orange</item>
         <item name="android:shadowDx">0</item>
         <item name="android:shadowDy">0</item>
-        <item name="android:shadowRadius">4</item>
+        <item name="android:shadowRadius">0</item>
     </style>
     <!-- Shape appearance for carousel images -->
     <style name="ShapeAppearance.Eden.CarouselImage" parent="">

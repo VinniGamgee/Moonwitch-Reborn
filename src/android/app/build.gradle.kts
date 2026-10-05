@@ -60,10 +60,10 @@ android {
     }
 
     defaultConfig {
-        applicationId = "dev.moonwitch.emulator"
+        applicationId = "dev.moonwitch.emulator.reformulation"
         minSdk = 24
         targetSdk = 36
-        versionName = "0.2.0"
+        versionName = "0.2.0-reformulation"
         versionCode = autoVersion
 
         externalNativeBuild {
@@ -124,7 +124,7 @@ android {
                 signingConfigs.getByName("default")
             }
 
-            manifestPlaceholders += mapOf("appNameSuffix" to "")
+            manifestPlaceholders += mapOf("appNameSuffix" to " Reformulation")
 
             isMinifyEnabled = true
             isDebuggable = false
@@ -308,6 +308,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.viewpager2:viewpager2:1.1.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
     implementation("androidx.fragment:fragment-ktx:1.8.6")
     implementation("androidx.documentfile:documentfile:1.0.1")

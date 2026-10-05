@@ -32,23 +32,8 @@ object ThemeHelper {
 
     fun setTheme(activity: AppCompatActivity) {
         setThemeMode(activity)
-        when (Theme.from(IntSetting.THEME.getInt())) {
-            Theme.Default -> activity.setTheme(getSelectedStaticThemeColor())
-            Theme.MaterialYou -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    activity.setTheme(R.style.Theme_Yuzu_Main_MaterialYou)
-                } else {
-                    activity.setTheme(getSelectedStaticThemeColor())
-                }
-            }
-        }
-
-        // Using a specific night mode check because this could apply incorrectly when using the
-        // light app mode, dark system mode, and black backgrounds. Launching the settings activity
-        // will then show light mode colors/navigation bars but with black backgrounds.
-        if (BooleanSetting.BLACK_BACKGROUNDS.getBoolean() && isNightMode(activity)) {
-            activity.setTheme(R.style.ThemeOverlay_Yuzu_Dark)
-        }
+        activity.setTheme(R.style.Theme_Moonwitch_Main)
+        setDarkModeSystemBars(WindowCompat.getInsetsController(activity.window, activity.window.decorView))
     }
 
     private fun getSelectedStaticThemeColor(): Int {

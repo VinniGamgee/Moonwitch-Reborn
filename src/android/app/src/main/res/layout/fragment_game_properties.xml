@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/moonwitch_background">
+    android:background="@color/ic_launcher_background">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/list_all"
@@ -22,7 +22,7 @@
 
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="350dp">
+                android:layout_height="280dp">
 
                 <ImageView
                     android:id="@+id/image_game_backdrop"
@@ -64,6 +64,7 @@
                         android:layout_height="1dp"
                         android:layout_weight="1" />
 
+                    <ImageView android:layout_width="32dp" android:layout_height="32dp" android:layout_marginEnd="8dp" android:src="@drawable/ic_moonwitch_mark" android:importantForAccessibility="no"/>
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_shortcut"
                         style="?attr/materialIconButtonStyle"
@@ -87,8 +88,8 @@
                     android:paddingBottom="28dp">
 
                     <com.google.android.material.card.MaterialCardView
-                        android:layout_width="118dp"
-                        android:layout_height="164dp"
+                        android:layout_width="84dp"
+                        android:layout_height="112dp"
                         app:cardBackgroundColor="@color/moonwitch_panel_high"
                         app:cardCornerRadius="18dp"
                         app:cardElevation="0dp"
@@ -180,13 +181,13 @@
                 android:layout_marginTop="8dp"
                 android:fontFamily="sans-serif-medium"
                 android:text="@string/mw_gamehub_v2_play"
-                android:textColor="@color/moonwitch_text"
+                android:textColor="@color/mw_reform_bg"
                 android:textSize="15sp"
                 app:backgroundTint="@color/mw_gamehub_v2_play"
                 app:cornerRadius="18dp"
                 app:icon="@drawable/ic_play"
                 app:iconGravity="textStart"
-                app:iconTint="@color/moonwitch_text" />
+                app:iconTint="@color/mw_reform_bg" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"

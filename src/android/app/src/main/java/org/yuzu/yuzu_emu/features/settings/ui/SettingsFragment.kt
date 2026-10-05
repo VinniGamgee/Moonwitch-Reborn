@@ -212,6 +212,7 @@ private fun getPlayerIndex(): Int =
 
     private fun configureToolbar(title: String) {
         binding.toolbarSettings.title = title
+        binding.toolbarSettings.subtitle = getString(if (args.game == null) R.string.mw_reform_global else R.string.mw_reform_game)
     }
 
     private fun setInsets() {

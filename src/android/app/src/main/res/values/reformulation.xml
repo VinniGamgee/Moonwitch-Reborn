@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+ <color name="mw_reform_bg">#0B0E20</color><color name="mw_reform_panel">#171C35</color>
+ <color name="mw_reform_accent">#55E6D2</color><color name="mw_reform_text">#F7F6FC</color>
+ <color name="mw_reform_muted">#B7BED5</color><color name="mw_reform_border">#353D60</color>
+ <string name="mw_reform_settings">Ajustes</string><string name="mw_reform_details">Detalhes</string>
+ <string name="mw_reform_swipe">Deslize para trocar</string><string name="mw_reform_count">%1$d / %2$d</string>
+ <string name="mw_reform_empty">Sua biblioteca começa aqui</string>
+ <string name="mw_reform_empty_hint">Adicione uma pasta com seus jogos para começar.</string>
+ <string name="mw_reform_no_results">Nenhum jogo neste filtro</string>
+ <string name="mw_reform_no_results_hint">Experimente outra busca ou selecione Todos.</string>
+ <string name="mw_reform_previous">Jogo anterior</string><string name="mw_reform_next">Próximo jogo</string>
+ <string name="mw_reform_refresh">Atualizar biblioteca</string><string name="mw_reform_search">Buscar jogo</string>
+ <string name="mw_reform_search_settings">Buscar ajuste</string><string name="mw_reform_data">Dados e biblioteca</string>
+ <string name="mw_reform_support">Sobre e diagnóstico</string><string name="mw_reform_essentials">AJUSTES ESSENCIAIS</string>
+ <string name="mw_reform_system">SISTEMA E DADOS</string><string name="mw_reform_tools">DIAGNÓSTICO E SUPORTE</string>
+ <string name="mw_reform_global">Configuração global</string><string name="mw_reform_game">Somente este jogo</string>
+ <style name="Widget.Moonwitch.Reform.Icon" parent="Widget.AppCompat.ImageButton">
+  <item name="android:layout_width">48dp</item><item name="android:layout_height">48dp</item>
+  <item name="android:background">?attr/selectableItemBackgroundBorderless</item><item name="android:padding">12dp</item>
+  <item name="tint">@color/mw_reform_text</item>
+ </style>
+ <style name="Widget.Moonwitch.Reform.Button" parent="Widget.Material3.Button">
+  <item name="android:minHeight">48dp</item><item name="android:insetTop">0dp</item><item name="android:insetBottom">0dp</item>
+  <item name="cornerRadius">24dp</item><item name="backgroundTint">@color/mw_reform_accent</item>
+  <item name="android:textColor">@color/mw_reform_bg</item><item name="iconTint">@color/mw_reform_bg</item>
+  <item name="android:textSize">16sp</item>
+ </style>
+</resources>

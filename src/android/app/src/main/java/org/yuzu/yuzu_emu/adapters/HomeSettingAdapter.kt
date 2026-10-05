@@ -11,6 +11,11 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.yuzu.yuzu_emu.databinding.CardHomeOptionBinding
 import org.yuzu.yuzu_emu.fragments.MessageDialogFragment
 import org.yuzu.yuzu_emu.model.HomeSetting
@@ -29,9 +34,16 @@ class HomeSettingAdapter(
             .also { return HomeOptionViewHolder(it) }
     }
 
+    override fun onViewRecycled(holder: HomeOptionViewHolder) {
+        holder.detailJob?.cancel()
+        super.onViewRecycled(holder)
+    }
+
     inner class HomeOptionViewHolder(val binding: CardHomeOptionBinding) :
         AbstractViewHolder<HomeSetting>(binding) {
+        var detailJob: Job? = null
         override fun bind(model: HomeSetting) {
+            detailJob?.cancel()
             binding.optionTitle.text = activity.resources.getString(model.titleId)
             binding.optionDescription.text = activity.resources.getString(model.descriptionId)
             binding.optionIcon.setImageDrawable(
@@ -42,14 +54,20 @@ class HomeSettingAdapter(
                 )
             )
 
-            if (!model.isEnabled.invoke()) {
-                binding.optionTitle.alpha = 0.5f
-                binding.optionDescription.alpha = 0.5f
-                binding.optionIcon.alpha = 0.5f
+            val alpha = if (model.isEnabled.invoke()) 1f else 0.5f
+            binding.optionTitle.alpha = alpha
+            binding.optionDescription.alpha = alpha
+            binding.optionIcon.alpha = alpha
+            binding.optionDetail.text = model.details.value
+            binding.optionDetail.setVisible(model.details.value.isNotBlank())
+            detailJob = viewLifecycle.lifecycleScope.launch {
+                viewLifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    model.details.collect { detail ->
+                        binding.optionDetail.text = detail
+                        binding.optionDetail.setVisible(detail.isNotBlank())
+                    }
+                }
             }
-
-            model.details.collect(viewLifecycle) { updateOptionDetails(it) }
-            binding.optionDetail.marquee()
 
             binding.root.setOnClickListener { onClick(model) }
         }

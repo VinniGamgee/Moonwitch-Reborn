@@ -50,7 +50,7 @@
                     android:layout_margin="8dp"
                     android:alpha="0.88"
                     android:contentDescription="@null"
-                    android:src="@drawable/moonwitch_app_icon" />
+                    android:src="@drawable/ic_moonwitch_mark" />
             </FrameLayout>
 
             <com.google.android.material.textview.MaterialTextView
