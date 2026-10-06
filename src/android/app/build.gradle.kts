@@ -124,7 +124,7 @@ android {
                 signingConfigs.getByName("default")
             }
 
-            manifestPlaceholders += mapOf("appNameSuffix" to " Reformulation")
+            manifestPlaceholders += mapOf("appNameSuffix" to "")
 
             isMinifyEnabled = true
             isDebuggable = false
@@ -389,6 +389,11 @@ afterEvaluate {
 
             from(apkFile)
             from(aabFile)
+            rename { name ->
+                if (flavor == "standard" && type == "release") {
+                    "Moonwitch.${name.substringAfterLast('.')}"
+                } else name
+            }
             into(artifactsDir)
 
             dependsOn("assemble${variantTask}")

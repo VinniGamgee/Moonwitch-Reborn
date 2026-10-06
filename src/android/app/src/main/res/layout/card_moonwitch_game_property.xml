@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="6dp"
+    android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="5dp"
     android:clickable="true"
     android:focusable="true"
@@ -23,9 +23,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="start"
-            android:minHeight="120dp"
-            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:paddingHorizontal="14dp"
             android:paddingVertical="11dp">
 
@@ -49,9 +48,10 @@
             </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginStart="12dp"
 
                 android:orientation="vertical">
 
@@ -110,7 +110,7 @@
             android:id="@+id/layoutSecondaryActions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="start|center_vertical"
+            android:gravity="end|center_vertical"
             android:orientation="horizontal"
             android:paddingHorizontal="12dp"
             android:paddingVertical="6dp"
