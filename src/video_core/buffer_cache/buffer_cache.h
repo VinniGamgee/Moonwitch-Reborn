@@ -1511,11 +1511,11 @@ void BufferCache<P>::UpdateComputeTextureBuffers() {
 
 template <class P>
 void BufferCache<P>::MarkWrittenBuffer(BufferId buffer_id, DAddr device_addr, u32 size) {
-    Buffer& buffer = slot_buffers[buffer_id];
     if constexpr (!IS_OPENGL) {
+        Buffer& buffer = slot_buffers[buffer_id];
         buffer.setWriteTick(runtime.CurrentTick());
+        buffer.MarkContentModified();
     }
-    buffer.MarkContentModified();
     memory_tracker.MarkRegionAsGpuModified(device_addr, size);
     gpu_modified_ranges.Add(device_addr, size);
     uncommitted_gpu_modified_ranges.Add(device_addr, size);
