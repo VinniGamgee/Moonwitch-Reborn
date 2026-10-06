@@ -129,6 +129,14 @@ public:
         write_tick = write_tick_;
     }
 
+    [[nodiscard]] u64 ContentGeneration() const noexcept {
+        return content_generation;
+    }
+
+    void MarkContentModified() noexcept {
+        ++content_generation;
+    }
+
 private:
     VAddr cpu_addr = 0;
     BufferFlagBits flags{};
@@ -136,6 +144,7 @@ private:
     size_t lru_id = SIZE_MAX;
     size_t size_bytes = 0;
     u64 write_tick = 0;
+    u64 content_generation = 0;
 };
 
 } // namespace VideoCommon
