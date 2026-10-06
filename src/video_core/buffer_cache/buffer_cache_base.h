@@ -253,12 +253,6 @@ public:
 
     void UpdateComputeBuffers();
 
-    bool BindMultiRangeStorage(const Binding& binding, bool is_written,
-                               std::span<const MultiRangeSegment> pool);
-
-    void ResolveMultiRangeStorage(Binding& binding, bool is_written,
-                                  std::vector<MultiRangeSegment>& pool);
-
     void BindHostGeometryBuffers(bool is_indexed);
 
     void BindHostStageBuffers(size_t stage);
@@ -516,8 +510,6 @@ private:
     std::array<Binding, 32> v_buffer{};
 
     boost::container::small_vector<BufferCopy, 4> upload_copies;
-    std::vector<MultiRangeSegment> graphics_segments;
-    std::vector<MultiRangeSegment> compute_segments;
 
     MemoryTracker memory_tracker;
     Common::RangeSet<DAddr> uncommitted_gpu_modified_ranges;
