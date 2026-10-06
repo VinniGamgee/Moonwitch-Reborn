@@ -104,8 +104,10 @@ EOF
 pushd "$SRC" >/dev/null
 MESON_ARGS=(
   "--cross-file=android-aarch64.txt"
+  "--wrap-mode=nofallback"
   "--prefix=$PREFIX"
   "-Dbuildtype=release"
+  "-Dtools="
   "-Dstrip=true"
   "-Dplatforms=android"
   "-Dvideo-codecs="
