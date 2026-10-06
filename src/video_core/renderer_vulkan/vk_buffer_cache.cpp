@@ -447,10 +447,13 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
 
     const u64 signature = MultiRangeSignature();
     const u64 current_tick = scheduler.CurrentTick();
-    auto entry_it = std::find_if(multi_range_entries.begin(), multi_range_entries.end(),
-                                 [key](const MultiRangeEntry& candidate) {
-                                     return candidate.key == key;
-                                 });
+    auto find_entry = [this, key] {
+        return std::find_if(multi_range_entries.begin(), multi_range_entries.end(),
+                            [key](const MultiRangeEntry& candidate) {
+                                return candidate.key == key;
+                            });
+    };
+    auto entry_it = find_entry();
 
     if (entry_it != multi_range_entries.end() && entry_it->buffer && !entry_it->dirty &&
         entry_it->signature == signature) {
@@ -464,34 +467,43 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
     }
 
     if (entry_it == multi_range_entries.end()) {
-        // Bound the gather cache on mobile devices. Retire least-recently-used buffers through the
-        // scheduler so they remain alive until every command that references them has completed.
-        while (!multi_range_entries.empty() &&
-               multi_range_cached_bytes + multi_range_total > MAX_MULTI_RANGE_CACHE_BYTES) {
-            const auto victim = std::min_element(
-                multi_range_entries.begin(), multi_range_entries.end(),
-                [](const MultiRangeEntry& lhs, const MultiRangeEntry& rhs) {
-                    return lhs.last_used_tick < rhs.last_used_tick;
-                });
-            if (victim->buffer) {
-                retired_multi_range_buffers.push_back(
-                    RetiredMultiRangeBuffer{.buffer = std::move(victim->buffer),
-                                            .tick = current_tick});
-            }
-            multi_range_cached_bytes -= (std::min)(multi_range_cached_bytes, victim->size);
-            multi_range_entries.erase(victim);
-        }
         multi_range_entries.push_back(MultiRangeEntry{.key = key});
         entry_it = multi_range_entries.end() - 1;
+    } else if (entry_it->buffer) {
+        retired_multi_range_buffers.push_back(
+            RetiredMultiRangeBuffer{.buffer = std::move(entry_it->buffer), .tick = current_tick});
+        multi_range_cached_bytes -= (std::min)(multi_range_cached_bytes, entry_it->size);
+        entry_it->size = 0;
     }
 
-    MultiRangeEntry& entry = *entry_it;
-    if (entry.buffer) {
+    // Keep cached gathers around a 64 MiB working-set target. The entry being rebuilt is never
+    // evicted here. If a single required gather itself exceeds the target, it is allowed to exist
+    // alone rather than making the binding fail.
+    while (multi_range_cached_bytes + multi_range_total > MAX_MULTI_RANGE_CACHE_BYTES) {
+        auto victim = multi_range_entries.end();
+        for (auto candidate = multi_range_entries.begin(); candidate != multi_range_entries.end();
+             ++candidate) {
+            if (candidate->key == key || !candidate->buffer) {
+                continue;
+            }
+            if (victim == multi_range_entries.end() ||
+                candidate->last_used_tick < victim->last_used_tick) {
+                victim = candidate;
+            }
+        }
+        if (victim == multi_range_entries.end()) {
+            break;
+        }
         retired_multi_range_buffers.push_back(
-            RetiredMultiRangeBuffer{.buffer = std::move(entry.buffer), .tick = current_tick});
-        multi_range_cached_bytes -= (std::min)(multi_range_cached_bytes, entry.size);
-        entry.size = 0;
+            RetiredMultiRangeBuffer{.buffer = std::move(victim->buffer), .tick = current_tick});
+        multi_range_cached_bytes -= (std::min)(multi_range_cached_bytes, victim->size);
+        multi_range_entries.erase(victim);
     }
+
+    // Erasing LRU entries may invalidate vector iterators.
+    entry_it = find_entry();
+    ASSERT(entry_it != multi_range_entries.end());
+    MultiRangeEntry& entry = *entry_it;
 
     const VkBufferCreateInfo create_info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
