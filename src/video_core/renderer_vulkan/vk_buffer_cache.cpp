@@ -411,8 +411,8 @@ void BufferCacheRuntime::TickFrame(Common::SlotVector<Buffer>& slot_buffers) noe
 }
 
 u64 BufferCacheRuntime::MultiRangeSignature() const noexcept {
-    // The source write ticks let us reuse the gathered buffer until one of its
-    // physical segments changes. Geometry changes are handled by the key.
+    // Content generations let us reuse a gathered buffer only while every physical segment
+    // remains unchanged. Geometry changes are handled by the key.
     u64 hash = 1469598103934665603ULL;
     for (const MultiRangeSource& source : multi_range_sources) {
         hash ^= static_cast<u64>(reinterpret_cast<uintptr_t>(source.handle));
@@ -421,7 +421,7 @@ u64 BufferCacheRuntime::MultiRangeSignature() const noexcept {
         hash *= 1099511628211ULL;
         hash ^= source.size;
         hash *= 1099511628211ULL;
-        hash ^= source.write_tick;
+        hash ^= source.content_generation;
         hash *= 1099511628211ULL;
     }
     return hash;
