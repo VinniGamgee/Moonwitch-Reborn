@@ -105,6 +105,7 @@ pushd "$SRC" >/dev/null
 MESON_ARGS=(
   "--cross-file=android-aarch64.txt"
   "--wrap-mode=nofallback"
+  "--force-fallback-for=zlib"
   "--prefix=$PREFIX"
   "-Dbuildtype=release"
   "-Dtools="
@@ -114,7 +115,7 @@ MESON_ARGS=(
   "-Dplatform-sdk-version=$PLATFORM_SDK"
   "-Dandroid-stub=true"
   "-Dandroid-libbacktrace=disabled"
-  "-Dzlib=disabled"
+  "-Dzlib=enabled"
   "-Dzstd=disabled"
   "-Dgallium-drivers="
   "-Dvulkan-drivers=freedreno"
