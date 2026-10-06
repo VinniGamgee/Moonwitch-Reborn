@@ -1511,10 +1511,11 @@ void BufferCache<P>::UpdateComputeTextureBuffers() {
 
 template <class P>
 void BufferCache<P>::MarkWrittenBuffer(BufferId buffer_id, DAddr device_addr, u32 size) {
+    Buffer& buffer = slot_buffers[buffer_id];
     if constexpr (!IS_OPENGL) {
-        Buffer& buffer = slot_buffers[buffer_id];
         buffer.setWriteTick(runtime.CurrentTick());
     }
+    buffer.MarkContentModified();
     memory_tracker.MarkRegionAsGpuModified(device_addr, size);
     gpu_modified_ranges.Add(device_addr, size);
     uncommitted_gpu_modified_ranges.Add(device_addr, size);
@@ -1737,6 +1738,7 @@ bool BufferCache<P>::SynchronizeBuffer(Buffer& buffer, DAddr device_addr, u32 si
     }
     const std::span<BufferCopy> copies_span(upload_copies.data(), upload_copies.size());
     UploadMemory(buffer, total_size_bytes, largest_copy, copies_span);
+    buffer.MarkContentModified();
     any_buffer_uploaded = true;
     return false;
 }
@@ -1844,6 +1846,7 @@ void BufferCache<P>::InlineMemoryImplementation(DAddr dest_address, size_t copy_
     } else {
         buffer.ImmediateUpload(buffer.Offset(dest_address), inlined_buffer.first(copy_size));
     }
+    buffer.MarkContentModified();
 }
 
 template <class P>
