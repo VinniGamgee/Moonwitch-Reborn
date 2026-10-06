@@ -4,15 +4,22 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - reformulation
+      - 'stability/**'
+  pull_request:
+    branches:
       - main
 
+concurrency:
+  group: moonwitch-android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build-reformulation:
+  build-android:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
-      PGO: 'true'
       CCACHE: 'false'
     steps:
       - name: Checkout Moonwitch
@@ -25,7 +32,7 @@ jobs:
         run: python3 .ci/android/check_ui_resources.py
 
       - name: Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -34,7 +41,7 @@ jobs:
         shell: bash
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl glslang-tools spirv-tools
+          sudo apt-get install -y glslang-tools spirv-tools
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.31.6"
 

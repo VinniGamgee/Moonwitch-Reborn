@@ -446,32 +446,51 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
     }
 
     const u64 signature = MultiRangeSignature();
-    MultiRangeEntry* entry = nullptr;
-    for (auto& candidate : multi_range_entries) {
-        if (candidate.key == key) {
-            entry = &candidate;
-            break;
-        }
-    }
+    const u64 current_tick = scheduler.CurrentTick();
+    auto entry_it = std::find_if(multi_range_entries.begin(), multi_range_entries.end(),
+                                 [key](const MultiRangeEntry& candidate) {
+                                     return candidate.key == key;
+                                 });
 
-    if (!entry) {
-        multi_range_entries.push_back(MultiRangeEntry{.key = key});
-        entry = &multi_range_entries.back();
-    }
-
-    if (entry->buffer && !entry->dirty && entry->signature == signature) {
+    if (entry_it != multi_range_entries.end() && entry_it->buffer && !entry_it->dirty &&
+        entry_it->signature == signature) {
+        entry_it->last_used_tick = current_tick;
         const VkDeviceAddress address =
             device.IsBufferDeviceAddressSupported()
-                ? device.GetLogical().GetBufferDeviceAddress(*entry->buffer)
+                ? device.GetLogical().GetBufferDeviceAddress(*entry_it->buffer)
                 : 0;
-        guest_descriptor_queue.AddBuffer(*entry->buffer, address, 0, multi_range_total);
+        guest_descriptor_queue.AddBuffer(*entry_it->buffer, address, 0, multi_range_total);
         return true;
     }
 
-    if (entry->buffer) {
+    if (entry_it == multi_range_entries.end()) {
+        // Bound the gather cache on mobile devices. Retire least-recently-used buffers through the
+        // scheduler so they remain alive until every command that references them has completed.
+        while (!multi_range_entries.empty() &&
+               multi_range_cached_bytes + multi_range_total > MAX_MULTI_RANGE_CACHE_BYTES) {
+            const auto victim = std::min_element(
+                multi_range_entries.begin(), multi_range_entries.end(),
+                [](const MultiRangeEntry& lhs, const MultiRangeEntry& rhs) {
+                    return lhs.last_used_tick < rhs.last_used_tick;
+                });
+            if (victim->buffer) {
+                retired_multi_range_buffers.push_back(
+                    RetiredMultiRangeBuffer{.buffer = std::move(victim->buffer),
+                                            .tick = current_tick});
+            }
+            multi_range_cached_bytes -= (std::min)(multi_range_cached_bytes, victim->size);
+            multi_range_entries.erase(victim);
+        }
+        multi_range_entries.push_back(MultiRangeEntry{.key = key});
+        entry_it = multi_range_entries.end() - 1;
+    }
+
+    MultiRangeEntry& entry = *entry_it;
+    if (entry.buffer) {
         retired_multi_range_buffers.push_back(
-            RetiredMultiRangeBuffer{.buffer = std::move(entry->buffer),
-                                    .tick = scheduler.CurrentTick()});
+            RetiredMultiRangeBuffer{.buffer = std::move(entry.buffer), .tick = current_tick});
+        multi_range_cached_bytes -= (std::min)(multi_range_cached_bytes, entry.size);
+        entry.size = 0;
     }
 
     const VkBufferCreateInfo create_info{
@@ -488,7 +507,7 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
         .queueFamilyIndexCount = 0,
         .pQueueFamilyIndices = nullptr,
     };
-    entry->buffer = memory_allocator.CreateBuffer(create_info, MemoryUsage::DeviceLocal);
+    entry.buffer = memory_allocator.CreateBuffer(create_info, MemoryUsage::DeviceLocal);
 
     PreCopyBarrier();
     u64 dst_offset = 0;
@@ -499,18 +518,22 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
                 .dst_offset = dst_offset,
                 .size = source.size,
             }};
-        CopyBuffer(*entry->buffer, source.handle, copy, false);
+        CopyBuffer(*entry.buffer, source.handle, copy, false);
         dst_offset += source.size;
     }
     PostCopyBarrier();
 
-    entry->signature = signature;
-    entry->dirty = false;
+    entry.signature = signature;
+    entry.size = multi_range_total;
+    entry.last_used_tick = current_tick;
+    entry.dirty = false;
+    multi_range_cached_bytes += entry.size;
+
     const VkDeviceAddress address =
         device.IsBufferDeviceAddressSupported()
-            ? device.GetLogical().GetBufferDeviceAddress(*entry->buffer)
+            ? device.GetLogical().GetBufferDeviceAddress(*entry.buffer)
             : 0;
-    guest_descriptor_queue.AddBuffer(*entry->buffer, address, 0, multi_range_total);
+    guest_descriptor_queue.AddBuffer(*entry.buffer, address, 0, multi_range_total);
     return true;
 }
 

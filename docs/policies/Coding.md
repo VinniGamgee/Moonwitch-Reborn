@@ -12,7 +12,7 @@ Everyone has their own way of viewing good/bad C++ practices, my general outline
 
 - At your disposal you may use `boost::container::static_vector<>` (beware it has a ctor/initialization cost which goes up the more elements you add).
   - Or you may use `boost::container::small_vector<>` (which has an initialization cost as well, and will use extra book-keeping for heap, try to keep a balance).
-- Don't use `[[likely]]` or `[[unlikely]]`; PGO builds exist for that.
+- Don't add `[[likely]]` or `[[unlikely]]` without measured evidence; prefer clear control flow and benchmark performance-sensitive changes.
 - Don't use inline assembly to try to outsmart the compiler unless you're 100% sure the assembly you're writing is actually good.
   - And if so, try to restructure your C++ code so the compiler vectorizes it/makes it better
   - Or if that fails, use intrinsics instead of raw `asm volatile`.

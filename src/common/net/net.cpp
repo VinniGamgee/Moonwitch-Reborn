@@ -66,16 +66,13 @@ std::vector<Asset> Release::GetPlatformAssets() const {
     find_asset("Standard", {"amd64-msvc-standard.exe", "amd64-msvc-standard.zip"});
 #else // _MSC_VER
     find_asset("Standard", {BUILD_ID "-gcc-standard.exe", BUILD_ID "-gcc-standard.zip"});
-    find_asset("PGO", {BUILD_ID "-clang-pgo.exe", BUILD_ID "-clang-pgo.zip"});
 #endif // _MSC_VER
 #elif defined(ARCHITECTURE_arm64)
     find_asset("Standard", {"arm64-clang-standard.exe", "arm64-clang-standard.zip"});
-    find_asset("PGO", {"arm64-clang-pgo.exe", "arm64-clang-pgo.zip"});
 #endif // ARCHITECTURE_arm64
 #elif defined(__APPLE__)
 #ifdef ARCHITECTURE_arm64
     find_asset("Standard", {"standard.dmg", "standard.tar.gz", ".dmg", ".tar.gz"});
-    find_asset("PGO", {"pgo.dmg", "pgo.tar.gz"});
 #endif // ARCHITECTURE_arm64
 #elif defined(__ANDROID__)
 #ifdef ARCHITECTURE_x86_64

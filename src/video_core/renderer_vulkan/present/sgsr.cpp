@@ -31,7 +31,7 @@ SGSR::SGSR(const Device& device, MemoryAllocator& memory_allocator, size_t image
           edge_dir && Settings::values.moonwitch_reconstruction.GetValue() &&
           Settings::values.scaling_filter.GetValue() != Settings::ScalingFilter::SgsrEdge}
 {
-    // Not finished yet initializing at ctor time?
+    // Allocate one reconstruction target per swapchain image.
     m_dynamic_images.resize(m_image_count);
     for (auto& images : m_dynamic_images) {
         images.image = CreateWrappedImage(m_memory_allocator, m_extent, VK_FORMAT_R16G16B16A16_SFLOAT);

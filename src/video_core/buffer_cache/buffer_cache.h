@@ -1014,7 +1014,9 @@ bool BufferCache<P>::BindMultiRangeStorage(const Binding& binding, bool is_writt
             const MultiRangeSegment& segment = pool[binding.segment_first + index];
             Buffer& buffer = slot_buffers[segment.buffer_id];
             TouchBuffer(buffer, segment.buffer_id);
-            if (SynchronizeBuffer(buffer, segment.device_addr, segment.size)) {
+            // SynchronizeBuffer returns false when new CPU data was uploaded.
+            // A gathered multi-range buffer must be rebuilt after any such upload.
+            if (!SynchronizeBuffer(buffer, segment.device_addr, segment.size)) {
                 runtime.InvalidateMultiRange(key);
             }
             const u32 offset = buffer.Offset(segment.device_addr);

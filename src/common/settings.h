@@ -398,9 +398,9 @@ struct Values {
         linkage, 77, 50, 85, "nis_render_scale", Category::Renderer,
         Specialization::Countable | Specialization::Percentage, true, false};
 
-    // Moonwitch Reconstruction stage 1: preserve source texture detail for a higher
-    // reconstruction target without increasing the guest render resolution. The temporal
-    // SGSR2 pass will consume this cleaner source in a later stage.
+    // Moonwitch Reconstruction preserves finer source texture detail and can reuse the
+    // existing edge-directed SGSR spatial pass when the requested reconstruction target is above
+    // the guest render scale, without increasing the guest render resolution.
     SwitchableSetting<bool> moonwitch_reconstruction{
         linkage, false, "moonwitch_reconstruction", Category::Renderer,
         Specialization::Paired, true, false};

@@ -1,7 +1,7 @@
 # Moonwitch themes
 
-The main interface includes the paged game library, per-game controls and in-game
-panels from reformulation. Interface settings offer the original Moonwitch palette
+The stable Android interface includes the paged game library, per-game controls and in-game
+panels. Interface settings offer the original Moonwitch palette
 plus Gaming (violet/mint), AMOLED (black), Cyberpunk (yellow/cyan), Monocromático
 (neutral greys) and Atmosphere (teal/sand with a subtle static background gradient).
 
@@ -13,9 +13,9 @@ Material components, dialogs and menus. The app logo and game artwork retain the
 original colors. Android's initial system splash uses the default brand color;
 the following app splash uses the selected theme. These themes add no frame loops.
 
-The stable application ID is dev.moonwitch.emulator; existing reformulation and
-TOTK Diagnostics installations remain separate. Back up/export experimental saves
-before uninstalling those experimental apps. The release does not delete app data.
+The stable application ID is dev.moonwitch.emulator. Legacy reformulation and
+TOTK Diagnostics builds used separate application IDs, so their app data remains isolated.
+The stable release never deletes data belonging to those old installations.
 
 ## Removed experiments and cleanup
 

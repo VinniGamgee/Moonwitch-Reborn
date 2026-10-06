@@ -165,21 +165,20 @@ void Layer::ConfigureDraw(const Device& device, PresentPushConstants* out_push_c
         }
     }
 
+    const VkExtent2D post_process_extent =
+        sr_filter_applied ? output_size_extent : render_extent;
+
     if (Settings::IsCasEnabled()) {
-        const VkExtent2D cas_extent = sr_filter_applied ? output_size_extent : render_extent;
-        if (!cas_pass || cas_pass->NeedsRecreation(cas_extent)) {
-            cas_pass.emplace(device, memory_allocator, image_count, cas_extent);
+        if (!cas_pass || cas_pass->NeedsRecreation(post_process_extent)) {
+            cas_pass.emplace(device, memory_allocator, image_count, post_process_extent);
         }
         source_image_view = cas_pass->Draw(device, scheduler, image_index, source_image_view);
     }
 
     if (Settings::values.moonwitch_color_grading_mode.GetValue() != 0) {
-        const VkExtent2D color_grading_extent =
-            std::holds_alternative<std::monostate>(sr_filter) ? render_extent
-                                                              : output_size_extent;
-        if (!color_grading_pass || color_grading_pass->NeedsRecreation(color_grading_extent)) {
+        if (!color_grading_pass || color_grading_pass->NeedsRecreation(post_process_extent)) {
             color_grading_pass.emplace(device, memory_allocator, image_count,
-                                       color_grading_extent);
+                                       post_process_extent);
         }
         source_image_view = color_grading_pass->Draw(device, scheduler, image_index,
                                                      source_image_view);

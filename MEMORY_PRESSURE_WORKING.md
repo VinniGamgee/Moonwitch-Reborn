@@ -1,1 +1,0 @@
-Memory Pressure Manager implementation branch. Target: allocation reuse, bounded cache pressure, reduced synchronization/allocation stalls, Android/Vulkan aware, no forced resolution scaling.

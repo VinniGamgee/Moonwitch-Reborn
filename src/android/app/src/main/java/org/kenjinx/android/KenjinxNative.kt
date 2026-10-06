@@ -182,7 +182,8 @@ object KenjinxNative : KenjinxNativeJna by jnaInstance {
         newSubtitlePointer: Long,
         newInitialTextPointer: Long
     ) {
-        // Software-keyboard UI will be wired to Moonwitch after the first core boot is proven.
-        Log.d("MoonwitchKenji", "Kenji requested an applet UI (type=$newType)")
+        // The experimental compatibility host does not expose Kenji applet UI yet. Keep the
+        // request non-blocking and visible in diagnostics instead of stalling the native core.
+        Log.d("MoonwitchKenji", "Kenji requested an unsupported applet UI (type=$newType)")
     }
 }

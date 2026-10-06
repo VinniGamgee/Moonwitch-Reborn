@@ -222,7 +222,8 @@ private:
         u64 key{};
         u64 signature{};
         vk::Buffer buffer{};
-        u64 retire_tick{};
+        u64 size{};
+        u64 last_used_tick{};
         bool dirty{true};
     };
 
@@ -263,10 +264,13 @@ private:
     std::unique_ptr<Uint8Pass> uint8_pass;
     QuadIndexedPass quad_index_pass;
 
+    static constexpr u64 MAX_MULTI_RANGE_CACHE_BYTES = 64ULL * 1024ULL * 1024ULL;
+
     std::vector<MultiRangeSource> multi_range_sources;
     std::vector<MultiRangeEntry> multi_range_entries;
     std::vector<RetiredMultiRangeBuffer> retired_multi_range_buffers;
     u64 multi_range_total{};
+    u64 multi_range_cached_bytes{};
     
     bool limit_dynamic_storage_buffers = false;
     u32 max_dynamic_storage_buffers = (std::numeric_limits<u32>::max)();

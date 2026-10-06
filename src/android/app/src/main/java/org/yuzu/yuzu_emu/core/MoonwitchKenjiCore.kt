@@ -17,11 +17,11 @@ import org.yuzu.yuzu_emu.utils.DirectoryInitialization
 import org.yuzu.yuzu_emu.utils.Log
 
 /**
- * Minimal Moonwitch host for LibKenjinx/Ryujinx.
+ * Experimental Moonwitch compatibility host for LibKenjinx/Ryujinx.
  *
- * Phase 1 deliberately focuses on a real graphics/game boot path. Input remapping, custom GPU
- * driver forwarding, applet UI and per-core advanced settings are layered on after this path is
- * proven on-device.
+ * The stable Moonwitch core remains the production path. This host keeps its own writable data
+ * directory and fails closed when the external core cannot initialize, so incomplete Kenji
+ * features cannot affect normal Moonwitch emulation.
  */
 object MoonwitchKenjiCore {
     private const val TAG = "[MoonwitchKenjiCore]"
@@ -87,7 +87,7 @@ object MoonwitchKenjiCore {
             val docked = BooleanSetting.USE_DOCKED_MODE.getBoolean()
             val deviceReady = KenjinxNative.deviceInitialize(
                 2, // HostMappedUnsafe - Kenji Android default
-                false, // NCE stays off for the first compatibility boot
+                false, // Keep NCE disabled for the experimental compatibility host
                 0, // 4 GiB Switch memory configuration
                 17, // BrazilianPortuguese
                 1, // USA
@@ -201,6 +201,7 @@ object MoonwitchKenjiCore {
         }
         Log.info("$TAG Stopping Kenji core")
         inputPumpRunning = false
+        inputThread?.interrupt()
         KenjiInputBridge.disconnect()
         runCatching { KenjinxNative.graphicsSetPresentEnabled(false) }
         runCatching { KenjinxNative.deviceSignalEmulationClose() }
@@ -264,7 +265,9 @@ object MoonwitchKenjiCore {
             DirectoryInitialization.start()
         }
         val moonwitchBase = File(
-            DirectoryInitialization.userDirectory ?: context.getExternalFilesDir(null)!!.absolutePath
+            DirectoryInitialization.userDirectory
+                ?: context.getExternalFilesDir(null)?.absolutePath
+                ?: context.filesDir.absolutePath
         )
         val kenjiBase = File(moonwitchBase, "kenji-core")
         val kenjiSystem = File(kenjiBase, "system")
@@ -309,11 +312,11 @@ object MoonwitchKenjiCore {
     private fun openGameDescriptor(context: Context, gamePath: String): ParcelFileDescriptor? {
         val uri = Uri.parse(gamePath)
         return if (!uri.scheme.isNullOrBlank()) {
-            context.contentResolver.openFileDescriptor(uri, "rw")
+            context.contentResolver.openFileDescriptor(uri, "r")
         } else {
             val file = File(gamePath)
             if (file.isFile) {
-                ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
+                ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
             } else {
                 null
             }
@@ -333,6 +336,7 @@ object MoonwitchKenjiCore {
 
     private fun cleanupFailedStart() {
         inputPumpRunning = false
+        inputThread?.interrupt()
         KenjiInputBridge.disconnect()
         isRunning = false
         isPaused = false
