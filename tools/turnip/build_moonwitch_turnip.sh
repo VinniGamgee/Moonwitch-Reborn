@@ -107,8 +107,8 @@ c = 'clang'
 cpp = 'clang++'
 ar = 'llvm-ar'
 strip = 'llvm-strip'
-c_ld = 'ld.lld'
-cpp_ld = 'ld.lld'
+c_ld = 'lld'
+cpp_ld = 'lld'
 
 [host_machine]
 system = 'linux'
@@ -155,7 +155,7 @@ Mesa: $MESA_VERSION
 Mesa commit: $MESA_COMMIT
 Target: Android arm64 / KGSL / Adreno A6xx-A7xx
 Forced Turnip flags: $DEBUG_FLAGS
-Build type: release + LTO
+Build type: release
 EOF
 
 OUT="$DIST/Moonwitch-Turnip-${MESA_VERSION}-${VARIANT}.zip"
