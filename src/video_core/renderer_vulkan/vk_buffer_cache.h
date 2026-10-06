@@ -124,6 +124,12 @@ public:
         }
     }
 
+    void InvalidateAllMultiRange() noexcept {
+        for (auto& entry : multi_range_entries) {
+            entry.dirty = true;
+        }
+    }
+
     u64 CurrentTick();
 
     u64 KnownGpuTick();
