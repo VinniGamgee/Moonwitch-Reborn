@@ -108,7 +108,7 @@ public:
             .handle = buffer.Handle(),
             .offset = offset,
             .size = size,
-            .write_tick = buffer.getWriteTick(),
+            .content_generation = buffer.ContentGeneration(),
         });
         multi_range_total += size;
     }
@@ -215,7 +215,7 @@ private:
         VkBuffer handle{};
         u32 offset{};
         u32 size{};
-        u64 write_tick{};
+        u64 content_generation{};
     };
 
     struct MultiRangeEntry {
