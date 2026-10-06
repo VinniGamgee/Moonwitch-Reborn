@@ -9,6 +9,15 @@ ANDROID_DRAWABLE = "{http://schemas.android.com/apk/res/android}drawable"
 
 def validate(path: Path) -> None:
     root = ET.parse(path).getroot()
+    if path.name == "moonwitch_palettes.xml":
+        for style in root.findall("style"):
+            for item in style.findall("item"):
+                if item.get("name") in {"mwText", "mwMuted"}:
+                    if not (item.text or "").startswith("@color/"):
+                        raise ValueError(
+                            f"{path}: {style.get('name')} text colors must use color resources; "
+                            "Material navigation reads their resourceId"
+                        )
     if path.parent.name.startswith("drawable") and root.tag == "selector":
         for item in root.findall("item"):
             if item.get(ANDROID_DRAWABLE, "").startswith("?"):

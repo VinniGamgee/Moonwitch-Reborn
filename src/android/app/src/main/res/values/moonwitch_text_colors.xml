@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Material navigation loads text colors by resourceId, even with explicit item tints. -->
+    <color name="mw_palette_text">#F7F6FC</color>
+    <color name="mw_palette_muted">#B7BED5</color>
+    <color name="mw_gaming_text">#FAF7FF</color>
+    <color name="mw_gaming_muted">#CEC4DF</color>
+    <color name="mw_amoled_text">#FFFFFF</color>
+    <color name="mw_amoled_muted">#C6CECC</color>
+    <color name="mw_cyberpunk_text">#F8FAFF</color>
+    <color name="mw_cyberpunk_muted">#BACBD9</color>
+    <color name="mw_monochrome_text">#FAFAFA</color>
+    <color name="mw_monochrome_muted">#C2C2C2</color>
+    <color name="mw_atmosphere_text">#F2FAF7</color>
+    <color name="mw_atmosphere_muted">#BED2CF</color>
+</resources>
