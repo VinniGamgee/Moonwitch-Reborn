@@ -502,7 +502,9 @@ bool BufferCacheRuntime::BindMultiRangeStorageBuffer(u64 key, bool is_written) {
 
     // Erasing LRU entries may invalidate vector iterators.
     entry_it = find_entry();
-    ASSERT(entry_it != multi_range_entries.end());
+    if (entry_it == multi_range_entries.end()) {
+        return false;
+    }
     MultiRangeEntry& entry = *entry_it;
 
     const VkBufferCreateInfo create_info{
