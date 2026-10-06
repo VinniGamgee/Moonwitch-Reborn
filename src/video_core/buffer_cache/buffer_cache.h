@@ -1951,6 +1951,10 @@ void BufferCache<P>::DeleteBuffer(BufferId buffer_id, bool do_not_mark) {
         memory_tracker.MarkRegionAsCpuModified(buffer.CpuAddr(), buffer.SizeBytes());
     }
 
+    if constexpr (requires { runtime.InvalidateAllMultiRange(); }) {
+        runtime.InvalidateAllMultiRange();
+    }
+
     Unregister(buffer_id);
 
 #ifdef YUZU_LEGACY
