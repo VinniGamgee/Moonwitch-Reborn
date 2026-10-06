@@ -146,10 +146,14 @@ object MoonwitchKenjiCore {
             Log.error("$TAG Renderer run loop failed: ${throwable.message}")
         } finally {
             inputPumpRunning = false
+            inputThread?.interrupt()
             KenjiInputBridge.disconnect()
             isRunning = false
             isPaused = false
+            rendererInitialized = false
             closeDescriptor()
+            releaseNativeWindow()
+            inputThread = null
             Log.info("$TAG Ryujinx renderer run loop ended")
         }
     }
