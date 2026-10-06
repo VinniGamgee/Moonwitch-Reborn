@@ -29,9 +29,6 @@ static_assert(MAX_FRAMES_IN_FLIGHT <= LSFG_MAX_TARGETS);
 
 bool CanStoreToFrame(const vk::PhysicalDevice& physical_device, VkFormat format) {
 #ifdef HAS_LSFG
-    if (!Settings::values.frame_gen.GetValue()) {
-        return false;
-    }
     const VkFormatProperties props{physical_device.GetFormatProperties(format)};
     return (props.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) != 0;
 #else
@@ -160,6 +157,7 @@ PresentManager::PresentManager(const vk::Instance& instance_,
             .pNext = nullptr,
             .flags = VK_FENCE_CREATE_SIGNALED_BIT,
         });
+        frame.storage_capable = storage_supported;
         free_queue.push_back(&frame);
     }
 
@@ -215,15 +213,22 @@ PresentationBacklog PresentManager::GetPresentationBacklog() {
     };
 }
 
+bool PresentManager::NeedsStorage(const Frame* frame, bool required) const {
+    return required && frame->storage_capable && !frame->storage_view;
+}
+
 void PresentManager::RecreateFrame(Frame* frame, u32 width, u32 height, VkFormat image_view_format,
-                                   VkRenderPass rd) {
+                                   VkRenderPass rd, bool storage) {
     auto& dld = device.GetLogical();
 
     frame->width = width;
     frame->height = height;
 
-    const VkImageUsageFlags storage_usage =
-        storage_supported ? static_cast<VkImageUsageFlags>(VK_IMAGE_USAGE_STORAGE_BIT) : 0;
+    const bool with_storage = storage && frame->storage_capable;
+    VkImageUsageFlags storage_usage = 0;
+    if (with_storage) {
+        storage_usage = VK_IMAGE_USAGE_STORAGE_BIT;
+    }
 
     frame->image = memory_allocator.CreateImage({
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -274,7 +279,7 @@ void PresentManager::RecreateFrame(Frame* frame, u32 width, u32 height, VkFormat
     });
 
     frame->storage_view = vk::ImageView{};
-    if (storage_supported) {
+    if (with_storage) {
         frame->storage_view = dld.CreateImageView({
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .pNext = nullptr,
@@ -348,7 +353,7 @@ void PresentManager::PresentThread(std::stop_token token) {
             // By exchanging the lock ownership we take the swapchain lock
             // before the queue lock goes out of scope. This way the swapchain
             // lock in WaitPresent is guaranteed to occur after here.
-            std::exchange(lock, std::unique_lock{swapchain_mutex});
+            void(std::exchange(lock, std::unique_lock{swapchain_mutex}));
             CopyToSwapchain(frame);
 
             // Free the frame for reuse

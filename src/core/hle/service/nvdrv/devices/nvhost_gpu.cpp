@@ -399,6 +399,16 @@ NvResult nvhost_gpu::SubmitGPFIFOImpl(IoctlSubmitGpfifo& params, Tegra::CommandL
     return NvResult::Success;
 }
 
+Core::Memory::Memory& nvhost_gpu::GetSessionMemory(DeviceFD fd) {
+    if (const auto it = sessions.find(fd); it != sessions.end())
+        if (auto* const session = core.GetSession(it->second);
+            session != nullptr && session->process != nullptr)
+            return session->process->GetMemory();
+
+    LOG_ERROR(Service_NVDRV, "No session for fd={}, falling back to application memory", fd);
+    return system.ApplicationMemory();
+}
+
 NvResult nvhost_gpu::SubmitGPFIFOBase1(IoctlSubmitGpfifo& params,
                                        std::span<Tegra::CommandListHeader> commands,
                                        DeviceFD fd, bool kickoff) {

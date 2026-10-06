@@ -14,7 +14,6 @@
 #include <type_traits>
 // TODO: find out which don't require stable iters
 #include <unordered_map>
-#include <ankerl/unordered_dense.h>
 #include "common/container/unordered_map.h"
 #include "common/container/unordered_set.h"
 #include <vector>

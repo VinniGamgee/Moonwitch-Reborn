@@ -260,26 +260,88 @@ vk::Buffer MemoryAllocator::CreateBuffer(const VkBufferCreateInfo& ci, MemoryUsa
     vk::Check(vmaCreateBuffer(allocator, &ci, &alloc_ci, &handle, &allocation, &alloc_info));
     vmaGetAllocationMemoryProperties(allocator, allocation, &property_flags);
 
-    if (GPU::Logging::IsActive() && Settings::values.gpu_log_memory_tracking.GetValue()) {
+    // Log GPU memory allocation for buffers
+    if (GPU::Logging::IsActive() &&
+        Settings::values.gpu_log_memory_tracking.GetValue()) {
         GPU::Logging::GPULogger::GetInstance().LogMemoryAllocation(
-            reinterpret_cast<uintptr_t>(alloc_info.deviceMemory), static_cast<u64>(alloc_info.size),
-            property_flags);
+            reinterpret_cast<uintptr_t>(alloc_info.deviceMemory),
+            static_cast<u64>(alloc_info.size),
+            property_flags
+        );
     }
 
-    u8* data = reinterpret_cast<u8*>(alloc_info.pMappedData);
+    u8 *data = reinterpret_cast<u8 *>(alloc_info.pMappedData);
     const std::span<u8> mapped_data = data ? std::span<u8>{data, ci.size} : std::span<u8>{};
     const bool is_coherent = (property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0;
 
+    const vk::MemoryLocation location{
+        .memory = alloc_info.deviceMemory,
+        .offset = alloc_info.offset,
+        .memory_type = alloc_info.memoryType,
+    };
     return vk::Buffer(handle, *device.GetLogical(), allocator, allocation, mapped_data, is_coherent,
-                      device.GetDispatchLoader());
+                      location, device.GetDispatchLoader());
 }
 
-MemoryCommit MemoryAllocator::Commit(const VkMemoryRequirements& reqs, MemoryUsage usage) {
+vk::Buffer MemoryAllocator::CreateBuffer(const VkBufferCreateInfo &ci, MemoryUsage usage,
+                                         VkDeviceSize min_alignment) const {
+    pressure_manager.Refresh();
+    if (min_alignment <= 1) {
+        return CreateBuffer(ci, usage);
+    }
+    VkMemoryPropertyFlags anv_flags = 0;
+    if (usage == MemoryUsage::Stream &&
+        device.GetDriverID() == VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA) {
+        anv_flags = VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    }
+    u32 memory_type_bits = valid_memory_types;
+    if (usage == MemoryUsage::Stream) {
+        memory_type_bits = 0u;
+    }
+    const VmaAllocationCreateInfo alloc_ci = {
+        .flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT | MemoryUsageVmaFlags(usage) |
+            pressure_manager.AllocationFlags(),
+        .usage = MemoryUsageVma(usage),
+        .requiredFlags = 0,
+        .preferredFlags = MemoryUsagePreferredVmaFlags(usage) | anv_flags,
+        .memoryTypeBits = memory_type_bits,
+        .pool = VK_NULL_HANDLE,
+        .pUserData = nullptr,
+        .priority = 0.f,
+    };
+
+    VkBuffer handle{};
+    VmaAllocationInfo alloc_info{};
+    VmaAllocation allocation{};
+    VkMemoryPropertyFlags property_flags{};
+
+    vk::Check(vmaCreateBufferWithAlignment(allocator, &ci, &alloc_ci, min_alignment, &handle,
+                                           &allocation, &alloc_info));
+    vmaGetAllocationMemoryProperties(allocator, allocation, &property_flags);
+
+    u8 *data = reinterpret_cast<u8 *>(alloc_info.pMappedData);
+    std::span<u8> mapped_data{};
+    if (data) {
+        mapped_data = std::span<u8>{data, ci.size};
+    }
+    const bool is_coherent = (property_flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) != 0;
+
+    const vk::MemoryLocation location{
+        .memory = alloc_info.deviceMemory,
+        .offset = alloc_info.offset,
+        .memory_type = alloc_info.memoryType,
+    };
+    return vk::Buffer(handle, *device.GetLogical(), allocator, allocation, mapped_data, is_coherent,
+                      location, device.GetDispatchLoader());
+}
+
+MemoryCommit MemoryAllocator::Commit(const VkMemoryRequirements &reqs, MemoryUsage usage)
+{
     pressure_manager.Refresh();
     const auto vma_usage = MemoryUsageVma(usage);
     VmaAllocationCreateInfo ci{};
     ci.flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT | MemoryUsageVmaFlags(usage) |
-               pressure_manager.AllocationFlags();
+            pressure_manager.AllocationFlags();
     ci.usage = vma_usage;
     ci.memoryTypeBits = reqs.memoryTypeBits & valid_memory_types;
     ci.requiredFlags = 0;

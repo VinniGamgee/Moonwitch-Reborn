@@ -433,6 +433,29 @@ struct Values {
     SwitchableSetting<int, true> moonwitch_color_grading_strength{
         linkage, 100, 0, 100, "moonwitch_color_grading_strength", Category::Renderer,
         Specialization::Scalar | Specialization::Percentage, true, true};
+    SwitchableSetting<std::string> post_shader_chain{linkage,
+                                                     std::string(),
+                                                     "post_shader_chain",
+                                                     Category::Renderer,
+                                                     Specialization::Default,
+                                                     true,
+                                                     true};
+
+    SwitchableSetting<std::string> post_shader_preset{linkage,
+                                                      std::string(),
+                                                      "post_shader_preset",
+                                                      Category::Renderer,
+                                                      Specialization::Default,
+                                                      true,
+                                                      true};
+
+    SwitchableSetting<bool> post_shader_enabled{linkage,
+                                                true,
+                                                "post_shader_enabled",
+                                                Category::Renderer,
+                                                Specialization::Default,
+                                                true,
+                                                true};
 
     SwitchableSetting<bool> frame_gen{linkage, false, "frame_gen", Category::Renderer,
                                       Specialization::Default, true, false};
@@ -491,9 +514,6 @@ struct Values {
                                                         false,
                                                         &frame_gen};
 
-    SwitchableSetting<bool> frame_gen_fp16{linkage,      true,  "frame_gen_fp16", Category::Renderer,
-                                           Specialization::Default, true, false, &frame_gen};
-
     SwitchableSetting<bool> frame_gen_dump_flow{linkage, false, "frame_gen_dump_flow",
                                                 Category::Renderer};
 
@@ -550,7 +570,7 @@ struct Values {
     SwitchableSetting<GpuFenceBehavior, true> gpu_fence_behavior{linkage,
                                                                  GpuFenceBehavior::Default,
                                                                  GpuFenceBehavior::Default,
-                                                                 GpuFenceBehavior::Strict,
+                                                                 GpuFenceBehavior::Accurate,
                                                                  "gpu_fence_behavior",
                                                                  Category::RendererAdvanced,
                                                                  Specialization::Default,
@@ -708,6 +728,10 @@ struct Values {
                                                         Specialization::Default,
                                                         true,
                                                         true};
+    SwitchableSetting<bool> nce_invalidation_gpu_readback{
+        linkage, false, "nce_invalidation_gpu_readback", Category::RendererHacks};
+    SwitchableSetting<bool> nce_runtime_nro_patch{
+        linkage, false, "nce_runtime_nro_patch", Category::RendererHacks};
     SwitchableSetting<bool> async_presentation{linkage,
 #ifdef __ANDROID__
                                                false,
@@ -724,6 +748,10 @@ struct Values {
 
     SwitchableSetting<bool> rescale_hack{linkage, false, "rescale_hack",
                                          Category::RendererHacks};
+
+    SwitchableSetting<bool> frame_gen_fp16{linkage,      true,  "frame_gen_fp16", Category::Renderer,
+                                           Specialization::Default, true, false, &frame_gen};
+
     SwitchableSetting<bool> enable_gpu_buffer_readback{linkage,
                                                        false,
                                                        "enable_gpu_buffer_readback",
@@ -948,7 +976,7 @@ struct Values {
     SwitchableSetting<std::string> program_args{linkage,
                                                 std::string(),
                                                 "program_args",
-                                                Category::System,
+                                                Category::Debugging,
                                                 Specialization::Default,
                                                 true,    // save_ - persist in config file
                                                 false};  // runtime_modifiable_ - startup-only
@@ -1037,7 +1065,7 @@ constexpr u32 MAX_FRAME_GEN_MULTIPLIER = 4;
 
 [[nodiscard]] size_t FrameGenMaxGenerations();
 
-bool getDebugKnobAt(u8 i);
+bool GetDebugKnobAt(u8 i);
 
 void UpdateGPUAccuracy();
 bool IsGPULevelHigh();

@@ -4,8 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - reformulation
-      - main
+      - eden-update-2026-10-05
 
 jobs:
   build-reformulation:

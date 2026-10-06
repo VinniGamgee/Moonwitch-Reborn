@@ -17,6 +17,9 @@
 #include "frontend_common/config.h"
 #include "frontend_common/settings_generator.h"
 #include "native.h"
+#ifdef HAS_RESHADE
+#include "video_core/post_processing/fx_chain.h"
+#endif
 
 std::unique_ptr<AndroidConfig> global_config;
 std::unique_ptr<AndroidConfig> per_game_config;
@@ -30,6 +33,14 @@ void SyncMoonwitchCoreDirectorSetting() {
     Common::MoonwitchCoreDirector::SetEnabled(
         Settings::values.moonwitch_core_director.GetValue());
 }
+#ifdef HAS_RESHADE
+static void ResetFxChainToGlobal() {
+    VideoCore::UseGlobalFxSettings();
+    VideoCore::FxChain::Instance().LoadFromSettings();
+}
+#else
+static void ResetFxChainToGlobal() {}
+#endif
 
 template <typename T>
 Settings::Setting<T>* getSetting(JNIEnv* env, jstring jkey) {
@@ -67,6 +78,7 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_initializeGlobalConfig(JNIEnv* e
     }
     SyncMoonwitchUnleashedSetting();
     SyncMoonwitchCoreDirectorSetting();
+    ResetFxChainToGlobal();
 }
 
 void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_unloadGlobalConfig(JNIEnv* env, jobject obj) {
@@ -79,6 +91,7 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_reloadGlobalConfig(JNIEnv* env, 
     global_config->AndroidConfig::ReloadAllValues();
     SyncMoonwitchUnleashedSetting();
     SyncMoonwitchCoreDirectorSetting();
+    ResetFxChainToGlobal();
 }
 
 void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_saveGlobalConfig(JNIEnv* env, jobject obj) {
@@ -168,6 +181,25 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_setShort(JNIEnv* env, jobject ob
         return;
     }
     setting->SetValue(value);
+}
+
+jint Java_org_yuzu_yuzu_1emu_utils_NativeConfig_getUnsignedShort(JNIEnv* env, jobject obj,
+                                                                 jstring jkey,
+                                                                 jboolean needGlobal) {
+    auto setting = getSetting<u16>(env, jkey);
+    if (setting == nullptr) {
+        return -1;
+    }
+    return static_cast<jint>(setting->GetValue(static_cast<bool>(needGlobal)));
+}
+
+void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_setUnsignedShort(JNIEnv* env, jobject obj,
+                                                                  jstring jkey, jint value) {
+    auto setting = getSetting<u16>(env, jkey);
+    if (setting == nullptr) {
+        return;
+    }
+    setting->SetValue(static_cast<u16>(value));
 }
 
 jint Java_org_yuzu_yuzu_1emu_utils_NativeConfig_getInt(JNIEnv* env, jobject obj, jstring jkey,

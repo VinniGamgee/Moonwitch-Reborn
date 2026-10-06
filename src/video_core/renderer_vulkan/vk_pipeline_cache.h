@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <memory>
 #include <type_traits>
+#include "common/container/unordered_map.h"
 #include <vector>
 
 #include "common/common_types.h"

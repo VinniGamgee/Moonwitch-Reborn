@@ -190,7 +190,7 @@ public:
     };
 
     std::vector<MsaaScratchImage> msaa_scratch_images;
-    ankerl::unordered_dense::map<VkImage, ResolveShadow> resolve_shadows;
+    ::Common::unordered_map<VkImage, ResolveShadow> resolve_shadows;
     std::vector<std::pair<u64, ResolveShadow>> pending_resolve_shadows;
 
     u64 moonwitch_rt_initializations = 0;
@@ -561,7 +561,6 @@ private:
     struct VariantKey {
         bool reduce_anisotropy;
         bool force_nearest;
-        bool drop_depth_comparison;
         bool drop_reduction;
         bool drop_custom_border;
         bool srgb_border;

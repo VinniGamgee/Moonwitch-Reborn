@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2019 yuzu Emulator Project
@@ -79,6 +79,9 @@ public:
 
     vk::Image CreateImage(const VkImageCreateInfo &ci) const;
     vk::Buffer CreateBuffer(const VkBufferCreateInfo &ci, MemoryUsage usage) const;
+
+    vk::Buffer CreateBuffer(const VkBufferCreateInfo &ci, MemoryUsage usage,
+                            VkDeviceSize min_alignment) const;
 
     MemoryCommit Commit(const VkMemoryRequirements &requirements, MemoryUsage usage);
     MemoryCommit Commit(const vk::Buffer &buffer, MemoryUsage usage);

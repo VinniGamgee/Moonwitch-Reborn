@@ -9,7 +9,6 @@
 #include <limits>
 #include <optional>
 #include <bit>
-#include <ankerl/unordered_dense.h>
 #include "common/container/unordered_map.h"
 #include <boost/container/small_vector.hpp>
 

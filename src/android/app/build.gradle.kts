@@ -255,6 +255,10 @@ android {
     }
 }
 
+android.sourceSets.named("main") {
+    java.srcDir("${edenDir}/externals/generated/sdl/java")
+}
+
 idea {
     module {
         // Inclusion to exclude build/ dir from non-Android

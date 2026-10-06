@@ -7,6 +7,7 @@
 #pragma once
 
 #include <mutex>
+#include "common/container/unordered_map.h"
 
 #include "common/container/unordered_map.h"
 #include "common/container_hash.h"

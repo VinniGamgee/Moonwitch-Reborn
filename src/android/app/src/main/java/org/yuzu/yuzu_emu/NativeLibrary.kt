@@ -12,6 +12,7 @@ import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.Surface
 import android.view.View
+import org.libsdl.app.SDL
 import android.widget.TextView
 import androidx.annotation.Keep
 import androidx.core.net.toUri
@@ -52,6 +53,8 @@ object NativeLibrary {
     init {
         try {
             System.loadLibrary("yuzu-android")
+            SDL.setupJNI()
+            initJvm()
         } catch (ex: UnsatisfiedLinkError) {
             error("[NativeLibrary] $ex")
         }
@@ -367,6 +370,7 @@ object NativeLibrary {
         NetPlayManager.clearChat()
     }
 
+    external fun initJvm()
     external fun initMultiplayer()
 
     @Keep

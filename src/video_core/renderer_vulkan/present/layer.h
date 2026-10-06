@@ -18,6 +18,9 @@
 #include "video_core/renderer_vulkan/present/nis.h"
 #include "video_core/renderer_vulkan/present/sgsr.h"
 #include "video_core/renderer_vulkan/present/fxaa.h"
+#ifdef HAS_RESHADE
+#include "video_core/renderer_vulkan/present/post_process.h"
+#endif
 #include "video_core/renderer_vulkan/present/smaa.h"
 
 namespace Layout {
@@ -69,6 +72,9 @@ private:
 
     void RefreshResources(const Device& device, const Tegra::FramebufferConfig& framebuffer);
     void SetAntiAliasPass(const Device& device);
+#ifdef HAS_RESHADE
+    void SetPostProcessPass(const Device& device, bool is_applet);
+#endif
     void ReleaseRawImages();
 
     u64 CalculateBufferSize(const Tegra::FramebufferConfig& framebuffer) const;
@@ -101,6 +107,12 @@ private:
     std::variant<std::monostate, SGSR, FSR, NIS> sr_filter{};
     std::optional<CAS> cas_pass{};
     std::optional<MoonwitchColorGrading> color_grading_pass{};
+#ifdef HAS_RESHADE
+    std::optional<PostProcessChain> post_process{};
+    u64 post_process_generation{};
+    bool post_process_enabled{};
+    VkExtent2D post_process_extent{};
+#endif
     std::vector<u64> resource_ticks{};
 };
 
