@@ -92,7 +92,7 @@ cpp = ['$NDK_BIN/aarch64-linux-android${ANDROID_TARGET}-clang++', '-fno-exceptio
 c_ld = '$NDK_BIN/ld.lld'
 cpp_ld = '$NDK_BIN/ld.lld'
 strip = '$NDK_BIN/llvm-strip'
-pkg-config = '/usr/bin/pkg-config'
+pkg-config = ['env', 'PKG_CONFIG_LIBDIR=/nonexistent', '/usr/bin/pkg-config']
 
 [host_machine]
 system = 'android'
@@ -114,6 +114,8 @@ MESON_ARGS=(
   "-Dplatform-sdk-version=$PLATFORM_SDK"
   "-Dandroid-stub=true"
   "-Dandroid-libbacktrace=disabled"
+  "-Dzlib=disabled"
+  "-Dzstd=disabled"
   "-Dgallium-drivers="
   "-Dvulkan-drivers=freedreno"
   "-Dfreedreno-kmds=kgsl"
