@@ -11,7 +11,7 @@ The driver packages are standard AdrenoTools ZIPs containing
 ### performance
 
 The baseline Moonwitch driver. It keeps Mesa/Turnip's upstream GMEM/sysmem and LRZ decisions and
-uses a release build with LTO. No diagnostic `TU_DEBUG` mode is forced.
+uses Mesa's release optimization profile. No diagnostic `TU_DEBUG` mode is forced.
 
 Use this first when evaluating frame time, shader compilation behavior and general compatibility.
 
