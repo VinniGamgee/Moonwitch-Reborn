@@ -9,10 +9,6 @@ on:
       - 'tools/turnip/**'
       - '.github/workflows/build-turnip-a7xx.yml'
 
-concurrency:
-  group: moonwitch-turnip-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-24.04
