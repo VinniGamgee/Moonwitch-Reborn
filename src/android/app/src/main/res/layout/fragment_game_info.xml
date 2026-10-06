@@ -5,7 +5,7 @@
     android:id="@+id/coordinator_about"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/moonwitch_background">
+    android:background="?attr/mwCanvas">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar_info"

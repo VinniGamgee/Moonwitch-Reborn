@@ -1,3 +1,5 @@
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@color/mw_canvas" />
-</selector>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Safe fallback for callers without an Activity theme. Themed layouts use mwCanvas directly. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/mw_canvas" />
+</shape>
