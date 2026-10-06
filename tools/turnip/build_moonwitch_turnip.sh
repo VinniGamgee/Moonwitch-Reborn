@@ -13,7 +13,7 @@ case "$VARIANT" in
   performance)
     DISPLAY_NAME="Moonwitch Turnip ${MESA_VERSION} Performance"
     DEBUG_FLAGS="0"
-    DESCRIPTION="Mesa Turnip ${MESA_VERSION} for Adreno A6xx/A7xx. Release/LTO build with upstream rendering heuristics and no forced debug path."
+    DESCRIPTION="Mesa Turnip ${MESA_VERSION} for Adreno A6xx/A7xx. Release build with upstream rendering heuristics and no forced diagnostic path."
     ;;
   foliage-nolrz)
     DISPLAY_NAME="Moonwitch Turnip ${MESA_VERSION} Foliage No-LRZ"
@@ -101,25 +101,24 @@ cpu = 'armv8'
 endian = 'little'
 EOF
 
-cat > "$SRC/native.txt" <<EOF
-[binaries]
-c = 'clang'
-cpp = 'clang++'
-ar = 'llvm-ar'
-strip = 'llvm-strip'
-c_ld = 'lld'
-cpp_ld = 'lld'
-
-[host_machine]
-system = 'linux'
-cpu_family = 'x86_64'
-cpu = 'x86_64'
-endian = 'little'
-EOF
-
 pushd "$SRC" >/dev/null
-meson setup build-android-aarch64   --cross-file android-aarch64.txt   --native-file native.txt   --prefix "$PREFIX"   -Dbuildtype=release   -Db_lto=true   -Dstrip=true   -Dplatforms=android   -Dvideo-codecs=   -Dplatform-sdk-version="$PLATFORM_SDK"   -Dandroid-stub=true   -Dandroid-libbacktrace=disabled   -Dgallium-drivers=   -Dvulkan-drivers=freedreno   -Dfreedreno-kmds=kgsl   -Dvulkan-beta=true   -Degl=disabled
-
+MESON_ARGS=(
+  "--cross-file=android-aarch64.txt"
+  "--prefix=$PREFIX"
+  "-Dbuildtype=release"
+  "-Dstrip=true"
+  "-Dplatforms=android"
+  "-Dvideo-codecs="
+  "-Dplatform-sdk-version=$PLATFORM_SDK"
+  "-Dandroid-stub=true"
+  "-Dandroid-libbacktrace=disabled"
+  "-Dgallium-drivers="
+  "-Dvulkan-drivers=freedreno"
+  "-Dfreedreno-kmds=kgsl"
+  "-Dvulkan-beta=true"
+  "-Degl=disabled"
+)
+meson setup build-android-aarch64 "${MESON_ARGS[@]}"
 ninja -C build-android-aarch64 install
 popd >/dev/null
 
