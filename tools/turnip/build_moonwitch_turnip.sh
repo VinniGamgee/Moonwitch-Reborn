@@ -87,8 +87,8 @@ fi
 cat > "$SRC/android-aarch64.txt" <<EOF
 [binaries]
 ar = '$NDK_BIN/llvm-ar'
-c = ['$NDK_BIN/aarch64-linux-android${ANDROID_TARGET}-clang']
-cpp = ['$NDK_BIN/aarch64-linux-android${ANDROID_TARGET}-clang++', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++']
+c = ['$NDK_BIN/aarch64-linux-android${ANDROID_TARGET}-clang', '-Wno-deprecated-declarations', '-Wno-gnu-alignof-expression']
+cpp = ['$NDK_BIN/aarch64-linux-android${ANDROID_TARGET}-clang++', '--start-no-unused-arguments', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '--end-no-unused-arguments', '-Wno-error=c++11-narrowing', '-Wno-deprecated-declarations', '-Wno-gnu-alignof-expression']
 c_ld = '$NDK_BIN/ld.lld'
 cpp_ld = '$NDK_BIN/ld.lld'
 strip = '$NDK_BIN/llvm-strip'
