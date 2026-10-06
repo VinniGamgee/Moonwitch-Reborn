@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - reformulation
       - 'stability/**'
   pull_request:
     branches:
