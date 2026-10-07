@@ -284,6 +284,17 @@
         "repo": "eden-emulator/sirit",
         "version": "1.0.5"
     },
+    "spirv-tools": {
+        "package": "SPIRV-Tools",
+        "repo": "KhronosGroup/SPIRV-Tools",
+        "version": "vulkan-sdk-1.4.341.0",
+        "hash": "429954f382e3a4006c012642509d0530001eb56e802686f35b1dd33a21167e08e2b164cb2f32e8acdd66da7f5bea6046aa184945d7138d3b0b929e512437c40d",
+        "bundled": true,
+        "options": [
+            "SPIRV_SKIP_EXECUTABLES ON",
+            "SPIRV_WERROR OFF"
+        ]
+    },
     "spirv-headers": {
         "hash": "d624371dd455c66a300344c89812598ffe11b5eedba555779f789e85c29dc67317741858c60e0744a1e6755cc0d2759b8659f0674f4cc31479c4cb6fc25ed23b",
         "options": [

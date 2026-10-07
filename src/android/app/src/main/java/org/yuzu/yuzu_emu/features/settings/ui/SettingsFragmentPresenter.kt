@@ -277,6 +277,7 @@ class SettingsFragmentPresenter(
             add(IntSetting.CPU_TICKS.key)
             add(BooleanSetting.RENDERER_FORCE_MAX_CLOCK.key)
             add(BooleanSetting.RENDERER_USE_DISK_SHADER_CACHE.key)
+            add(IntSetting.RENDERER_OPTIMIZE_SPIRV_OUTPUT.key)
             add(BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS.key)
             add(BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION.key)
             add(BooleanSetting.SKIP_CPU_INNER_INVALIDATION.key)

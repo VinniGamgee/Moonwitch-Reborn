@@ -370,6 +370,8 @@ PipelineCache::PipelineCache(Tegra::MaxwellDeviceMemoryManager& device_memory_,
       texture_cache{texture_cache_}, shader_notify{shader_notify_},
       use_asynchronous_shaders{Settings::values.use_asynchronous_shaders.GetValue()},
       use_vulkan_pipeline_cache{Settings::values.use_vulkan_driver_pipeline_cache.GetValue()},
+      optimize_spirv_output{Settings::values.optimize_spirv_output.GetValue() ==
+                            Settings::SpirvOptimizeMode::Always},
       workers(device.HasBrokenParallelShaderCompiling() ? 1ULL : GetTotalPipelineWorkers(),
               "VkPipelineBuilder", {}, Common::ThreadPlacement::Background),
       serialization_thread(1, "VkPipelineSerialization", {},
@@ -622,13 +624,19 @@ ComputePipeline* PipelineCache::CurrentComputePipeline() {
 
 void PipelineCache::LoadDiskResources(u64 title_id, std::stop_token stop_loading,
                                       const VideoCore::DiskResourceLoadCallback& callback) {
+    const auto spirv_mode{Settings::values.optimize_spirv_output.GetValue()};
+    optimize_spirv_output.store(spirv_mode != Settings::SpirvOptimizeMode::Never,
+                                std::memory_order_relaxed);
+
     if (title_id == 0) {
+        FinishSpirvCacheLoadOptimization();
         return;
     }
     const auto shader_dir{Common::FS::GetEdenPath(Common::FS::EdenPath::ShaderDir)};
     const auto base_dir{shader_dir / fmt::format("{:016x}", title_id)};
     if (!Common::FS::CreateDir(shader_dir) || !Common::FS::CreateDir(base_dir)) {
         LOG_ERROR(Common_Filesystem, "Failed to create pipeline cache directories");
+        FinishSpirvCacheLoadOptimization();
         return;
     }
     pipeline_cache_filename = base_dir / "vulkan.bin";
@@ -748,6 +756,14 @@ void PipelineCache::LoadDiskResources(u64 title_id, std::stop_token stop_loading
 
     if (state.statistics) {
         state.statistics->Report();
+    }
+
+    FinishSpirvCacheLoadOptimization();
+}
+
+void PipelineCache::FinishSpirvCacheLoadOptimization() noexcept {
+    if (Settings::values.optimize_spirv_output.GetValue() != Settings::SpirvOptimizeMode::Always) {
+        optimize_spirv_output.store(false, std::memory_order_relaxed);
     }
 }
 
@@ -942,7 +958,8 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
         const auto runtime_info{MakeRuntimeInfo(programs, key, program, previous_stage, device)};
         ConvertLegacyToGeneric(program, runtime_info);
         const std::vector<u32> code{
-            EmitSPIRV(shader_profile, runtime_info, program, binding)};
+            EmitSPIRV(shader_profile, runtime_info, program, binding,
+                      optimize_spirv_output.load(std::memory_order_relaxed))};
         device.SaveShader(code);
         modules[stage_index] = BuildShader(device, code);
 
@@ -1082,7 +1099,9 @@ std::unique_ptr<ComputePipeline> PipelineCache::CreateComputePipeline(
     }
     const Shader::Profile shader_profile{ShaderProfileForPrecisionMode(
         profile, key.moonwitch_shader_precision_mode)};
-    const std::vector<u32> code{EmitSPIRV(shader_profile, program)};
+    const std::vector<u32> code{
+        EmitSPIRV(shader_profile, program,
+                  optimize_spirv_output.load(std::memory_order_relaxed))};
     device.SaveShader(code);
     vk::ShaderModule spv_module{BuildShader(device, code)};
 

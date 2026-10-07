@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <filesystem>
 #include <ankerl/unordered_dense.h>
 
@@ -67,6 +68,8 @@ private:
 
     std::unique_ptr<ShaderWorker> CreateWorkers() const;
 
+    void FinishSpirvCacheLoadOptimization() noexcept;
+
     Core::Frontend::EmuWindow& emu_window;
     const Device& device;
     TextureCache& texture_cache;
@@ -76,6 +79,7 @@ private:
     VideoCore::ShaderNotify& shader_notify;
     const bool use_asynchronous_shaders;
     const bool strict_context_required;
+    std::atomic_bool optimize_spirv_output{};
 
     GraphicsPipelineKey graphics_key{};
     GraphicsPipeline* current_pipeline{};

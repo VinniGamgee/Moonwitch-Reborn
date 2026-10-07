@@ -181,6 +181,8 @@ ShaderCache::ShaderCache(Tegra::MaxwellDeviceMemoryManager& device_memory_,
       state_tracker{state_tracker_}, shader_notify{shader_notify_},
       use_asynchronous_shaders{device.UseAsynchronousShaders()},
       strict_context_required{device.StrictContextRequired()},
+      optimize_spirv_output{Settings::values.optimize_spirv_output.GetValue() ==
+                            Settings::SpirvOptimizeMode::Always},
       profile{
           .supported_spirv = 0x00010000,
 
@@ -280,13 +282,19 @@ ShaderCache::~ShaderCache() = default;
 
 void ShaderCache::LoadDiskResources(u64 title_id, std::stop_token stop_loading,
                                     const VideoCore::DiskResourceLoadCallback& callback) {
+    const auto spirv_mode{Settings::values.optimize_spirv_output.GetValue()};
+    optimize_spirv_output.store(spirv_mode != Settings::SpirvOptimizeMode::Never,
+                                std::memory_order_relaxed);
+
     if (title_id == 0) {
+        FinishSpirvCacheLoadOptimization();
         return;
     }
     const auto shader_dir{Common::FS::GetEdenPath(Common::FS::EdenPath::ShaderDir)};
     const auto base_dir{shader_dir / fmt::format("{:016x}", title_id)};
     if (!Common::FS::CreateDir(shader_dir) || !Common::FS::CreateDir(base_dir)) {
         LOG_ERROR(Common_Filesystem, "Failed to create shader cache directories");
+        FinishSpirvCacheLoadOptimization();
         return;
     }
     shader_cache_filename = base_dir / "opengl.bin";
@@ -361,11 +369,19 @@ void ShaderCache::LoadDiskResources(u64 title_id, std::stop_token stop_loading,
     lock.unlock();
 
     if (strict_context_required) {
+        FinishSpirvCacheLoadOptimization();
         return;
     }
     workers->WaitForRequests(stop_loading);
+    FinishSpirvCacheLoadOptimization();
     if (!use_asynchronous_shaders) {
         workers.reset();
+    }
+}
+
+void ShaderCache::FinishSpirvCacheLoadOptimization() noexcept {
+    if (Settings::values.optimize_spirv_output.GetValue() != Settings::SpirvOptimizeMode::Always) {
+        optimize_spirv_output.store(false, std::memory_order_relaxed);
     }
 }
 
@@ -552,7 +568,9 @@ std::unique_ptr<GraphicsPipeline> ShaderCache::CreateGraphicsPipeline(
             break;
         case Settings::RendererBackend::OpenGL_SPIRV:
             ConvertLegacyToGeneric(program, runtime_info);
-            sources_spirv[stage_index] = EmitSPIRV(profile, runtime_info, program, binding);
+            sources_spirv[stage_index] =
+                EmitSPIRV(profile, runtime_info, program, binding,
+                          optimize_spirv_output.load(std::memory_order_relaxed));
             break;
         default:
             UNREACHABLE();
@@ -613,7 +631,8 @@ std::unique_ptr<ComputePipeline> ShaderCache::CreateComputePipeline(
         code = EmitGLASM(profile, info, program);
         break;
     case Settings::RendererBackend::OpenGL_SPIRV:
-        code_spirv = EmitSPIRV(profile, program);
+        code_spirv =
+            EmitSPIRV(profile, program, optimize_spirv_output.load(std::memory_order_relaxed));
         break;
     default:
         UNREACHABLE();

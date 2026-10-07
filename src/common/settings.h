@@ -608,6 +608,12 @@ struct Values {
     SwitchableSetting<bool> use_disk_shader_cache{linkage, true, "use_disk_shader_cache",
                                                   Category::RendererAdvanced};
 
+    // OnLoad optimizes cached shaders during startup and avoids adding optimizer latency to new
+    // shaders compiled during gameplay. Always keeps optimization enabled for runtime compiles.
+    SwitchableSetting<SpirvOptimizeMode, true> optimize_spirv_output{
+        linkage, SpirvOptimizeMode::OnLoad, SpirvOptimizeMode::Never, SpirvOptimizeMode::Always,
+        "optimize_spirv_output", Category::RendererAdvanced, Specialization::Default, true, true};
+
     SwitchableSetting<bool> use_vulkan_driver_pipeline_cache{
         linkage, true, "use_vulkan_driver_pipeline_cache", Category::RendererAdvanced,
         Specialization::Default};

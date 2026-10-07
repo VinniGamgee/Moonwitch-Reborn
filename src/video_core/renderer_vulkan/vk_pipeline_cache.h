@@ -216,6 +216,8 @@ private:
 
     void QueueVulkanPipelineCacheFlush();
 
+    void FinishSpirvCacheLoadOptimization() noexcept;
+
     void RecordPipelineCacheResult(bool hit);
 
     void ReportPipelineBuildMetrics();
@@ -231,6 +233,7 @@ private:
     VideoCore::ShaderNotify& shader_notify;
     bool use_asynchronous_shaders{};
     bool use_vulkan_pipeline_cache{};
+    std::atomic_bool optimize_spirv_output{};
 
     GraphicsPipelineCacheKey graphics_key{};
     GraphicsPipeline* current_pipeline{};

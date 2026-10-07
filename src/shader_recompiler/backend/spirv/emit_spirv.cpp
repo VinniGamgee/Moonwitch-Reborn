@@ -4,11 +4,14 @@
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <memory>
 #include <span>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+#include <spirv-tools/optimizer.hpp>
 
 #include "common/settings.h"
 #include "shader_recompiler/backend/spirv/emit_spirv.h"
@@ -19,6 +22,19 @@
 
 namespace Shader::Backend::SPIRV {
 namespace {
+
+// SPIRV-Tools initialization is expensive. One optimizer per shader worker keeps parallel
+// compilation lock-free and avoids rebuilding the performance pass manager for every shader.
+thread_local std::unique_ptr<spvtools::Optimizer> thread_optimizer;
+
+spvtools::Optimizer& GetThreadOptimizer() {
+    if (!thread_optimizer) {
+        thread_optimizer = std::make_unique<spvtools::Optimizer>(SPV_ENV_VULKAN_1_3);
+        thread_optimizer->RegisterPerformancePasses();
+    }
+    return *thread_optimizer;
+}
+
 template <class Func>
 struct FuncTraits {};
 
@@ -523,7 +539,8 @@ void PatchPhiNodes(IR::Program& program, EmitContext& ctx) {
         }
 } // Anonymous namespace
 
-std::vector<u32> EmitSPIRV(const Profile& profile, const RuntimeInfo& runtime_info, IR::Program& program, Bindings& bindings) {
+std::vector<u32> EmitSPIRV(const Profile& profile, const RuntimeInfo& runtime_info,
+                           IR::Program& program, Bindings& bindings, bool optimize) {
     EmitContext ctx{profile, runtime_info, program, bindings};
     const Id main{DefineMain(ctx, program)};
     DefineEntryPoint(program, ctx, main);
@@ -535,7 +552,30 @@ std::vector<u32> EmitSPIRV(const Profile& profile, const RuntimeInfo& runtime_in
     SetupCapabilities(profile, program.info, ctx);
     SetupTransformFeedbackCapabilities(ctx, main);
     PatchPhiNodes(program, ctx);
-    return ctx.Assemble();
+
+    std::vector<u32> spirv{ctx.Assemble()};
+    if (!optimize) {
+        return spirv;
+    }
+
+    auto& optimizer{GetThreadOptimizer()};
+    optimizer.SetMessageConsumer([](spv_message_level_t, const char*, const spv_position_t&,
+                                    const char* message) {
+        LOG_ERROR(HW_GPU, "spirv-opt: {}", message);
+    });
+
+    spvtools::OptimizerOptions options;
+    // Generated modules already follow the recompiler's structural rules. Skipping the separate
+    // validator keeps cache rebuilds fast; optimizer failures still fall back safely below.
+    options.set_run_validator(false);
+
+    std::vector<u32> optimized;
+    if (!optimizer.Run(spirv.data(), spirv.size(), &optimized, options) || optimized.empty()) {
+        LOG_ERROR(HW_GPU,
+                  "Failed to optimize SPIR-V shader output; using the original generated shader");
+        return spirv;
+    }
+    return optimized;
 }
 
 Id EmitPhi(EmitContext& ctx, IR::Inst* inst) {

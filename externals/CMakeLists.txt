@@ -188,6 +188,19 @@ set(BUILD_SHARED_LIBS OFF)
 # SPIRV Headers
 AddJsonPackage(spirv-headers)
 
+# SPIRV Tools
+# Keep this bundled so Android cross-builds use the exact same optimizer as every other host.
+AddJsonPackage(spirv-tools)
+
+if (SPIRV-Tools_ADDED)
+    if (NOT TARGET SPIRV-Tools::SPIRV-Tools)
+        add_library(SPIRV-Tools::SPIRV-Tools ALIAS SPIRV-Tools-static)
+    endif()
+    # The public core target does not pull optimizer/link libraries in every upstream
+    # configuration, but EmitSPIRV uses the optimizer API directly.
+    target_link_libraries(SPIRV-Tools-static PRIVATE SPIRV-Tools-opt SPIRV-Tools-link)
+endif()
+
 # Sirit
 if (YUZU_USE_BUNDLED_SIRIT)
     AddJsonPackage(sirit-ci)
