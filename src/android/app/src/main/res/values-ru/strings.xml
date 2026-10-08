@@ -1024,27 +1024,7 @@
     <string name="cpu_accuracy_paranoid">Параноик</string>
     <string name="cpu_accuracy_debugging">Отладка</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Настройки Freedreno</string>
     <string name="gpu_driver_settings">Настройки графического драйвера</string>
-    <string name="freedreno_presets">Готовые профили</string>
-    <string name="freedreno_current_settings">Текущие настройки</string>
-    <string name="freedreno_debug">Расширенные настройки</string>
-    <string name="freedreno_var_name">Имя переменной (например, TU_DEBUG)</string>
-    <string name="freedreno_var_value">Значение переменной</string>
-    <string name="freedreno_add_variable">Добавить переменную</string>
-    <string name="freedreno_clear_all">Очистить всё</string>
-    <string name="freedreno_saved">Конфигурация Freedreno сохранена</string>
-    <string name="freedreno_cleared_all">Все переменные Freedreno очищены</string>
-    <string name="freedreno_variable_added">Переменная %1$s добавлена</string>
-    <string name="freedreno_preset_applied">Профиль \'%1$s\' применён</string>
-    <string name="freedreno_error_empty_name">Имя переменной не может быть пустым</string>
-    <string name="freedreno_error_setting_variable">Не удалось задать переменную</string>
-    <string name="freedreno_info_title">О конфигурации Freedreno</string>
-    <string name="freedreno_info_description">Настройте параметры драйвера Freedreno/Turnip для отладки, профилирования и оптимизации производительности. Изменения сохраняются автоматически. Подробная документация доступна по ссылке: https://docs.mesa3d.org/drivers/freedreno.html</string>
-    <string name="freedreno_per_game_title">Настройки Freedreno</string>
-    <string name="freedreno_per_game_description">Настройте параметры драйвера для этой игры</string>
-    <string name="freedreno_per_game_saved">Настройки Freedreno сохранены</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">Крестовина</string>
