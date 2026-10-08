@@ -947,27 +947,7 @@ Wirklich fortfahren?</string>
     <string name="cpu_accuracy_paranoid">Paranoid </string>
     <string name="cpu_accuracy_debugging">Debugging</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Freedreno-Einstellungen</string>
     <string name="gpu_driver_settings">GPU-Treibereinstellungen</string>
-    <string name="freedreno_presets">Schnellvoreinstellungen</string>
-    <string name="freedreno_current_settings">Aktuelle Einstellungen</string>
-    <string name="freedreno_debug">Erweiterte Einstellungen</string>
-    <string name="freedreno_var_name">Variablenname (z.B. TU_DEBUG)</string>
-    <string name="freedreno_var_value">Variablenwert</string>
-    <string name="freedreno_add_variable">Variable hinzufügen</string>
-    <string name="freedreno_clear_all">Alle löschen</string>
-    <string name="freedreno_saved">Fredreeno-Konfiguration gespeichert</string>
-    <string name="freedreno_cleared_all">Alle Freedreno-Variablen gelöscht</string>
-    <string name="freedreno_variable_added">Variable %1$s hinzugefügt</string>
-    <string name="freedreno_preset_applied">Preset \'%1$s\' angewendet</string>
-    <string name="freedreno_error_empty_name">Variablenname darf nicht leer sein</string>
-    <string name="freedreno_error_setting_variable">Variable konnte nicht gesetzt werden</string>
-    <string name="freedreno_info_title">Über Freedreno-Konfiguration</string>
-    <string name="freedreno_info_description">Freedreno/Turnip GPU-Treiberoptionen für Debugging, Profiling und Leistungsoptimierung konfigurieren. Änderungen werden automatisch gespeichert. Ausführliche Dokumentation siehe https://docs.mesa3d.org/drivers/freedreno.html.</string>
-    <string name="freedreno_per_game_title">Freedreno-Einstellungen</string>
-    <string name="freedreno_per_game_description">GPU-Treibereinstellungen für dieses Spiel konfigurieren</string>
-    <string name="freedreno_per_game_saved">Fredreeno-Konfiguration gespeichert</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">D-Pad</string>
