@@ -10,12 +10,6 @@ add_library(gpu_logging STATIC
     qualcomm_debug.h
 )
 
-if(ANDROID)
-    target_sources(gpu_logging PRIVATE
-        freedreno_debug.cpp
-        freedreno_debug.h
-    )
-endif()
 
 target_link_libraries(gpu_logging PUBLIC common)
 
