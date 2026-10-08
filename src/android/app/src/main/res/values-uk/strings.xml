@@ -1006,27 +1006,7 @@
     <string name="cpu_accuracy_paranoid">Параноїк (повільно)</string>
     <string name="cpu_accuracy_debugging">Зневадження</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Налаштування Freedreno</string>
     <string name="gpu_driver_settings">Налаштування драйвера ГП</string>
-    <string name="freedreno_presets">Швидкі попередні налаштування</string>
-    <string name="freedreno_current_settings">Поточні налаштування</string>
-    <string name="freedreno_debug">Розширені налаштування</string>
-    <string name="freedreno_var_name">Назва змінної (наприклад TU_DEBUG)</string>
-    <string name="freedreno_var_value">Значення змінної</string>
-    <string name="freedreno_add_variable">Додати змінну</string>
-    <string name="freedreno_clear_all">Очистити все</string>
-    <string name="freedreno_saved">Налаштування Freedreno збережено</string>
-    <string name="freedreno_cleared_all">Усі змінні Freedreno очищено</string>
-    <string name="freedreno_variable_added">Додано змінну %1$s</string>
-    <string name="freedreno_preset_applied">Застосовано попереднє налаштування «%1$s»</string>
-    <string name="freedreno_error_empty_name">Назва змінної не може бути порожньою</string>
-    <string name="freedreno_error_setting_variable">Не вдалося встановити змінну</string>
-    <string name="freedreno_info_title">Про налаштування Freedreno</string>
-    <string name="freedreno_info_description">Налаштуйте параметри драйвера ГП Freedreno/Turnip для зневадження, профілювання та оптимізації продуктивності. Зміни зберігаються автоматично. Перегляньте https://docs.mesa3d.org/drivers/freedreno.html для детальної документації.</string>
-    <string name="freedreno_per_game_title">Налаштування Freedreno</string>
-    <string name="freedreno_per_game_description">Відкоригувати налаштування драйвера ГП для цієї гри</string>
-    <string name="freedreno_per_game_saved">Налаштування Freedreno збережено</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">Хрестовина</string>
