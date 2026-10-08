@@ -961,25 +961,7 @@
     <string name="cpu_accuracy_paranoid">Paranoïaque</string>
     <string name="cpu_accuracy_debugging">Débogage</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Paramètres de Freedreno</string>
     <string name="gpu_driver_settings">Paramètres du pilote GPU</string>
-    <string name="freedreno_presets">Préréglages rapides</string>
-    <string name="freedreno_current_settings">Paramètres actuels</string>
-    <string name="freedreno_debug">Paramètres avancés</string>
-    <string name="freedreno_var_value">Valeur de la variable</string>
-    <string name="freedreno_add_variable">Ajouter la variable</string>
-    <string name="freedreno_clear_all">Effacer tout</string>
-    <string name="freedreno_saved">Configuration Freedreno sauvegardée</string>
-    <string name="freedreno_cleared_all">Toutes les variables Freedreno effacées</string>
-    <string name="freedreno_variable_added">Variable %1$s ajouté</string>
-    <string name="freedreno_preset_applied">Préréglage \'%1$s\' appliqué</string>
-    <string name="freedreno_error_empty_name">Le nom de la variable ne peut pas être vide</string>
-    <string name="freedreno_error_setting_variable">Échec de l\'assignation de la variable</string>
-    <string name="freedreno_info_title">À propos de la configuration Freedreno</string>
-    <string name="freedreno_per_game_title">Paramètres de Freedreno</string>
-    <string name="freedreno_per_game_description">Configurer les paramètres du pilote GPU pour ce jeu</string>
-    <string name="freedreno_per_game_saved">Configuration Freedreno sauvegardée</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">Pavé directionnel</string>
