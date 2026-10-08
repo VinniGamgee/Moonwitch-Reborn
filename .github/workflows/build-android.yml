@@ -15,7 +15,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  cleanup-retired-experiments:
+    if: github.ref == 'refs/heads/experiment/ubo-gpu-coherency'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Remove reviewed retired branches and workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/cleanup_20261008.py
+
   build-android:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -29,6 +47,9 @@ jobs:
 
       - name: Validate UI resources
         run: python3 .ci/android/check_ui_resources.py
+
+      - name: Validate experimental UBO data flow
+        run: python3 .ci/tests/test_ubo_coherency.py
 
       - name: Java 17
         uses: actions/setup-java@v5

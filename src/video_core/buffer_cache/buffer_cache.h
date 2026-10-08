@@ -105,6 +105,18 @@ void BufferCache<P>::TickFrame() {
         RunGarbageCollector();
     }
     ++frame_tick;
+    if constexpr (!IS_OPENGL) {
+        if (frame_tick == 1 || frame_tick % 300 == 0) {
+            for (size_t index = 0; index < uniform_alignment_diagnostics.size(); ++index) {
+                const auto& diag = uniform_alignment_diagnostics[index];
+                LOG_INFO(HW_GPU,
+                         "UBO_COHERENCY v1 frame={} stage={} bindings={} unaligned={} "
+                         "gpu_modified={} gpu_copies={} readbacks={}",
+                         frame_tick, index == 0 ? "graphics" : "compute", diag.bindings,
+                         diag.unaligned, diag.gpu_modified, diag.gpu_copies, diag.readbacks);
+            }
+        }
+    }
     delayed_destruction_ring.Tick();
 
     for (auto& buffer : async_buffers_death_ring) {
@@ -922,6 +934,9 @@ void BufferCache<P>::BindHostGraphicsUniformBuffers(size_t stage) {
 
 template <class P>
 void BufferCache<P>::BindHostGraphicsUniformBuffer(size_t stage, u32 index, u32 binding_index, bool needs_bind) {
+    if constexpr (!IS_OPENGL) {
+        ++uniform_alignment_diagnostics[0].bindings;
+    }
     ++channel_state->uniform_cache_shots[0];
     const Binding& binding = channel_state->uniform_buffers[stage][index];
     const DAddr device_addr = binding.device_addr;
@@ -964,6 +979,12 @@ void BufferCache<P>::BindHostGraphicsUniformBuffer(size_t stage, u32 index, u32 
         }
         channel_state->fast_bound_uniform_buffers[stage] |= 1u << binding_index;
         channel_state->uniform_buffer_binding_sizes[stage][binding_index] = size;
+        if constexpr (!IS_OPENGL) {
+            if (needs_alignment_stream &&
+                TryBindGpuWrittenAlignedUniformBuffer(buffer, device_addr, size, false)) {
+                return;
+            }
+        }
         // Stream buffer path to avoid stalling on non-Nvidia drivers or Vulkan
         const std::span<u8> span = runtime.BindMappedUniformBuffer(stage, binding_index, size);
         device_memory.ReadBlockUnsafe(device_addr, span.data(), size);
@@ -997,6 +1018,41 @@ void BufferCache<P>::BindHostGraphicsUniformBuffer(size_t stage, u32 index, u32 
         runtime.BindUniformBuffer(buffer, offset, size);
     }
     channel_state->fast_bound_uniform_buffers[stage] &= ~(1u << binding_index);
+}
+
+template <class P>
+bool BufferCache<P>::TryBindGpuWrittenAlignedUniformBuffer(Buffer& buffer, DAddr device_addr,
+                                                           u32 size, bool compute) {
+    if constexpr (!IS_OPENGL) {
+        auto& diag = uniform_alignment_diagnostics[compute ? 1 : 0];
+        ++diag.unaligned;
+        if (!memory_tracker.IsRegionGpuModified(device_addr, size)) {
+            return false;
+        }
+        ++diag.gpu_modified;
+        // Upload any CPU-dirty portions first; preserve the GPU-written portions of this UBO.
+        SynchronizeBuffer(buffer, device_addr, size);
+        if (runtime.TryBindAlignedUniformBuffer(buffer, buffer.Offset(device_addr), size)) {
+            ++diag.gpu_copies;
+            if (diag.gpu_copies <= 4) {
+                LOG_INFO(HW_GPU,
+                         "UBO_COHERENCY v1 GPU copy stage={} offset={} size={} alignment={}",
+                         compute ? "compute" : "graphics", buffer.Offset(device_addr), size,
+                         runtime.GetUniformBufferAlignment());
+            }
+            return true;
+        }
+        // Unusual byte offsets / allocation tails cannot use vkCmdCopyBuffer. Refresh only
+        // this range before the caller takes the CPU streaming path; never read stale RAM.
+        DownloadBufferMemory(buffer, device_addr, size);
+        ++diag.readbacks;
+        if (diag.readbacks <= 4) {
+            LOG_WARNING(HW_GPU,
+                        "UBO_COHERENCY v1 scoped readback stage={} offset={} size={}",
+                        compute ? "compute" : "graphics", buffer.Offset(device_addr), size);
+        }
+    }
+    return false;
 }
 
 template <class P>
@@ -1166,6 +1222,9 @@ void BufferCache<P>::BindHostComputeUniformBuffers() {
     }
     u32 binding_index = 0;
     ForEachEnabledBit(channel_state->enabled_compute_uniform_buffer_mask, [&](u32 index) {
+        if constexpr (!IS_OPENGL) {
+            ++uniform_alignment_diagnostics[1].bindings;
+        }
         const Binding& binding = channel_state->compute_uniform_buffers[index];
         Buffer& buffer = slot_buffers[binding.buffer_id];
         TouchBuffer(buffer, binding.buffer_id);
@@ -1186,6 +1245,9 @@ void BufferCache<P>::BindHostComputeUniformBuffers() {
         }();
         if constexpr (!IS_OPENGL) {
             if (needs_alignment_stream) {
+                if (TryBindGpuWrittenAlignedUniformBuffer(buffer, binding.device_addr, size, true)) {
+                    return;
+                }
                 const std::span<u8> span =
                     runtime.BindMappedUniformBuffer(0, binding_index, size);
                 device_memory.ReadBlockUnsafe(binding.device_addr, span.data(), size);

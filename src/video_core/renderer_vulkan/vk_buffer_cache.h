@@ -196,6 +196,9 @@ public:
         BindBuffer(buffer, offset, size);
     }
 
+    // Preserve GPU-produced contents while satisfying minUniformBufferOffsetAlignment.
+    bool TryBindAlignedUniformBuffer(Buffer& buffer, u32 offset, u32 size);
+
     void BindStorageBuffer(const Buffer& buffer, u32 offset, u32 size,
                            [[maybe_unused]] bool is_written) {
         BindBuffer(buffer, offset, size);

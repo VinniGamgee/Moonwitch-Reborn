@@ -10,6 +10,7 @@
 #include <span>
 #include <vector>
 
+#include "common/alignment.h"
 #include "video_core/buffer_cache/buffer_cache_base.h"
 #include "video_core/renderer_vulkan/vk_buffer_cache.h"
 
@@ -371,6 +372,28 @@ StagingBufferRef BufferCacheRuntime::UploadStagingBuffer(size_t size) {
 
 StagingBufferRef BufferCacheRuntime::DownloadStagingBuffer(size_t size, bool deferred) {
     return staging_pool.Request(size, MemoryUsage::Download, deferred);
+}
+
+bool BufferCacheRuntime::TryBindAlignedUniformBuffer(Buffer& buffer, u32 offset, u32 size) {
+    // vkCmdCopyBuffer requires four-byte-aligned offsets and sizes. Keep the descriptor's
+    // original range, and only round the transfer when the source allocation contains it.
+    const u64 copy_size = Common::AlignUp(static_cast<u64>(size), u64{4});
+    if (size == 0 || offset % 4 != 0 || static_cast<u64>(offset) + copy_size > buffer.SizeBytes()) {
+        return false;
+    }
+    // Device-local pool entries have offset zero, include UNIFORM_BUFFER usage, and are
+    // not reused until their scheduler tick completes. Do not use the CPU upload ring here.
+    const StagingBufferRef aligned = staging_pool.Request(copy_size, MemoryUsage::DeviceLocal);
+    const std::array copies{VideoCommon::BufferCopy{
+        .src_offset = offset,
+        .dst_offset = aligned.offset,
+        .size = copy_size,
+    }};
+    buffer.MarkUsage(offset, copy_size);
+    CopyBuffer(aligned.buffer, buffer.Handle(), copies, true);
+    guest_descriptor_queue.AddBuffer(aligned.buffer, aligned.device_address,
+                                    static_cast<u32>(aligned.offset), size);
+    return true;
 }
 
 VkFormat BufferCacheRuntime::TexelBufferFormat(VideoCore::Surface::PixelFormat format) const {

@@ -450,6 +450,9 @@ private:
 
     bool SynchronizeBuffer(Buffer& buffer, DAddr device_addr, u32 size);
 
+    bool TryBindGpuWrittenAlignedUniformBuffer(Buffer& buffer, DAddr device_addr, u32 size,
+                                               bool compute);
+
     void UploadMemory(Buffer& buffer, u64 total_size_bytes, u64 largest_copy,
                       std::span<BufferCopy> copies);
 
@@ -531,6 +534,15 @@ private:
     };
     Common::LeastRecentlyUsedCache<LRUItemParams> lru_cache;
     u64 frame_tick = 0;
+    struct UniformAlignmentDiagnostics {
+        u64 bindings{};
+        u64 unaligned{};
+        u64 gpu_modified{};
+        u64 gpu_copies{};
+        u64 readbacks{};
+    };
+    // Graphics and compute totals, scoped to this emulation session.
+    std::array<UniformAlignmentDiagnostics, 2> uniform_alignment_diagnostics{};
     u64 total_used_memory = 0;
     u64 minimum_memory = 0;
     u64 critical_memory = 0;
