@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - 'stability/**'
+      - 'experiment/ubo-gpu-coherency'
   pull_request:
     branches:
       - main

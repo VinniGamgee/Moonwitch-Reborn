@@ -1,0 +1,52 @@
+name: Moonwitch Turnip A7xx
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'driver/**'
+    paths:
+      - 'tools/turnip/**'
+      - '.github/workflows/build-turnip-a7xx.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - performance
+          - foliage-nolrz
+          - foliage-sysmem
+          - foliage-safe
+
+    steps:
+      - name: Checkout Moonwitch
+        uses: actions/checkout@v4
+        with:
+          ref: driver/moonwitch-turnip-a7xx
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang lld flex bison pkg-config ninja-build glslang-tools patchelf zip unzip curl git libarchive-dev libssl-dev libxml2-dev python3-pip python3-setuptools
+          python3 -m pip install --break-system-packages "meson>=1.5,<2" mako PyYAML packaging
+
+      - name: Build ${{ matrix.variant }}
+        shell: bash
+        run: |
+          chmod +x tools/turnip/build_moonwitch_turnip.sh
+          tools/turnip/build_moonwitch_turnip.sh "${{ matrix.variant }}"
+
+      - name: Upload ${{ matrix.variant }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moonwitch-Turnip-26.2.4-${{ matrix.variant }}
+          path: |
+            dist/Moonwitch-Turnip-26.2.4-${{ matrix.variant }}.zip
+            dist/Moonwitch-Turnip-26.2.4-${{ matrix.variant }}.zip.sha256
+          if-no-files-found: error
+          retention-days: 14
