@@ -439,9 +439,6 @@ class SettingsFragmentPresenter(
             add(LaunchableSetting(titleId = R.string.mw_gpu_drivers, descriptionId = R.string.mw_gpu_drivers_desc) { launchContext ->
                 createSubscreenIntent(launchContext, SettingsSubscreen.DRIVER_MANAGER)
             })
-            add(LaunchableSetting(titleId = R.string.mw_freedreno, descriptionId = R.string.mw_freedreno_desc) { launchContext ->
-                createSubscreenIntent(launchContext, SettingsSubscreen.FREEDRENO_SETTINGS)
-            })
             add(LaunchableSetting(titleId = R.string.mw_lossless_scaling, descriptionId = R.string.mw_lossless_scaling_desc) { launchContext ->
                 createSubscreenIntent(launchContext, SettingsSubscreen.LOSSLESS_MANAGER)
             })
