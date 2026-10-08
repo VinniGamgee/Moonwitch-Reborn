@@ -1060,27 +1060,7 @@
     <string name="cpu_accuracy_paranoid">Paranoid</string>
     <string name="cpu_accuracy_debugging">تصحيح الأخطاء</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">إعدادات Freedreno</string>
     <string name="gpu_driver_settings">إعدادات برنامج تشغيل وحدة معالجة الرسومات</string>
-    <string name="freedreno_presets">الإعدادات المسبقة السريعة</string>
-    <string name="freedreno_current_settings">الإعدادات الحالية</string>
-    <string name="freedreno_debug">الإعدادات المتقدمة</string>
-    <string name="freedreno_var_name">اسم المتغير (على سبيل المثال، TU_DEBUG)</string>
-    <string name="freedreno_var_value">قيمة المتغير</string>
-    <string name="freedreno_add_variable">إضافة متغير</string>
-    <string name="freedreno_clear_all">مسح الكل</string>
-    <string name="freedreno_saved">تم حفظ إعدادات Freedreno</string>
-    <string name="freedreno_cleared_all">تم مسح جميع متغيرات Freedreno</string>
-    <string name="freedreno_variable_added">المتغير %1$s تمت إضافته</string>
-    <string name="freedreno_preset_applied">تم تطبيق الإعدادات المسبقة لـ %1$s</string>
-    <string name="freedreno_error_empty_name">لا يمكن أن يكون اسم المتغير فارغًا</string>
-    <string name="freedreno_error_setting_variable">فشل في تعيين المتغير</string>
-    <string name="freedreno_info_title">حول إعدادات Freedreno</string>
-    <string name="freedreno_info_description">قم بإعداد خيارات برنامج تشغيل Freedreno/Turnip لوحدة معالجة الرسومات لأغراض التصحيح، والتحليل، وتحسين الأداء. يتم حفظ التغييرات تلقائيًا. راجع https://docs.mesa3d.org/drivers/freedreno.html للحصول على الوثائق التفصيلية.</string>
-    <string name="freedreno_per_game_title">إعدادات Freedreno</string>
-    <string name="freedreno_per_game_description">قم بضبط إعدادات برنامج تشغيل وحدة معالجة الرسومات لهذه اللعبة</string>
-    <string name="freedreno_per_game_saved">تم حفظ إعدادات Freedreno</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">الأسهم</string>
