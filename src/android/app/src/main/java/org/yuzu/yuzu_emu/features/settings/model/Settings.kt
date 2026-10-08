@@ -36,7 +36,6 @@ object Settings {
         SECTION_APP_SETTINGS(R.string.app_settings),
         SECTION_CUSTOM_PATHS(R.string.preferences_custom_paths),
         SECTION_DEBUG(R.string.preferences_debug),
-        SECTION_FREEDRENO(R.string.freedreno_settings_title),
         SECTION_APPLETS(R.string.applets_menu);
     }
 
