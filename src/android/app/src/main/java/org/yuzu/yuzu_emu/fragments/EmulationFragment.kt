@@ -94,7 +94,6 @@ import org.yuzu.yuzu_emu.utils.GpuDriverHelper
 import org.yuzu.yuzu_emu.utils.InputHandler
 import org.yuzu.yuzu_emu.utils.Log
 import org.yuzu.yuzu_emu.utils.NativeConfig
-import org.yuzu.yuzu_emu.utils.NativeFreedrenoConfig
 import org.yuzu.yuzu_emu.utils.ViewUtils
 import org.yuzu.yuzu_emu.utils.ViewUtils.setVisible
 import org.yuzu.yuzu_emu.utils.collect
@@ -346,18 +345,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 throw fallbackException
             }
         }
-        try {
-            if (GpuDriverHelper.isAdrenoGpu()) {
-                val programIdHex = game!!.programIdHex
-                if (NativeFreedrenoConfig.loadPerGameConfigWithGlobalFallback(programIdHex)) {
-                    Log.info("[EmulationFragment] Loaded per-game Freedreno config for $programIdHex")
-                } else {
-                    Log.info("[EmulationFragment] Using global Freedreno config for $programIdHex")
-                }
-            }
-        } catch (e: Exception) {
-            Log.warning("[EmulationFragment] Failed to load Freedreno config: ${e.message}")
-        }
+        // Experimental: per-game Freedreno overrides disabled.
 
         emulationState = EmulationState(game!!.path) {
             return@EmulationState driverViewModel.isInteractionAllowed.value &&
