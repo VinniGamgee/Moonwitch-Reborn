@@ -242,7 +242,7 @@ class SettingsAdapter(
 
     fun onSubmenuClick(item: SubmenuSetting) {
         val action = SettingsNavigationDirections.actionGlobalSettingsFragment(item.menuKey, null)
-            fragment.view?.findNavController()?.navigate(action)
+        fragment.view?.findNavController()?.navigate(action)
     }
 
     fun onLaunchableClick(item: LaunchableSetting) {
