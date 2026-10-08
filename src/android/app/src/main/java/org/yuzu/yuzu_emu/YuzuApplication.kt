@@ -63,10 +63,6 @@ class YuzuApplication : Application() {
         documentsTree = DocumentsTree()
         DirectoryInitialization.start()
 
-        // Initialize Freedreno config BEFORE loading native library
-        // This ensures GPU driver environment variables are set before adrenotools initializes
-        GpuDriverHelper.initializeFreedrenoConfigEarly()
-
         NativeLibrary.playTimeManagerInit()
         GpuDriverHelper.initializeDriverParameters()
         NativeInput.reloadInputDevices()
