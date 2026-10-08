@@ -197,7 +197,6 @@ class SettingsFragmentPresenter(
             MenuTag.SECTION_INPUT_PLAYER_EIGHT -> addInputPlayer(sl, 7)
             MenuTag.SECTION_APP_SETTINGS -> addThemeSettings(sl)
             MenuTag.SECTION_DEBUG -> addDebugSettings(sl)
-            MenuTag.SECTION_FREEDRENO -> addFreedrenoSettings(sl)
             MenuTag.SECTION_APPLETS -> addAppletSettings(sl)
             MenuTag.SECTION_CUSTOM_PATHS -> addCustomPathsSettings(sl)
         }
@@ -907,10 +906,6 @@ class SettingsFragmentPresenter(
         }
     }
 
-    private fun addFreedrenoSettings(sl: ArrayList<SettingsItem>) {
-        // No additional settings needed here - the SubmenuSetting handles navigation
-        // This method is kept for consistency with other menu sections
-    }
 
     private fun addAppletSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
