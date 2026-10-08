@@ -8,7 +8,7 @@
     <string name="moonwitch_build_badge" translatable="false">V1.1 • DEVICE PROFILES</string>
     <string name="moonwitch_system_menu">System menu</string>
     <string name="mw_drivers_components">Drivers and Components</string>
-    <string name="mw_drivers_components_desc">GPU drivers, Freedreno/Turnip and Lossless Scaling</string>
+    <string name="mw_drivers_components_desc">GPU drivers, Turnip and Lossless Scaling</string>
     <string name="moonwitch_manage_library">Library</string>
     <string name="device_profile_title">Recommended device profile</string>
     <string name="device_profile_description">Detect this device and create an auditable configuration only for this game.</string>
@@ -1275,27 +1275,7 @@
     <string name="cpu_accuracy_paranoid">Paranoid</string>
     <string name="cpu_accuracy_debugging">Debugging</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Freedreno Settings</string>
     <string name="gpu_driver_settings">GPU Driver Settings</string>
-    <string name="freedreno_presets">Quick Presets</string>
-    <string name="freedreno_current_settings">Current Settings</string>
-    <string name="freedreno_debug">Advanced Settings</string>
-    <string name="freedreno_var_name">Variable Name (e.g., TU_DEBUG)</string>
-    <string name="freedreno_var_value">Variable Value</string>
-    <string name="freedreno_add_variable">Add Variable</string>
-    <string name="freedreno_clear_all">Clear All</string>
-    <string name="freedreno_saved">Freedreno configuration saved</string>
-    <string name="freedreno_cleared_all">All Freedreno variables cleared</string>
-    <string name="freedreno_variable_added">Variable %1$s added</string>
-    <string name="freedreno_preset_applied">Preset \'%1$s\' applied</string>
-    <string name="freedreno_error_empty_name">Variable name cannot be empty</string>
-    <string name="freedreno_error_setting_variable">Failed to set variable</string>
-    <string name="freedreno_info_title">About Freedreno Configuration</string>
-    <string name="freedreno_info_description">Configure Freedreno/Turnip GPU driver options for debugging, profiling, and performance optimization. Changes are saved automatically. See https://docs.mesa3d.org/drivers/freedreno.html for detailed documentation.</string>
-    <string name="freedreno_per_game_title">Freedreno Settings</string>
-    <string name="freedreno_per_game_description">Configure GPU driver settings for this game</string>
-    <string name="freedreno_per_game_saved">Freedreno configuration saved</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">D-pad</string>
