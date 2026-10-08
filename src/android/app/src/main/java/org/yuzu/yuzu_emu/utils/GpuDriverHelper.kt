@@ -27,10 +27,6 @@ object GpuDriverHelper {
 
     val driverStoragePath get() = DirectoryInitialization.userDirectory!! + "/gpu_drivers/"
 
-    fun initializeFreedrenoConfigEarly() {
-        // Experimental: disable Freedreno environment overrides entirely.
-    }
-
     fun initializeDriverParameters() {
         try {
             // Initialize the file redirection directory.
