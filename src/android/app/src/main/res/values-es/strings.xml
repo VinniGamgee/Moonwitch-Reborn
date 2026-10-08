@@ -1045,27 +1045,7 @@
     <string name="cpu_accuracy_paranoid">Paranoico</string>
     <string name="cpu_accuracy_debugging">Depuración</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Ajustes de Freedreno</string>
     <string name="gpu_driver_settings">Ajustes del controlador de la GPU</string>
-    <string name="freedreno_presets">Preajustes rápidos</string>
-    <string name="freedreno_current_settings">Ajustes actuales</string>
-    <string name="freedreno_debug">Ajustes avanzados</string>
-    <string name="freedreno_var_name">Nombre de la variable (p.e., TU_DEBUG)</string>
-    <string name="freedreno_var_value">Valor de la variable</string>
-    <string name="freedreno_add_variable">Añadir variable</string>
-    <string name="freedreno_clear_all">Limpiar todas</string>
-    <string name="freedreno_saved">Configuración de Freedreno guardada</string>
-    <string name="freedreno_cleared_all">Todas las variables de Freedreno fueron limpiadas</string>
-    <string name="freedreno_variable_added">Variable %1$s añadida</string>
-    <string name="freedreno_preset_applied">Preajuste \'%1$s\' aplicado</string>
-    <string name="freedreno_error_empty_name">El nombre de la variable no puede estar vacío</string>
-    <string name="freedreno_error_setting_variable">Fallo al establecer la variable</string>
-    <string name="freedreno_info_title">Acerca de la configuración de Freedreno</string>
-    <string name="freedreno_info_description">Configurar las opciones de depuración, perfil y optimizaciones de rendimiento del controlador de la GPU Freedreno/Turnip. Los cambos se guardan automáticamente. Mire https://docs.mesa3d.org/drivers/freedreno.html para una documentación detallada.</string>
-    <string name="freedreno_per_game_title">Ajustes de Freedreno</string>
-    <string name="freedreno_per_game_description">Configurar ajustes del controlador de la GPU para este juego</string>
-    <string name="freedreno_per_game_saved">Configuración de Freedreno guardada</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">Cruceta</string>
