@@ -1034,27 +1034,7 @@
     <string name="cpu_accuracy_paranoid">极致</string>
     <string name="cpu_accuracy_debugging">调试</string>
 
-    <!-- Freedreno Settings -->
-    <string name="freedreno_settings_title">Freedreno 设置</string>
     <string name="gpu_driver_settings">GPU 驱动设置</string>
-    <string name="freedreno_presets">快速预设</string>
-    <string name="freedreno_current_settings">当前设置</string>
-    <string name="freedreno_debug">高级设置</string>
-    <string name="freedreno_var_name">变量名称（例如：TU_DEBUG）</string>
-    <string name="freedreno_var_value">变量值</string>
-    <string name="freedreno_add_variable">添加变量</string>
-    <string name="freedreno_clear_all">全部清除</string>
-    <string name="freedreno_saved">Freedreno 配置保存</string>
-    <string name="freedreno_cleared_all">清除全部 Freedreno 变量</string>
-    <string name="freedreno_variable_added">添加变量 %1$s</string>
-    <string name="freedreno_preset_applied">应用预设 \'%1$s\'</string>
-    <string name="freedreno_error_empty_name">变量名不能为空</string>
-    <string name="freedreno_error_setting_variable">变量设置失败</string>
-    <string name="freedreno_info_title">关于 Freedreno 的配置</string>
-    <string name="freedreno_info_description">配置 Freedreno/Turnip GPU 驱动选项，用于调试、性能分析和性能优化。修改会自动保存。详细文档请参阅：https://docs.mesa3d.org/drivers/freedreno.html</string>
-    <string name="freedreno_per_game_title">Freedreno 设置</string>
-    <string name="freedreno_per_game_description">为此游戏配置 GPU 驱动设置</string>
-    <string name="freedreno_per_game_saved">Freedreno 配置保存</string>
 
     <!-- Gamepad Buttons -->
     <string name="gamepad_d_pad">十字方向键</string>
