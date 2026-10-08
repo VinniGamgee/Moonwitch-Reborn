@@ -28,9 +28,7 @@ object GpuDriverHelper {
     val driverStoragePath get() = DirectoryInitialization.userDirectory!! + "/gpu_drivers/"
 
     fun initializeFreedrenoConfigEarly() {
-        NativeFreedrenoConfig.setFreedrenoBasePath(YuzuApplication.appContext.cacheDir.absolutePath)
-        NativeFreedrenoConfig.initializeFreedrenoConfig()
-        NativeFreedrenoConfig.reloadFreedrenoConfig()
+        // Experimental: disable Freedreno environment overrides entirely.
     }
 
     fun initializeDriverParameters() {
@@ -48,7 +46,6 @@ object GpuDriverHelper {
 
         initializeDirectories()
         hookLibPath = YuzuApplication.appContext.applicationInfo.nativeLibraryDir + "/"
-        NativeFreedrenoConfig.reloadFreedrenoConfig()
 
         // Initialize GPU driver.
         NativeLibrary.initializeGpuDriver(
