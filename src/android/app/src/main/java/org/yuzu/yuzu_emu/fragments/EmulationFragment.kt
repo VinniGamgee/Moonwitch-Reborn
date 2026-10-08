@@ -345,8 +345,6 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 throw fallbackException
             }
         }
-        // Experimental: per-game Freedreno overrides disabled.
-
         emulationState = EmulationState(game!!.path) {
             return@EmulationState driverViewModel.isInteractionAllowed.value &&
                 !isStoppingForRomSwap
