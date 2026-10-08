@@ -63,8 +63,6 @@
     <string name="mw_adpf_diagnostics_desc">Consultar o estado nativo e ativar as ferramentas de telemetria</string>
     <string name="mw_gpu_drivers">Drivers de GPU</string>
     <string name="mw_gpu_drivers_desc">Instalar, buscar, selecionar ou remover drivers personalizados</string>
-    <string name="mw_freedreno">Freedreno / Turnip</string>
-    <string name="mw_freedreno_desc">Aplicar presets e editar variáveis reais do driver</string>
     <string name="mw_performance_monitor">Monitor de desempenho</string>
     <string name="mw_performance_monitor_desc">FPS, frametime, memória, temperatura e métricas do Moonwitch Lab</string>
     <string name="mw_lossless_scaling">Lossless Scaling</string>
