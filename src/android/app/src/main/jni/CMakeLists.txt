@@ -11,7 +11,6 @@ add_library(yuzu-android SHARED
     native.h
     native_performance_lab.cpp
     native_config.cpp
-    native_freedreno.cpp
     android_settings.cpp
     game_metadata.cpp
     native_log.cpp
