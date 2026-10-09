@@ -427,12 +427,31 @@ struct Values {
 
     // Moonwitch Color Grading is independent from the window scaling filter. Mode 0 keeps
     // the pass disabled, so the default path has no additional GPU work.
-    SwitchableSetting<int, true> moonwitch_color_grading_mode{
-        linkage, 0, 0, 8, "moonwitch_color_grading_mode", Category::Renderer,
-        Specialization::Default, true, true};
-    SwitchableSetting<int, true> moonwitch_color_grading_strength{
-        linkage, 100, 0, 100, "moonwitch_color_grading_strength", Category::Renderer,
-        Specialization::Scalar | Specialization::Percentage, true, true};
+    SwitchableSetting<std::string> post_shader_chain{linkage,
+                                                     std::string(),
+                                                     "post_shader_chain",
+                                                     Category::Renderer,
+                                                     Specialization::Default,
+                                                     true,
+                                                     true};
+
+    SwitchableSetting<std::string> post_shader_preset{linkage,
+                                                      std::string(),
+                                                      "post_shader_preset",
+                                                      Category::Renderer,
+                                                      Specialization::Default,
+                                                      true,
+                                                      true};
+
+    SwitchableSetting<bool> post_shader_enabled{linkage,
+                                                true,
+                                                "post_shader_enabled",
+                                                Category::Renderer,
+                                                Specialization::Default,
+                                                true,
+                                                true};
+
+
 
     SwitchableSetting<bool> frame_gen{linkage, false, "frame_gen", Category::Renderer,
                                       Specialization::Default, true, false};
