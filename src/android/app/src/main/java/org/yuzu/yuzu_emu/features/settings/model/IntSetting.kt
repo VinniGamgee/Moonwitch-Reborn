@@ -27,8 +27,6 @@ enum class IntSetting(override val key: String) : AbstractIntSetting {
     RENDERER_VSYNC("use_vsync"),
     RENDERER_SCALING_FILTER("scaling_filter"),
     RENDERER_ANTI_ALIASING("anti_aliasing"),
-    MOONWITCH_COLOR_GRADING_MODE("moonwitch_color_grading_mode"),
-    MOONWITCH_COLOR_GRADING_STRENGTH("moonwitch_color_grading_strength"),
     RENDERER_SCREEN_LAYOUT("screen_layout"),
     RENDERER_ASPECT_RATIO("aspect_ratio"),
 

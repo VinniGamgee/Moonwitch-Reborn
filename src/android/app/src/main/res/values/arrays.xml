@@ -343,29 +343,7 @@
         <item>2</item>
     </integer-array>
 
-    <string-array name="moonwitchColorGradingNames">
-        <item>@string/mw_color_grading_original</item>
-        <item>@string/mw_color_grading_vivid</item>
-        <item>@string/mw_color_grading_dark</item>
-        <item>@string/mw_color_grading_cinematic</item>
-        <item>@string/mw_color_grading_warm</item>
-        <item>@string/mw_color_grading_cool</item>
-        <item>@string/mw_color_grading_moonlight</item>
-        <item>@string/mw_color_grading_monochrome</item>
-        <item>@string/mw_color_grading_hdr_plus</item>
-    </string-array>
 
-    <integer-array name="moonwitchColorGradingValues">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>4</item>
-        <item>5</item>
-        <item>6</item>
-        <item>7</item>
-        <item>8</item>
-    </integer-array>
 
     <string-array name="moonwitchSafeGpuBarrierNames">
         <item>@string/mw_safe_gpu_barriers_default</item>

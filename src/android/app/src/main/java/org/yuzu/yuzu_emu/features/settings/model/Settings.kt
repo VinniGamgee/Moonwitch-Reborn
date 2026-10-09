@@ -12,6 +12,7 @@ object Settings {
         SECTION_GENERAL(R.string.mw_cat_general),
         SECTION_SYSTEM(R.string.preferences_system),
         SECTION_RENDERER(R.string.preferences_graphics),
+        SECTION_POST_PROCESSING(R.string.post_processing),
         SECTION_MOONWITCH_PERFORMANCE(R.string.mw_performance_center),
         SECTION_MOONWITCH_UNLEASHED(R.string.mw_unleashed_title),
         SECTION_MOONWITCH_CORE_DIRECTOR(R.string.mw_core_director_title),

@@ -17,6 +17,9 @@
 #include "frontend_common/config.h"
 #include "frontend_common/settings_generator.h"
 #include "native.h"
+#ifdef HAS_RESHADE
+#include "video_core/post_processing/fx_chain.h"
+#endif
 
 std::unique_ptr<AndroidConfig> global_config;
 std::unique_ptr<AndroidConfig> per_game_config;
@@ -30,6 +33,15 @@ void SyncMoonwitchCoreDirectorSetting() {
     Common::MoonwitchCoreDirector::SetEnabled(
         Settings::values.moonwitch_core_director.GetValue());
 }
+
+#ifdef HAS_RESHADE
+static void ResetFxChainToGlobal() {
+    VideoCore::UseGlobalFxSettings();
+    VideoCore::FxChain::Instance().LoadFromSettings();
+}
+#else
+static void ResetFxChainToGlobal() {}
+#endif
 
 template <typename T>
 Settings::Setting<T>* getSetting(JNIEnv* env, jstring jkey) {
@@ -51,6 +63,7 @@ extern "C" {
 void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_initializeGlobalConfig(JNIEnv* env, jobject obj) {
     global_config = std::make_unique<AndroidConfig>();
     FrontendCommon::GenerateSettings();
+    ResetFxChainToGlobal();
 
     // Migrate user-visible defaults inherited from Eden without changing compatibility keys.
     bool migrated_legacy_branding = false;
@@ -77,6 +90,7 @@ void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_unloadGlobalConfig(JNIEnv* env, 
 
 void Java_org_yuzu_yuzu_1emu_utils_NativeConfig_reloadGlobalConfig(JNIEnv* env, jobject obj) {
     global_config->AndroidConfig::ReloadAllValues();
+    ResetFxChainToGlobal();
     SyncMoonwitchUnleashedSetting();
     SyncMoonwitchCoreDirectorSetting();
 }
