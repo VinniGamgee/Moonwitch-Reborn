@@ -881,20 +881,6 @@
     <!-- Anti-Aliasing -->
     <string name="anti_aliasing_none">Nenhum</string>
     <!-- Moonwitch Color Grading -->
-    <string name="mw_color_grading_header">Estilo de imagem</string>
-    <string name="mw_color_grading_title">Estilo de cor Moonwitch</string>
-    <string name="mw_color_grading_description">Pós-processamento independente aplicado à imagem do jogo sem substituir os filtros de escala ou anti-aliasing. Original desativa o passe.</string>
-    <string name="mw_color_grading_strength">Intensidade do estilo</string>
-    <string name="mw_color_grading_strength_description">Controla o quanto o estilo selecionado é misturado com a imagem original.</string>
-    <string name="mw_color_grading_original">Original (desligado)</string>
-    <string name="mw_color_grading_vivid">Vívido</string>
-    <string name="mw_color_grading_dark">Escuro</string>
-    <string name="mw_color_grading_cinematic">Cinemático</string>
-    <string name="mw_color_grading_warm">Quente</string>
-    <string name="mw_color_grading_cool">Frio</string>
-    <string name="mw_color_grading_moonlight">Luar</string>
-    <string name="mw_color_grading_monochrome">Monocromático</string>
-    <string name="mw_color_grading_hdr_plus">HDR+</string>
 
     <!-- Moonwitch Graphics Fixes -->
     <string name="mw_graphics_fixes_header">Correções gráficas Moonwitch</string>
@@ -1083,4 +1069,24 @@
     <string name="mw_core_director_active">Ativo em %1$d/%2$d threads • CPUs de desempenho %3$s • CPU prime %4$d • correções de desvio %5$d</string>
     <string name="mw_core_director_partial">Parcial: ativo em %1$d/%2$d threads • %3$d falhas • CPUs solicitadas %4$s</string>
     <string name="mw_core_director_rejected">O kernel Snapdragon recusou a máscara de afinidade em todas as threads críticas registradas.</string>
+
+    <string name="post_processing">Efeitos de pós-processamento</string>
+    <string name="post_processing_description">Ajuste a aparência do jogo com efeitos ReShade FX</string>
+    <string name="post_processing_per_game_description">Configure os efeitos deste jogo</string>
+    <string name="post_processing_add">Adicionar efeito</string>
+    <string name="post_processing_remove">Remover</string>
+    <string name="post_processing_open_list">Abrir lista</string>
+    <string name="post_processing_close_list">Fechar lista</string>
+    <string name="post_processing_remove_all">Remover efeitos</string>
+    <string name="post_processing_preset_locked">Predefinição ativa. Edite-a em Efeitos de pós-processamento antes de iniciar um jogo.</string>
+    <string name="post_processing_preset_modified">Valores alterados em relação à predefinição original.</string>
+    <string name="post_processing_presets">Predefinições</string>
+    <string name="post_processing_preset_new">Nova predefinição</string>
+    <string name="post_processing_preset_new_description">Salva os efeitos carregados e seus valores atuais como uma predefinição para usar depois.</string>
+    <string name="post_processing_preset_name_invalid">Escolha um nome sem o sinal de igual.</string>
+    <string name="post_processing_preset_none">Sem predefinição</string>
+    <string name="post_processing_preset_delete">Excluir predefinição</string>
+    <string name="post_processing_preset_reset">Restaurar valores da predefinição</string>
+    <string name="post_processing_reset">Restaurar padrão</string>
+    <string name="post_processing_empty">Nenhum efeito encontrado. Coloque arquivos .fx nesta pasta:</string>
 </resources>

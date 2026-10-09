@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - 'experiment/ubo-gpu-coherency'
+      - 'feature/eden-post-processing'
   pull_request:
     branches:
       - main

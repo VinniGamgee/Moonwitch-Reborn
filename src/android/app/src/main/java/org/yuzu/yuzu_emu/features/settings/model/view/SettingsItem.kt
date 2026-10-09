@@ -143,6 +143,10 @@ abstract class SettingsItem(
         const val TYPE_LAUNCHABLE = 13
         const val TYPE_PATH = 14
         const val TYPE_GPU_UNSWIZZLE = 15
+        const val TYPE_FX_TOOLBAR = 16
+        const val TYPE_FX_PRESET = 17
+        const val TYPE_FX_SHADER = 18
+        const val TYPE_FX_BUTTON = 19
 
         const val FASTMEM_COMBINED = "fastmem_combined"
         const val GPU_UNSWIZZLE_COMBINED = "gpu_unswizzle_combined"
@@ -726,25 +730,6 @@ abstract class SettingsItem(
                     titleId = R.string.renderer_anti_aliasing,
                     choicesId = R.array.rendererAntiAliasingNames,
                     valuesId = R.array.rendererAntiAliasingValues
-                )
-            )
-            put(
-                SingleChoiceSetting(
-                    IntSetting.MOONWITCH_COLOR_GRADING_MODE,
-                    titleId = R.string.mw_color_grading_title,
-                    descriptionId = R.string.mw_color_grading_description,
-                    choicesId = R.array.moonwitchColorGradingNames,
-                    valuesId = R.array.moonwitchColorGradingValues
-                )
-            )
-            put(
-                SliderSetting(
-                    IntSetting.MOONWITCH_COLOR_GRADING_STRENGTH,
-                    titleId = R.string.mw_color_grading_strength,
-                    descriptionId = R.string.mw_color_grading_strength_description,
-                    min = 0,
-                    max = 100,
-                    units = "%"
                 )
             )
             put(

@@ -17,6 +17,7 @@ add_library(yuzu-android SHARED
     native_log.cpp
     android_config.cpp
     android_config.h
+    native_post_processing.cpp
     native_input.cpp
 )
 

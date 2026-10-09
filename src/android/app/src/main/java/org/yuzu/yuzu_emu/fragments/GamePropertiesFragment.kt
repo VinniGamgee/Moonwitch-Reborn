@@ -904,6 +904,20 @@ class GamePropertiesFragment : Fragment() {
         val properties = mutableListOf<GameProperty>().apply {
             add(
                 SubmenuProperty(
+                    R.string.post_processing,
+                    R.string.post_processing_per_game_description,
+                    R.drawable.ic_post_processing,
+                    action = {
+                        val action = HomeNavigationDirections.actionGlobalSettingsActivity(
+                            args.game,
+                            Settings.MenuTag.SECTION_POST_PROCESSING
+                        )
+                        binding.root.findNavController().navigate(action)
+                    }
+                )
+            )
+            add(
+                SubmenuProperty(
                     R.string.device_profile_title,
                     R.string.device_profile_description,
                     R.drawable.ic_graphics,
