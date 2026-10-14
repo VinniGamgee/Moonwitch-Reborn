@@ -476,8 +476,6 @@
     <string name="renderer_optimize_spirv_output_description">Executa passes de desempenho do SPIRV-Tools nos shaders gerados. Ao Carregar otimiza apenas os shaders reconstruídos do cache durante a inicialização; Sempre também otimiza shaders compilados durante o jogo. Se a otimização falhar, o Moonwitch usa o shader original com segurança.</string>
     <string name="renderer_force_max_clock">Forçar velocidade máxima (somente Adreno)</string>
     <string name="renderer_force_max_clock_description">Força a GPU a rodar na velocidade máxima (restrições térmicas serão aplicadas)</string>
-    <string name="renderer_reactive_flushing">Usar flushing reativo</string>
-    <string name="renderer_reactive_flushing_description">Melhora a precisão da renderização em alguns jogos ao custo de desempenho.</string>
     <string name="hacks">Hacks</string>
 
     <string name="skip_cpu_inner_invalidation">Ignorar Invalidação Interna da CPU</string>

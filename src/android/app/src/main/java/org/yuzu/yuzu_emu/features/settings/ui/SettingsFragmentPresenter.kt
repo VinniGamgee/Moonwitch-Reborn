@@ -867,7 +867,6 @@ class SettingsFragmentPresenter(
 
             add(IntSetting.RENDERER_ACCURACY.key)
             add(IntSetting.DMA_ACCURACY.key)
-            add(IntSetting.GPU_FENCE_BEHAVIOR.key)
             add(IntSetting.MAX_ANISOTROPY.key)
             add(IntSetting.RENDERER_VRAM_USAGE_MODE.key)
             add(IntSetting.RENDERER_ASTC_DECODE_METHOD.key)
@@ -883,7 +882,6 @@ class SettingsFragmentPresenter(
             add(IntSetting.MOONWITCH_SHADER_PRECISION_MODE.key)
 
             add(BooleanSetting.SYNC_MEMORY_OPERATIONS.key)
-            add(BooleanSetting.RENDERER_REACTIVE_FLUSHING.key)
             add(BooleanSetting.ENABLE_BUFFER_HISTORY.key)
             add(BooleanSetting.ENABLE_GPU_BUFFER_READBACK.key)
 

@@ -1,3 +1,4 @@
+// Lemon 1.2 fixes: Ghael-V / Lemon Project; provenance: docs/LEMON_PROJECT_PORTS.md
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -71,8 +72,8 @@ public:
         uncommitted_operations.emplace_back(std::move(func));
     }
 
+    // Lemon Project: expose guest signals only after the host GPU completes the work.
     void SignalFence(std::function<void()>&& func) {
-        const bool delay_fence = Settings::IsGPUFenceBehaviorDefault() ? Settings::IsGPULevelHigh() : Settings::IsGPUFenceBehaviorBalanced() || Settings::IsGPUFenceBehaviorAccurate() || Settings::IsGPUFenceBehaviorStrict();
         const bool should_flush = ShouldFlush();
         if constexpr (!can_async_check) {
             TryReleasePendingFences<false>();
@@ -82,14 +83,9 @@ public:
         if constexpr (can_async_check) {
             guard.lock();
         }
-        if (delay_fence) {
-            uncommitted_operations.emplace_back(std::move(func));
-        }
+        uncommitted_operations.emplace_back(std::move(func));
         pending_operations.emplace_back(std::move(uncommitted_operations));
         QueueFence(new_fence);
-        if (!delay_fence) {
-            func();
-        }
         fences.push(std::move(new_fence));
         if (should_flush) {
             rasterizer.FlushCommands();

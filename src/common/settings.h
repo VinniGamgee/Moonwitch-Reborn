@@ -566,15 +566,6 @@ struct Values {
                                                       true,
                                                       true};
 
-    SwitchableSetting<GpuFenceBehavior, true> gpu_fence_behavior{linkage,
-                                                                 GpuFenceBehavior::Default,
-                                                                 GpuFenceBehavior::Default,
-                                                                 GpuFenceBehavior::Strict,
-                                                                 "gpu_fence_behavior",
-                                                                 Category::RendererAdvanced,
-                                                                 Specialization::Default,
-                                                                 true,
-                                                                 true};
 
     SwitchableSetting<VramUsageMode, true> vram_usage_mode{linkage,
                                                            VramUsageMode::Conservative,
@@ -643,14 +634,6 @@ struct Values {
     SwitchableSetting<bool> use_video_framerate{linkage, false, "use_video_framerate",
                                                 Category::RendererAdvanced};
 
-    SwitchableSetting<bool> use_reactive_flushing{linkage,
-#ifdef __ANDROID__
-                                                  false,
-#else
-                                                  true,
-#endif
-                                                  "use_reactive_flushing",
-                                                  Category::RendererAdvanced};
 
     // Master diagnostic override for the four Moonwitch Vulkan compatibility fixes.
     // Individual values remain stored and become effective again when this is disabled.
@@ -1070,10 +1053,6 @@ bool IsGPULevelHigh();
 bool IsDMALevelDefault();
 bool IsDMALevelSafe();
 
-bool IsGPUFenceBehaviorDefault();
-bool IsGPUFenceBehaviorBalanced();
-bool IsGPUFenceBehaviorAccurate();
-bool IsGPUFenceBehaviorStrict();
 
 bool IsFastmemEnabled();
 void SetNceEnabled(bool is_64bit);

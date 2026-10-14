@@ -602,8 +602,6 @@
     <string name="renderer_accuracy_description">Controls the GPU emulation mode. Most games render fine with Fast, but Accurate is still required for some. Particles tend to only render correctly with Accurate mode.</string>
     <string name="dma_accuracy">DMA Accuracy</string>
     <string name="dma_accuracy_description">Controls the DMA precision accuracy. Safe precision can fix issues in some games, but it can also impact performance in some cases. If unsure, leave this on Default.</string>
-    <string name="gpu_fence_behavior">GPU Fence Behavior</string>
-    <string name="gpu_fence_behavior_description">Controls the GPU fence synchronization behavior. Immediate is the fastest option, but can introduce some issues. Balanced offers better compatibility and may fix issues in some games. Accurate further improves compatibility at the cost of some performance. Strict is the slowest option, but can fix issues that require stricter synchronization. Default follows the GPU Accuracy setting.</string>
     <string name="anisotropic_filtering">Anisotropic filtering</string>
     <string name="anisotropic_filtering_description">Improves the quality of textures when viewed at oblique angles</string>
     <string name="vram_usage_mode">VRAM Usage Mode</string>
@@ -625,8 +623,6 @@
     <string name="renderer_async_presentation_description">This hack can increase performance by moving presentation to a separate CPU thread at the cost of graphical issues.</string>
     <string name="smart_adaptive_frame_skip">Smart Adaptive Frame Skip</string>
     <string name="smart_adaptive_frame_skip_description">Conservatively skips only the final Vulkan composition when measured pacing and queue pressure show that a frame has already missed its display deadline. Game logic, audio, input, timers, and guest GPU commands are never skipped. Limited to one skip after at least five fully rendered frames.</string>
-    <string name="renderer_reactive_flushing">Use reactive flushing</string>
-    <string name="renderer_reactive_flushing_description">Improves rendering accuracy in some games at the cost of performance.</string>
     <string name="enable_buffer_history">Enable buffer history</string>
     <string name="enable_buffer_history_description">Enables access to previous buffer states. This option may improve rendering quality and performance consistency in some games.</string>
     <string name="enable_gpu_buffer_readback">Enable GPU Buffer Readback</string>
@@ -1173,11 +1169,6 @@
     <string name="dma_accuracy_safe">Safe</string>
 
     <!-- GPU Fence Behavior -->
-    <string name="gpu_fence_behavior_default">Default</string>
-    <string name="gpu_fence_behavior_immediate">Immediate</string>
-    <string name="gpu_fence_behavior_balanced">Balanced</string>
-    <string name="gpu_fence_behavior_accurate">Accurate</string>
-    <string name="gpu_fence_behavior_strict">Strict</string>
 
     <!-- ASTC Decoding Method Choices -->
     <string name="accelerate_astc_cpu" translatable="false">CPU</string>
