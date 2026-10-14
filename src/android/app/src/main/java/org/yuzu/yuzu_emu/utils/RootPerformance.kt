@@ -12,6 +12,7 @@ import java.util.UUID
 object RootPerformance {
     const val ENABLED = "moonwitch_root_performance"
     const val REPORT = "moonwitch_root_report"
+    const val LOG_FILE = "root-performance.log"
     val available: Boolean get() = BuildConfig.FLAVOR == "overclockRoot"
     private var lease: File? = null
 
@@ -46,13 +47,15 @@ object RootPerformance {
                     }
                     if (token.exists()) {
                         val command = "sh ${quote(script.absolutePath)} ${Process.myPid()} ${quote(token.absolutePath)}"
+                        // Keep stdout on disk: a pipe to the app would break on app death,
+                        // potentially interrupting the root shell during restoration (SIGPIPE).
+                        val output = File(app.filesDir, LOG_FILE)
                         val process = ProcessBuilder("su", "-c", command)
-                            .redirectErrorStream(true).start()
+                            .redirectErrorStream(true).redirectOutput(output).start()
                         process.outputStream.close()
-                        process.inputStream.bufferedReader().useLines { lines ->
-                            lines.forEach { record(it) }
-                        }
-                        record("Controller exit: ${process.waitFor()}")
+                        val result = process.waitFor()
+                        output.useLines { lines -> lines.forEach { record(it) } }
+                        record("Controller exit: $result")
                     }
                 } finally {
                     script.delete()

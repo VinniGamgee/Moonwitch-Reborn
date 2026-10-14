@@ -2,6 +2,7 @@
 package org.yuzu.yuzu_emu.dialogs
 
 import android.content.Context
+import java.io.File
 import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.yuzu.yuzu_emu.R
@@ -19,9 +20,13 @@ object PerformanceEngineDialog {
             }
             .setPositiveButton(android.R.string.ok, null)
             .setNeutralButton(R.string.root_engine_report) { _, _ ->
+                val log = File(context.filesDir, RootPerformance.LOG_FILE)
+                val report = runCatching {
+                    if (log.exists()) log.readLines().takeLast(80).joinToString("\n") else null
+                }.getOrNull()
                 MaterialAlertDialogBuilder(context)
                     .setTitle(R.string.root_engine_report)
-                    .setMessage(prefs.getString(RootPerformance.REPORT, context.getString(R.string.root_engine_idle)))
+                    .setMessage(report?.takeIf { it.isNotBlank() } ?: prefs.getString(RootPerformance.REPORT, context.getString(R.string.root_engine_idle)))
                     .setPositiveButton(android.R.string.ok, null)
                     .show()
             }
