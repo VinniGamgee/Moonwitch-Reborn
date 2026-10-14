@@ -188,7 +188,6 @@ object DeviceProfileManager {
                     IntSetting.RENDERER_VSYNC to 2, // FIFO
                     IntSetting.RENDERER_ACCURACY to 0, // Low
                     IntSetting.DMA_ACCURACY to 0, // Default
-                    IntSetting.GPU_FENCE_BEHAVIOR to 0, // Default
                     IntSetting.RENDERER_VRAM_USAGE_MODE to 0, // Conservative
                     IntSetting.RENDERER_ASTC_DECODE_METHOD to 1, // GPU
                     IntSetting.RENDERER_NVDEC_EMULATION to 2, // GPU
@@ -220,7 +219,6 @@ object DeviceProfileManager {
                     IntSetting.RENDERER_VSYNC to 2, // FIFO
                     IntSetting.RENDERER_ACCURACY to 0, // Low
                     IntSetting.DMA_ACCURACY to 0, // Default
-                    IntSetting.GPU_FENCE_BEHAVIOR to 0, // Default
                     IntSetting.RENDERER_VRAM_USAGE_MODE to 0, // Conservative
                     IntSetting.RENDERER_ASTC_DECODE_METHOD to 1, // GPU
                     IntSetting.RENDERER_NVDEC_EMULATION to 2 // GPU
@@ -239,7 +237,6 @@ object DeviceProfileManager {
         BooleanSetting.RENDERER_ASYNCHRONOUS_GPU_EMULATION to true,
         BooleanSetting.RENDERER_ASYNC_PRESENTATION to true,
         BooleanSetting.RENDERER_ASYNCHRONOUS_SHADERS to false,
-        BooleanSetting.RENDERER_REACTIVE_FLUSHING to false,
         BooleanSetting.USE_OPTIMIZED_VERTEX_BUFFERS to true,
         BooleanSetting.RENDERER_PATCH_OLD_QCOM_DRIVERS to false
     )

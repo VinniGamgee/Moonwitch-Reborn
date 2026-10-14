@@ -225,8 +225,6 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
               "required for some.\nParticles tend to only render correctly with Accurate mode."));
     INSERT(Settings, dma_accuracy, tr("DMA Accuracy:"),
            tr("Controls the DMA read mode.\nUnsafe is faster, while Safe is more stable and can fix issues in some games.\nDefault follows the GPU Accuracy setting."));
-    INSERT(Settings, gpu_fence_behavior, tr("GPU Fence Behavior:"),
-           tr("Controls the GPU fence synchronization behavior.\nImmediate is the fastest option, but can introduce some issues.\nBalanced offers better compatibility and may fix issues in some games.\nAccurate further improves compatibility at the cost of some performance.\nStrict is the slowest option, but can fix issues that require stricter synchronization.\nDefault follows the GPU Accuracy setting."));
     INSERT(Settings, enable_gpu_buffer_readback, tr("Enable GPU buffer readback"),
            tr("Preserves GPU-modified data by reading it back before uploading.\nSome games require this to render certain effects properly."));
     INSERT(Settings, use_asynchronous_shaders, tr("Enable asynchronous shader compilation"),
@@ -259,10 +257,6 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent) {
            tr("Required by some games.\nThis setting only exists for Intel "
               "proprietary drivers and may crash if enabled.\nCompute pipelines are always enabled "
               "on all other drivers."));
-    INSERT(
-        Settings, use_reactive_flushing, tr("Enable Reactive Flushing"),
-        tr("Uses reactive flushing instead of predictive flushing, allowing more accurate memory "
-           "syncing."));
     INSERT(Settings, use_video_framerate, tr("Sync to framerate of video playback"),
            tr("Run the game at normal speed during video playback, even when the framerate is "
               "unlocked."));
@@ -435,14 +429,6 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                               PAIR(DmaAccuracy, Default, tr("Default")),
                               PAIR(DmaAccuracy, Unsafe, tr("Unsafe (fast)")),
                               PAIR(DmaAccuracy, Safe, tr("Safe (stable)")),
-                          }});
-    translations->insert({Settings::EnumMetadata<Settings::GpuFenceBehavior>::Index(),
-                          {
-                              PAIR(GpuFenceBehavior, Default, tr("Default")),
-                              PAIR(GpuFenceBehavior, Immediate, tr("Immediate")),
-                              PAIR(GpuFenceBehavior, Balanced, tr("Balanced")),
-                              PAIR(GpuFenceBehavior, Accurate, tr("Accurate")),
-                              PAIR(GpuFenceBehavior, Strict, tr("Strict")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::CpuAccuracy>::Index(),

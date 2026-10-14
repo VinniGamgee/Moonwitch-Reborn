@@ -1,3 +1,4 @@
+// Lemon 1.2 fixes: Ghael-V / Lemon Project; provenance: docs/LEMON_PROJECT_PORTS.md
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -17,6 +18,7 @@
 #include "video_core/engines/maxwell_dma.h"
 #include "video_core/engines/puller.h"
 #include "video_core/gpu.h"
+#include "video_core/host1x/host1x.h"
 #include "video_core/memory_manager.h"
 #include "video_core/rasterizer_interface.h"
 
@@ -65,11 +67,19 @@ void Puller::ProcessBindMethod(DmaPusher& dma_pusher, const MethodCall& method_c
 
 void Puller::ProcessFenceActionMethod(DmaPusher& dma_pusher) {
     switch (regs.fence_action.op) {
-    case Puller::FenceOperation::Acquire:
+    case Puller::FenceOperation::Acquire: {
         // UNIMPLEMENTED_MSG("Channel Scheduling pending.");
         // WaitFence(regs.fence_action.syncpoint_id, regs.fence_value);
-        dma_pusher.rasterizer->ReleaseFences();
+        // The guest syncpoint only moves when this GPU stream (or host1x, synchronously) increments
+        // it. If it already reached the value, the work that reaches it is ahead of us in the same
+        // host queue, so draining the host GPU here only stalls: in Garfield it blocked the GPU
+        // thread 140-280 ms every second, about 60 times a second.
+        auto& syncpoints = dma_pusher.system.GPU().Host1x().GetSyncpointManager();
+        if (!syncpoints.IsReadyGuest(regs.fence_action.syncpoint_id, regs.fence_value)) {
+            dma_pusher.rasterizer->ReleaseFences();
+        }
         break;
+    }
     case Puller::FenceOperation::Increment:
         dma_pusher.rasterizer->SignalSyncPoint(regs.fence_action.syncpoint_id);
         break;

@@ -34,7 +34,6 @@ enum class IntSetting(override val key: String) : AbstractIntSetting {
     DMA_ACCURACY("dma_accuracy"),
     MOONWITCH_SAFE_GPU_BARRIERS_MODE("moonwitch_safe_gpu_barriers_mode"),
     MOONWITCH_SHADER_PRECISION_MODE("moonwitch_shader_precision_mode"),
-    GPU_FENCE_BEHAVIOR("gpu_fence_behavior"),
     FRAME_PACING_MODE("frame_pacing_mode"),
     AUDIO_OUTPUT_ENGINE("output_engine"),
     MAX_ANISOTROPY("max_anisotropy"),

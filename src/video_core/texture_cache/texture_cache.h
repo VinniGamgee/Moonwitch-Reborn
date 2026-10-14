@@ -1,3 +1,4 @@
+// Lemon 1.2 fixes: Ghael-V / Lemon Project; provenance: docs/LEMON_PROJECT_PORTS.md
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -2476,8 +2477,14 @@ void TextureCache<P>::RemoveFramebuffers(std::span<const ImageViewId> removed_vi
 
 template <class P>
 void TextureCache<P>::MarkModification(ImageBase& image) noexcept {
+    const bool newly_modified = False(image.flags & ImageFlagBits::GpuModified);
     image.flags |= ImageFlagBits::GpuModified;
     image.modification_tick = ++modification_tick;
+    if (newly_modified) {
+        // Guest memory doesn't hold what the GPU draws here. Make the CPU fault on reading it, so
+        // the fault handler copies the GPU's contents back first (GPU::InvalidateRegion).
+        device_memory.ProtectGpuWritten(image.cpu_addr, image.guest_size_bytes);
+    }
 }
 
 template <class P>
