@@ -7,6 +7,7 @@ on:
       - main
       - 'experiment/ubo-gpu-coherency'
       - 'feature/eden-post-processing'
+      - overclock-root
   pull_request:
     branches:
       - main
@@ -31,6 +32,9 @@ jobs:
       - name: Validate UI resources
         run: python3 .ci/android/check_ui_resources.py
 
+      - name: Test root session restoration
+        run: python3 .ci/android/test_root_performance.py
+
       - name: Java 17
         uses: actions/setup-java@v5
         with:
@@ -49,7 +53,11 @@ jobs:
         shell: bash
         run: |
           chmod +x .ci/android/build.sh src/android/gradlew
-          .ci/android/build.sh -n -t standard -b Release
+          TARGET=standard
+          if [[ "${{ github.head_ref || github.ref_name }}" == "overclock-root" ]]; then
+            TARGET=overclock
+          fi
+          .ci/android/build.sh -n -t "$TARGET" -b Release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

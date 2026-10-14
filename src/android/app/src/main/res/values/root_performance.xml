@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="root_engine_title">Performance Engine</string>
+    <string name="root_engine_desc">Root CPU/GPU maximum clocks during gameplay</string>
+    <string name="root_engine_off">Disabled</string>
+    <string name="root_engine_max">Maximum CPU/GPU · apply on next game launch</string>
+    <string name="root_engine_report">Session diagnostics</string>
+    <string name="root_engine_idle">Enable Maximum CPU/GPU, launch a game and grant Magisk root access. The controller restores previous values when the session ends.</string>
+</resources>

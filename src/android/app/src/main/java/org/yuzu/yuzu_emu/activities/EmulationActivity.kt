@@ -781,6 +781,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
             mainHandler.post { onEmulationStarted() }
             return
         }
+        org.yuzu.yuzu_emu.utils.RootPerformance.start(this)
         hasEmulationSession = true
         processHasEmulationSession = true
         emulationViewModel.setEmulationStarted(true)
@@ -795,6 +796,7 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
             mainHandler.post { onEmulationStopped(status) }
             return
         }
+        org.yuzu.yuzu_emu.utils.RootPerformance.stop()
         hasEmulationSession = false
         processHasEmulationSession = false
         NativeLibrary.playTimeManagerStop()

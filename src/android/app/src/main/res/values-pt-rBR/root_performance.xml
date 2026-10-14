@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="root_engine_title">Performance Engine</string>
+    <string name="root_engine_desc">Clocks máximos de CPU/GPU com root durante o jogo</string>
+    <string name="root_engine_off">Desativado</string>
+    <string name="root_engine_max">CPU/GPU no máximo · aplicar no próximo jogo</string>
+    <string name="root_engine_report">Diagnóstico da sessão</string>
+    <string name="root_engine_idle">Ative CPU/GPU no máximo, abra um jogo e conceda root no Magisk. O controlador restaura os valores anteriores ao encerrar a sessão.</string>
+</resources>
