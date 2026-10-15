@@ -39,3 +39,12 @@ Nenhum ajuste de overclock/root está incluído nesta integração.
 
 A compilação verifica a integração; a persistência da grama e o impacto em FPS
 precisam ser confirmados jogando TOTK no aparelho.
+
+## Lemon 1.2.0 — reutilização de traduções de shaders
+
+Origem: https://github.com/Ghael-V/Lemon-Project/commit/ba5d601947eed72b1826113b60b243278434376d
+
+Autoria integral da implementação original: Ghael-V / Lemon Project, com a
+coautoria registrada acima. Reutiliza traduções caras de fragment shaders e
+reduz alocações no SSA. Adaptação Moonwitch: a chave de reutilização inclui
+a precisão de shader e a opção de otimização SPIR-V do Moonwitch.
