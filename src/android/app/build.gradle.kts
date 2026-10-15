@@ -81,6 +81,7 @@ android {
                         "-DCPMUTIL_FORCE_BUNDLED=ON",
                         "-DYUZU_USE_BUNDLED_FFMPEG=ON",
                         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+                        "-DENABLE_LTO=ON",
                         "-DBUILD_TESTING=OFF",
                         "-DYUZU_TESTS=OFF",
                         "-DDYNARMIC_TESTS=OFF",
