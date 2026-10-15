@@ -1,0 +1,5 @@
+<resources>
+    <string name="pgo_export">Exportar perfil PGO</string>
+    <string name="pgo_export_description">Build de coleta: jogue, encerre a emulação e exporte o perfil.</string>
+    <string name="pgo_export_failed">Não foi possível exportar o perfil PGO.</string>
+</resources>

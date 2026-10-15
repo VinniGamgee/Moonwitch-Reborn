@@ -125,7 +125,10 @@ android {
                 signingConfigs.getByName("default")
             }
 
-            manifestPlaceholders += mapOf("appNameSuffix" to "")
+            val pgoTraining = (project.findProperty("YUZU_ANDROID_ARGS") as? String)
+                ?.contains("-DMOONWITCH_PGO_MODE=GENERATE") == true
+            manifestPlaceholders += mapOf("appNameSuffix" to if (pgoTraining) " PGO Training" else "")
+            if (pgoTraining) versionNameSuffix = "-pgo-training"
 
             isMinifyEnabled = true
             isDebuggable = false

@@ -7,6 +7,7 @@
 add_library(yuzu-android SHARED
     emu_window/emu_window.cpp
     emu_window/emu_window.h
+    native_pgo.cpp
     native.cpp
     native.h
     native_performance_lab.cpp

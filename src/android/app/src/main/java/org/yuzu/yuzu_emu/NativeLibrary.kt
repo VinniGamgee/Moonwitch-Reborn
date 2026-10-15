@@ -131,6 +131,9 @@ object NativeLibrary {
     }
 
     external fun setAppDirectory(directory: String)
+    external fun isPgoTraining(): Boolean
+    external fun configurePgo(filename: String): Boolean
+    external fun writePgoProfile(): Boolean
 
     /**
      * Installs a nsp or xci file to nand
@@ -437,12 +440,15 @@ object NativeLibrary {
     @Keep
     @JvmStatic
     fun onEmulationStarted() {
+        runCatching { org.yuzu.yuzu_emu.utils.PgoProfiles.initialize() }
+            .onFailure { Log.warning("[PGO] ${it.message}") }
         sEmulationActivity.get()!!.onEmulationStarted()
     }
 
     @Keep
     @JvmStatic
     fun onEmulationStopped(status: Int) {
+        org.yuzu.yuzu_emu.utils.PgoProfiles.saveSession()
         sEmulationActivity.get()!!.onEmulationStopped(status)
     }
 
