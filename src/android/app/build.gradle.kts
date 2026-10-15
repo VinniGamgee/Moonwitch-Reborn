@@ -182,6 +182,15 @@ android {
             }
         }
 
+        create("overclockRoot") {
+            dimension = "version"
+            minSdk = 33
+            applicationId = "dev.moonwitch.emulator.overclock"
+            versionNameSuffix = "-overclock-root"
+            manifestPlaceholders += mapOf("appNameBase" to "Moonwitch Overclock")
+            ndk { abiFilters += listOf("arm64-v8a") }
+        }
+
         create("genshinSpoof") {
             dimension = "version"
             minSdk = 35
