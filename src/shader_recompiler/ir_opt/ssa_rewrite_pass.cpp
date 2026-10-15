@@ -19,7 +19,8 @@
 #include <deque>
 #include <map>
 #include <span>
-#include <ankerl/unordered_dense.h>
+#include <unordered_map>
+#include "common/container/unordered_map.h"
 #include <variant>
 #include <vector>
 

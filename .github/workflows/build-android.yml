@@ -6,8 +6,8 @@ on:
       pgo_mode:
         description: Native PGO mode (GENERATE produces a training APK)
         type: choice
-        options: [OFF, GENERATE, USE]
-        default: OFF
+        options: ['OFF', 'GENERATE', 'USE']
+        default: 'OFF'
       pgo_profile:
         description: Repository-relative merged .profdata path (USE only)
         type: string
