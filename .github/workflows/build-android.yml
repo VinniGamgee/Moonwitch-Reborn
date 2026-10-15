@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        pgo: ${{ fromJSON(github.event_name == 'pull_request' && '["OFF","GENERATE"]' || format('["{0}"]', inputs.pgo_mode || 'OFF')) }}
+        pgo: ${{ fromJSON(github.event_name == 'pull_request' && '["OFF","GENERATE","USE"]' || format('["{0}"]', inputs.pgo_mode || 'OFF')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -68,6 +68,10 @@ jobs:
           chmod +x .ci/android/build.sh src/android/gradlew
           PGO_ARGS=("-DMOONWITCH_PGO_MODE=$PGO_MODE")
           if [[ "$PGO_MODE" == USE ]]; then
+            if [[ -z "$PGO_PROFILE" ]]; then
+              xz -dc profiles/android/poco-f5.profdata.xz > "$GITHUB_WORKSPACE/pgo-training.profdata"
+              PGO_PROFILE=pgo-training.profdata
+            fi
             PROFILE_PATH=$(realpath -e -- "$PGO_PROFILE")
             [[ "$PROFILE_PATH" == "$GITHUB_WORKSPACE/"* && "$PROFILE_PATH" != *" "* ]]
             PGO_ARGS+=("-DMOONWITCH_PGO_PROFILE=$PROFILE_PATH")

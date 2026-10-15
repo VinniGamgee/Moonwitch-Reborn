@@ -1,0 +1,6 @@
+version=0.3.0-pgo-training
+code=34041789
+native=822fa33e01-HEAD
+device=Xiaomi 23049PCD8G
+ndk=28.2.13676358
+abi=arm64-v8a, armeabi-v7a, armeabi
