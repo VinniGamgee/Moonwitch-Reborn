@@ -1,0 +1,5 @@
+<resources>
+    <string name="pgo_export">Export PGO profile</string>
+    <string name="pgo_export_description">Training build: play, stop emulation, then export this profile.</string>
+    <string name="pgo_export_failed">Could not export PGO profile.</string>
+</resources>

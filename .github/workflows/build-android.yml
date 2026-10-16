@@ -2,6 +2,16 @@ name: Moonwitch Android
 
 on:
   workflow_dispatch:
+    inputs:
+      pgo_mode:
+        description: Native PGO mode (GENERATE produces a training APK)
+        type: choice
+        options: ['OFF', 'GENERATE', 'USE']
+        default: 'OFF'
+      pgo_profile:
+        description: Repository-relative merged .profdata path (USE only)
+        type: string
+        default: ''
   push:
     branches:
       - main
@@ -17,6 +27,10 @@ concurrency:
 
 jobs:
   build-android:
+    strategy:
+      fail-fast: false
+      matrix:
+        pgo: ${{ fromJSON(github.event_name == 'pull_request' && '["OFF","GENERATE","USE"]' || format('["{0}"]', inputs.pgo_mode || 'OFF')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -47,14 +61,32 @@ jobs:
 
       - name: Build APK
         shell: bash
+        env:
+          PGO_MODE: ${{ matrix.pgo }}
+          PGO_PROFILE: ${{ inputs.pgo_profile }}
         run: |
           chmod +x .ci/android/build.sh src/android/gradlew
-          .ci/android/build.sh -n -t standard -b Release
+          PGO_ARGS=("-DMOONWITCH_PGO_MODE=$PGO_MODE")
+          if [[ "$PGO_MODE" == USE ]]; then
+            if [[ -z "$PGO_PROFILE" ]]; then
+              xz -dc profiles/android/poco-f5.profdata.xz > "$GITHUB_WORKSPACE/pgo-training.profdata"
+              PGO_PROFILE=pgo-training.profdata
+            fi
+            PROFILE_PATH=$(realpath -e -- "$PGO_PROFILE")
+            [[ "$PROFILE_PATH" == "$GITHUB_WORKSPACE/"* && "$PROFILE_PATH" != *" "* ]]
+            PGO_ARGS+=("-DMOONWITCH_PGO_PROFILE=$PROFILE_PATH")
+          fi
+          .ci/android/build.sh -n -t standard -b Release "${PGO_ARGS[@]}"
+
+      - name: Verify native optimization flags
+        env:
+          PGO_MODE: ${{ matrix.pgo }}
+        run: python3 .ci/android/check_performance_build.py "$PGO_MODE"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: MOONWITCH-ANDROID
+          name: MOONWITCH-ANDROID-${{ matrix.pgo }}
           path: artifacts/*
           if-no-files-found: error
           retention-days: 7
