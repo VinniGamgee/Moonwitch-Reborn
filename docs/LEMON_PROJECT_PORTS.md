@@ -48,3 +48,19 @@ Autoria integral da implementação original: Ghael-V / Lemon Project, com a
 coautoria registrada acima. Reutiliza traduções caras de fragment shaders e
 reduz alocações no SSA. Adaptação Moonwitch: a chave de reutilização inclui
 a precisão de shader e a opção de otimização SPIR-V do Moonwitch.
+
+## Compilação assíncrona — contagem do desenho atual
+
+Origem: https://github.com/Ghael-V/Lemon-Project/commit/27fa877b235e05c47cd28320e5eede01f4a48754
+
+Autoria original integral: Ghael-V / Lemon Project. Coautoria registrada no
+commit original: Claude Opus 5.5 <noreply@anthropic.com>.
+
+A decisão de aguardar um pipeline agora usa somente a contagem do desenho direto
+atual. Antes, uma contagem pequena deixada por um desenho anterior podia bloquear
+um desenho grande mesmo com compilação assíncrona habilitada. Desenhos pequenos,
+compute e a heurística de desenhos indiretos mantêm o comportamento anterior.
+
+Requer a opção de compilação assíncrona de shaders ativada. Não elimina a
+tradução síncrona para SPIR-V, não apaga caches e não altera sua versão/formato.
+Não há ganho medido no POCO F5 ainda; o teste é jogar normalmente com a opção ativa.
