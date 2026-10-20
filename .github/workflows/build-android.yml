@@ -45,6 +45,11 @@ jobs:
       - name: Validate UI resources
         run: python3 .ci/android/check_ui_resources.py
 
+      - name: Test pipeline cache concurrency
+        run: |
+          g++ -std=c++20 -pthread -Isrc .ci/tests/single_flight_cache.cpp -o /tmp/moonwitch-cache-test
+          /tmp/moonwitch-cache-test
+
       - name: Java 17
         uses: actions/setup-java@v5
         with:

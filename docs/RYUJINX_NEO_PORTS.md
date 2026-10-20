@@ -43,16 +43,30 @@ monolíticos. Falha de biblioteca ou estado ainda não reconhecido desativa esse
 caminho na sessão e volta à criação monolítica. Rasterizer discard ativo também
 usa o caminho tradicional. Não há alteração de interface ou de clocks.
 
-O cache é por sessão, limitado a 2048 entradas e 64 MiB de chaves (esse limite de
-bytes não inclui a memória interna dos objetos do driver). A compilação ocorre
-fora do mutex; corridas podem compilar uma entrada duas vezes, mas só uma é
-armazenada. Referências compartilhadas preservam as bibliotecas durante a ligação.
-O cache Vulkan persistente do driver continua sendo utilizado.
+O cache usa LRU: acessos renovam a posição da biblioteca e o descarte remove a
+menos recentemente usada. Há até 2048 entradas concluídas e 64 MiB de cópias de
+chaves (mapa e lista). Entradas em compilação não são descartadas. Uma única thread
+produz cada chave; concorrentes compartilham o resultado ou a exceção. Uma falha
+libera os aguardantes e permite nova tentativa. Esses limites não incluem a
+memória interna dos objetos Vulkan nem referências mantidas pelas ligações.
 
-Esta etapa implementa reutilização e fast linking. A substituição posterior por
-pipelines com link-time optimization em segundo plano, presente no Neo, **não**
-está incluída: exigiria sincronização adicional com os command buffers em uso.
-Não há promessa de ganho de FPS; é preciso verificar a execução no aparelho.
+As bibliotecas retêm informações para link-time optimization. A primeira ligação
+continua rápida; um worker de baixa prioridade prepara o pipeline otimizado e
+publica seu handle atomicamente. A seleção de versão participa da decisão de
+vincular o pipeline, inclusive quando o jogo mantém o mesmo shader. O pipeline
+rápido permanece vivo até o encerramento normal, preservando command buffers
+já gravados. A otimização não altera o layout de descritores.
+
+A fila tem limite de 64 trabalhos em andamento/pendentes para não reter uma
+quantidade ilimitada de bibliotecas ao carregar caches grandes. Pipelines que
+chegam com a fila cheia continuam no caminho rápido. Falha do driver na otimização
+preserva o pipeline rápido e interrompe novas tentativas de LTO nessa sessão.
+No encerramento, os produtores terminam antes do cancelamento da fila; o trabalho
+já executando é aguardado antes de destruir layouts ou salvar o cache final.
+
+O cache Vulkan persistente continua sendo utilizado. Os testes automatizados usam
+um driver simulado para verificar concorrência e duração dos objetos; eles não
+substituem a validação de imagem/desempenho no aparelho.
 
 ## Licença da referência
 

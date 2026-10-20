@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "common/common_types.h"
+#include "common/settings.h"
 #include "common/container/unordered_map.h"
 #include "common/thread_worker.h"
 #include "shader_recompiler/frontend/ir/basic_block.h"
@@ -117,8 +118,8 @@ struct PipelineBuildMetricsSnapshot {
     u64 driver_build_ns{};
 };
 
-// Low-overhead counters used to validate the Smart Shader Pipeline scheduler without exposing a
-// user-facing setting. Cache hits stay thread-local and never trigger logging on the hot path.
+// Detailed pipeline diagnostics are collected only when renderer_debug is enabled at startup.
+// Normal sessions skip counters, timestamps and queue snapshots.
 class PipelineBuildMonitor {
 public:
     void RecordCacheHit() noexcept {
@@ -265,6 +266,7 @@ private:
     std::atomic<size_t> last_cache_size{};
     std::atomic_bool flush_in_flight{};
 
+    const bool detailed_pipeline_diagnostics = Settings::values.renderer_debug.GetValue();
     PipelineBuildMonitor pipeline_build_monitor;
     u64 next_pipeline_metrics_report{64};
     FragmentTranslationCache fragment_translations;

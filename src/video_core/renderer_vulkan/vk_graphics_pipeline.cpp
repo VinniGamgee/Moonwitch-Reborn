@@ -319,17 +319,19 @@ GraphicsPipeline::GraphicsPipeline(
         }
     }
 
-    const auto queued_at = std::chrono::steady_clock::now();
+    const auto queued_at = pipeline_build_monitor ? std::chrono::steady_clock::now()
+                                                  : std::chrono::steady_clock::time_point{};
     if (pipeline_build_monitor) {
         pipeline_build_monitor->RecordBuildQueued();
     }
     auto func{[this, shader_notify, &render_pass_cache, pipeline_statistics,
                pipeline_build_monitor, queued_at] {
-        const auto build_started = std::chrono::steady_clock::now();
+        const auto build_started = pipeline_build_monitor ? std::chrono::steady_clock::now()
+                                                          : std::chrono::steady_clock::time_point{};
         const auto mark_complete = [this, shader_notify, pipeline_build_monitor, queued_at,
                                     build_started] {
-            const auto build_completed = std::chrono::steady_clock::now();
             if (pipeline_build_monitor) {
+                const auto build_completed = std::chrono::steady_clock::now();
                 pipeline_build_monitor->RecordBuildComplete(
                     std::chrono::duration_cast<std::chrono::nanoseconds>(build_started - queued_at),
                     std::chrono::duration_cast<std::chrono::nanoseconds>(build_completed -
@@ -619,16 +621,17 @@ bool GraphicsPipeline::ConfigureDraw(const RescalingPushConstant& rescaling,
     }
 
     scheduler.RequestRenderpass(texture_cache.GetFramebuffer());
-    if (!is_built.load(std::memory_order::relaxed)) {
+    if (!is_built.load(std::memory_order::acquire)) {
         // Wait for the pipeline to be built
         scheduler.Record([this](vk::CommandBuffer) {
             std::unique_lock lock{build_mutex};
-            build_condvar.wait(lock, [this] { return is_built.load(std::memory_order::relaxed); });
+            build_condvar.wait(lock, [this] { return is_built.load(std::memory_order::acquire); });
         });
     }
     const bool is_rescaling{texture_cache.IsRescaling()};
     const bool update_rescaling{scheduler.UpdateRescaling(is_rescaling)};
-    const bool bind_pipeline{scheduler.UpdateGraphicsPipeline(this)};
+    const VkPipeline selected_optimized = optimized_handle.load(std::memory_order_acquire);
+    const bool bind_pipeline{scheduler.UpdateGraphicsPipeline(this, selected_optimized)};
     const bool bind_descriptor_buffer{
         descriptor_set_layout && uses_descriptor_buffer &&
         scheduler.UpdateDescriptorBufferChunk(descriptor_buffer_chunk)};
@@ -651,7 +654,7 @@ bool GraphicsPipeline::ConfigureDraw(const RescalingPushConstant& rescaling,
             last_descriptor_payload.assign(entries, entries + num_descriptor_entries);
         }
     }
-    scheduler.Record([this, descriptor_data, bind_pipeline, update_descriptors,
+    scheduler.Record([this, descriptor_data, bind_pipeline, selected_optimized, update_descriptors,
                       descriptor_buffer_offset, descriptor_buffer_chunk, bind_descriptor_buffer,
                       rescaling_data = rescaling.Data(), is_rescaling, update_rescaling,
                       uses_render_area = render_area.uses_render_area,
@@ -665,7 +668,8 @@ bool GraphicsPipeline::ConfigureDraw(const RescalingPushConstant& rescaling,
             if (!pipeline) {
                 return;
             }
-            cmdbuf.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, *pipeline);
+            cmdbuf.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                selected_optimized ? selected_optimized : *pipeline);
         }
         cmdbuf.PushConstants(*pipeline_layout, VK_SHADER_STAGE_ALL_GRAPHICS,
                              RESCALING_LAYOUT_WORDS_OFFSET, sizeof(rescaling_data),
@@ -1117,7 +1121,11 @@ void GraphicsPipeline::MakePipeline(VkRenderPass render_pass) {
         .basePipelineHandle = nullptr,
         .basePipelineIndex = 0,
     };
-    pipeline = pipeline_libraries.Build(device, *pipeline_cache, pipeline_ci, library_code, library_layout);
+    pipeline = pipeline_libraries.Build(device, *pipeline_cache, pipeline_ci, library_code, library_layout,
+        [this](vk::Pipeline optimized) {
+            optimized_pipeline = std::move(optimized);
+            optimized_handle.store(*optimized_pipeline, std::memory_order_release);
+        });
     if (!pipeline) {
         pipeline = device.GetLogical().CreateGraphicsPipeline(pipeline_ci, *pipeline_cache);
     }

@@ -80,3 +80,19 @@ See [RYUJINX_NEO_PORTS.md](RYUJINX_NEO_PORTS.md) for the gather rounding correct
 four-part pipeline reuse, driver gating, fallback and original credits. Vulkan
 cache version 20 rebuilds shaders once; initial cache rebuilding is not evidence
 of a steady-state regression or gain.
+
+## Pipeline completion and thread policy cleanup
+
+Pipeline counters, clock reads and queue reports now require `renderer_debug`
+at session startup. Normal builds keep functional shader-progress notifications
+without collecting detailed pipeline timing. This is an existing debug option;
+no new UI setting is introduced.
+
+CPU, GPU and Vulkan worker registration now passes through
+`Common::RegisterPerformanceThread`. Normal performance-core placement happens
+first. Core Director captures/restores that baseline affinity and owns optional
+hard pinning; Unleashed captures/restores utilization clamps without changing
+priority or affinity. The two controls remain independent, and no root controller
+or clock adjustment is introduced.
+
+See `.ci/tests/README.md` for cache concurrency and Vulkan lifetime tests.

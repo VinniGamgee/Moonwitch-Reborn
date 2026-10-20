@@ -127,6 +127,8 @@ add_library(
     moonwitch_unleashed.h
     moonwitch_core_director.cpp
     moonwitch_core_director.h
+    moonwitch_thread_policy.h
+    single_flight_cache.h
     thread_queue_list.h
     thread_worker.h
     threadsafe_queue.h

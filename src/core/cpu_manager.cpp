@@ -7,8 +7,7 @@
 #include "common/fiber.h"
 #include "common/scope_exit.h"
 #include "common/thread.h"
-#include "common/moonwitch_unleashed.h"
-#include "common/moonwitch_core_director.h"
+#include "common/moonwitch_thread_policy.h"
 #include "common/settings.h"
 #include "core/core.h"
 #include "core/core_timing.h"
@@ -176,11 +175,7 @@ void CpuManager::RunThread(std::stop_token token, std::size_t core) {
     std::string name = is_multicore ? ("CPUCore_" + std::to_string(core)) : std::string{"CPUThread"};
     Common::SetCurrentThreadName(name.c_str());
     Common::SetCurrentThreadPriority(Common::ThreadPriority::Critical);
-    Common::SetCurrentThreadToPerformanceCores();
-    Common::MoonwitchUnleashed::RegisterCurrentThread(
-        Common::MoonwitchUnleashed::ThreadRole::CPUCore);
-    Common::MoonwitchCoreDirector::RegisterCurrentThread(
-        Common::MoonwitchCoreDirector::ThreadRole::CPUCore);
+    Common::RegisterPerformanceThread(Common::PerformanceThreadRole::CPUCore);
     auto& data = core_data[core];
     data.host_context = Common::Fiber::ThreadToFiber();
 

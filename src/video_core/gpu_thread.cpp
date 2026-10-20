@@ -8,8 +8,7 @@
 #include "common/scope_exit.h"
 #include "common/settings.h"
 #include "common/thread.h"
-#include "common/moonwitch_unleashed.h"
-#include "common/moonwitch_core_director.h"
+#include "common/moonwitch_thread_policy.h"
 #include "core/core.h"
 #include "core/frontend/graphics_context.h"
 #include "video_core/control/scheduler.h"
@@ -32,11 +31,7 @@ void ThreadManager::StartThread(VideoCore::RendererBase& renderer, Core::Fronten
     thread = std::jthread([&](std::stop_token stop_token) {
         Common::SetCurrentThreadName("GPU");
         Common::SetCurrentThreadPriority(Common::ThreadPriority::Critical);
-        Common::SetCurrentThreadToPerformanceCores();
-        Common::MoonwitchUnleashed::RegisterCurrentThread(
-            Common::MoonwitchUnleashed::ThreadRole::GPU);
-        Common::MoonwitchCoreDirector::RegisterCurrentThread(
-            Common::MoonwitchCoreDirector::ThreadRole::GPU);
+        Common::RegisterPerformanceThread(Common::PerformanceThreadRole::GPU);
         system.RegisterHostThread();
 
         auto current_context = context.Acquire();

@@ -78,7 +78,7 @@ public:
     }
 
     /// Update the pipeline to the current execution context.
-    bool UpdateGraphicsPipeline(GraphicsPipeline* pipeline);
+    bool UpdateGraphicsPipeline(GraphicsPipeline* pipeline, VkPipeline optimized = VK_NULL_HANDLE);
 
     /// Update the rescaling state. Returns true if the state has to be updated.
     bool UpdateRescaling(bool is_rescaling);
@@ -259,6 +259,7 @@ private:
         VkFramebuffer framebuffer{};
         VkExtent2D render_area = {0, 0};
         GraphicsPipeline* graphics_pipeline = nullptr;
+        VkPipeline optimized_graphics_pipeline{};
         bool is_rescaling = false;
         bool rescaling_defined = false;
         bool needs_state_enable_refresh = false;

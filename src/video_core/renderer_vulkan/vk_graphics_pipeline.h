@@ -129,7 +129,7 @@ public:
     }
 
     [[nodiscard]] bool IsBuilt() const noexcept {
-        return is_built.load(std::memory_order::relaxed);
+        return is_built.load(std::memory_order::acquire);
     }
 
     template <typename Spec>
@@ -187,6 +187,9 @@ private:
     vk::PipelineLayout pipeline_layout;
     vk::DescriptorUpdateTemplate descriptor_update_template;
     vk::Pipeline pipeline;
+    // Both versions survive until normal pipeline teardown, including in-flight commands.
+    vk::Pipeline optimized_pipeline;
+    std::atomic<VkPipeline> optimized_handle{};
 
     DescriptorBufferLayout descriptor_buffer_layout;
     std::vector<DescriptorUpdateEntry> last_descriptor_payload;

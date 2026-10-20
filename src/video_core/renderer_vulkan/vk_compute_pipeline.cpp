@@ -81,16 +81,18 @@ ComputePipeline::ComputePipeline(const Device& device_, Scheduler& scheduler, vk
         }
     }
 
-    const auto queued_at = std::chrono::steady_clock::now();
+    const auto queued_at = pipeline_build_monitor ? std::chrono::steady_clock::now()
+                                                  : std::chrono::steady_clock::time_point{};
     if (pipeline_build_monitor) {
         pipeline_build_monitor->RecordBuildQueued();
     }
     auto func{[this, shader_notify, pipeline_statistics, pipeline_build_monitor, queued_at] {
-        const auto build_started = std::chrono::steady_clock::now();
+        const auto build_started = pipeline_build_monitor ? std::chrono::steady_clock::now()
+                                                          : std::chrono::steady_clock::time_point{};
         const auto mark_complete = [this, shader_notify, pipeline_build_monitor, queued_at,
                                     build_started] {
-            const auto build_completed = std::chrono::steady_clock::now();
             if (pipeline_build_monitor) {
+                const auto build_completed = std::chrono::steady_clock::now();
                 pipeline_build_monitor->RecordBuildComplete(
                     std::chrono::duration_cast<std::chrono::nanoseconds>(build_started - queued_at),
                     std::chrono::duration_cast<std::chrono::nanoseconds>(build_completed -
@@ -273,11 +275,11 @@ bool ComputePipeline::Configure(Tegra::Engines::KeplerCompute& kepler_compute,
     PushImageDescriptors(texture_cache, guest_descriptor_queue, info, rescaling, samplers_it,
                          views_it);
 
-    if (!is_built.load(std::memory_order::relaxed)) {
+    if (!is_built.load(std::memory_order::acquire)) {
         // Wait for the pipeline to be built
         scheduler.Record([this](vk::CommandBuffer) {
             std::unique_lock lock{build_mutex};
-            build_condvar.wait(lock, [this] { return is_built.load(std::memory_order::relaxed); });
+            build_condvar.wait(lock, [this] { return is_built.load(std::memory_order::acquire); });
         });
     }
 

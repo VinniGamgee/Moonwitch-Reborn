@@ -185,36 +185,22 @@ std::array<std::string, 4> MakeKeys(const VkGraphicsPipelineCreateInfo& info,
 std::shared_ptr<vk::Pipeline> GraphicsPipelineLibraryCache::Get(
     const Device& device, VkPipelineCache cache, const VkGraphicsPipelineCreateInfo& info,
     std::string key) {
-    {
-        std::scoped_lock lock{mutex};
-        const auto it = libraries.find(key);
-        if (it != libraries.end())
-            return it->second;
-    }
-    // Driver compilation must not serialize unrelated keys across worker threads.
-    auto result =
-        std::make_shared<vk::Pipeline>(device.GetLogical().CreateGraphicsPipeline(info, cache));
-    constexpr size_t max_entries = 2048;
-    constexpr size_t max_key_bytes = 64 * 1024 * 1024;
-    if (key.size() > max_key_bytes)
-        return result;
-    std::scoped_lock lock{mutex};
-    if (const auto it = libraries.find(key); it != libraries.end())
-        return it->second;
-    while (!libraries.empty() &&
-           (libraries.size() >= max_entries || key_bytes + key.size() > max_key_bytes)) {
-        key_bytes -= libraries.begin()->first.size();
-        libraries.erase(libraries.begin());
-    }
-    key_bytes += key.size();
-    libraries.emplace(std::move(key), result);
-    return result;
+    return libraries.GetOrCreate(std::move(key), [&] {
+        return std::make_shared<vk::Pipeline>(
+            device.GetLogical().CreateGraphicsPipeline(info, cache));
+    });
+}
+
+void GraphicsPipelineLibraryCache::StopOptimization() {
+    // Called after the foreground compilation workers have stopped producing jobs.
+    optimizer.reset();
 }
 
 vk::Pipeline GraphicsPipelineLibraryCache::Build(const Device& device, VkPipelineCache cache,
                                                  const VkGraphicsPipelineCreateInfo& info,
                                                  const std::array<std::vector<u32>, 5>& code,
-                                                 std::span<const u32> layout) {
+                                                 std::span<const u32> layout,
+                                                 std::function<void(vk::Pipeline)> publish_optimized) {
     if (disabled.load(std::memory_order_relaxed) || !device.SupportsGraphicsPipelineLibrary() ||
         info.pRasterizationState->rasterizerDiscardEnable)
         return {};
@@ -240,7 +226,8 @@ vk::Pipeline GraphicsPipelineLibraryCache::Build(const Device& device, VkPipelin
             VkGraphicsPipelineCreateInfo part{};
             part.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
             part.pNext = &subset;
-            part.flags = info.flags | VK_PIPELINE_CREATE_LIBRARY_BIT_KHR;
+            part.flags = info.flags | VK_PIPELINE_CREATE_LIBRARY_BIT_KHR |
+                         VK_PIPELINE_CREATE_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT;
             part.pDynamicState = info.pDynamicState;
             part.basePipelineIndex = -1;
             if (i != 0) {
@@ -281,7 +268,50 @@ vk::Pipeline GraphicsPipelineLibraryCache::Build(const Device& device, VkPipelin
         linked.renderPass = info.renderPass;
         linked.subpass = info.subpass;
         linked.basePipelineIndex = -1;
-        return device.GetLogical().CreateGraphicsPipeline(linked, cache);
+        auto fast = device.GetLogical().CreateGraphicsPipeline(linked, cache);
+        // Capture only persistent handles/scalars and owning library references. No
+        // pointers into MakePipeline's stack may escape to the optimization worker.
+        // Bound additional retained library objects during large shader-cache loads.
+        // Optimization is opportunistic: fast pipelines remain usable under pressure.
+        size_t pending = pending_optimizations.load(std::memory_order_relaxed);
+        do {
+            if (pending >= 64 || optimization_failed.load(std::memory_order_relaxed)) return fast;
+        } while (!pending_optimizations.compare_exchange_weak(
+            pending, pending + 1, std::memory_order_relaxed));
+        std::call_once(optimizer_once, [this] {
+            optimizer.reset(new Common::ThreadWorker(1, "PipelineOptimize", {},
+                                                     Common::ThreadPlacement::Background));
+        });
+        optimizer->QueueWork(
+            [this, &device, cache, retained = std::move(retained), flags = info.flags,
+             layout_handle = info.layout, render_pass = info.renderPass, subpass = info.subpass,
+             publish = std::move(publish_optimized)] {
+                if (optimization_failed.load(std::memory_order_relaxed)) {
+                    pending_optimizations.fetch_sub(1, std::memory_order_relaxed);
+                    return;
+                }
+                try {
+                    std::array<VkPipeline, 4> handles;
+                    for (size_t i = 0; i < handles.size(); ++i) handles[i] = **retained[i];
+                    const VkPipelineLibraryCreateInfoKHR link{
+                        VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR, nullptr,
+                        static_cast<u32>(handles.size()), handles.data()};
+                    VkGraphicsPipelineCreateInfo optimized{};
+                    optimized.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+                    optimized.pNext = &link;
+                    optimized.flags = flags | VK_PIPELINE_CREATE_LINK_TIME_OPTIMIZATION_BIT_EXT;
+                    optimized.layout = layout_handle;
+                    optimized.renderPass = render_pass;
+                    optimized.subpass = subpass;
+                    optimized.basePipelineIndex = -1;
+                    publish(device.GetLogical().CreateGraphicsPipeline(optimized, cache));
+                } catch (const vk::Exception& e) {
+                    optimization_failed.store(true, std::memory_order_relaxed);
+                    LOG_WARNING(Render_Vulkan, "Pipeline optimization failed; retaining fast pipelines: {}", e.what());
+                }
+                pending_optimizations.fetch_sub(1, std::memory_order_relaxed);
+            }, Common::ThreadWorkerPriority::Background);
+        return fast;
     } catch (const vk::Exception& e) {
         disabled.store(true, std::memory_order_relaxed);
         LOG_WARNING(Render_Vulkan, "Pipeline libraries failed; using monolithic pipelines: {}",

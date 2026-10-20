@@ -15,8 +15,7 @@
 
 #include "common/settings.h"
 #include "common/thread.h"
-#include "common/moonwitch_unleashed.h"
-#include "common/moonwitch_core_director.h"
+#include "common/moonwitch_thread_policy.h"
 #include "video_core/gpu_logging/gpu_logging.h"
 #include "video_core/renderer_vulkan/vk_command_pool.h"
 #include "video_core/renderer_vulkan/vk_graphics_pipeline.h"
@@ -225,8 +224,8 @@ void Scheduler::RequestOutsideRenderPassOperationContext() {
     EndRenderPass();
 }
 
-bool Scheduler::UpdateGraphicsPipeline(GraphicsPipeline* pipeline) {
-    if (state.graphics_pipeline == pipeline) {
+bool Scheduler::UpdateGraphicsPipeline(GraphicsPipeline* pipeline, VkPipeline optimized) {
+    if (state.graphics_pipeline == pipeline && state.optimized_graphics_pipeline == optimized) {
         if (pipeline && pipeline->UsesExtendedDynamicState() &&
             state.needs_state_enable_refresh) {
             state_tracker.InvalidateStateEnableFlag();
@@ -236,6 +235,7 @@ bool Scheduler::UpdateGraphicsPipeline(GraphicsPipeline* pipeline) {
     }
 
     state.graphics_pipeline = pipeline;
+    state.optimized_graphics_pipeline = optimized;
 
     if (!pipeline) {
         return true;
@@ -272,11 +272,7 @@ bool Scheduler::UpdateDescriptorBufferChunk(u32 descriptor_chunk) {
 void Scheduler::WorkerThread(std::stop_token stop_token) {
     Common::SetCurrentThreadName("VulkanWorker");
     Common::SetCurrentThreadPriority(Common::ThreadPriority::Critical);
-    Common::SetCurrentThreadToPerformanceCores();
-    Common::MoonwitchUnleashed::RegisterCurrentThread(
-        Common::MoonwitchUnleashed::ThreadRole::VulkanWorker);
-    Common::MoonwitchCoreDirector::RegisterCurrentThread(
-        Common::MoonwitchCoreDirector::ThreadRole::VulkanWorker);
+    Common::RegisterPerformanceThread(Common::PerformanceThreadRole::VulkanWorker);
 
     const auto TryPopQueue{[this](auto& work) -> bool {
         if (work_queue.empty()) {
@@ -396,6 +392,7 @@ void Scheduler::AllocateNewContext() {
 
 void Scheduler::InvalidateState() {
     state.graphics_pipeline = nullptr;
+    state.optimized_graphics_pipeline = VK_NULL_HANDLE;
     state.rescaling_defined = false;
     state.descriptor_buffer_bound = false;
     state_tracker.InvalidateCommandBufferState();

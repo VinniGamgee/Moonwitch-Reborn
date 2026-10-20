@@ -568,6 +568,9 @@ PipelineCache::PipelineCache(Tegra::MaxwellDeviceMemoryManager& device_memory_,
 }
 
 PipelineCache::~PipelineCache() {
+    workers.WaitForRequests();
+    pipeline_libraries.StopOptimization();
+    serialization_thread.WaitForRequests();
     ReportPipelineBuildMetrics();
     if (use_vulkan_pipeline_cache && !vulkan_pipeline_cache_filename.empty()) {
         SerializeVulkanPipelineCache(vulkan_pipeline_cache_filename, vulkan_pipeline_cache,
@@ -801,6 +804,7 @@ void PipelineCache::QueueVulkanPipelineCacheFlush() {
 }
 
 void PipelineCache::RecordPipelineCacheResult(bool hit) {
+    if (!detailed_pipeline_diagnostics) return;
     if (hit) {
         pipeline_build_monitor.RecordCacheHit();
         return;
@@ -815,6 +819,7 @@ void PipelineCache::RecordPipelineCacheResult(bool hit) {
 }
 
 void PipelineCache::ReportPipelineBuildMetrics() {
+    if (!detailed_pipeline_diagnostics) return;
     const auto metrics = pipeline_build_monitor.Snapshot();
     const u64 cache_lookups = metrics.cache_hits + metrics.cache_misses;
     if (cache_lookups == 0) {
@@ -1045,7 +1050,7 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
     }
     Common::ThreadWorker* const thread_worker{build_in_parallel ? &workers : nullptr};
     PipelineBuildMonitor* const pipeline_build_monitor_ptr{
-        build_in_parallel ? &pipeline_build_monitor : nullptr};
+        build_in_parallel && detailed_pipeline_diagnostics ? &pipeline_build_monitor : nullptr};
     return std::make_unique<GraphicsPipeline>(
         scheduler, buffer_cache, texture_cache, vulkan_pipeline_cache, &shader_notify, device,
         descriptor_pool, guest_descriptor_queue, descriptor_buffer_ring, thread_worker, statistics,
@@ -1071,16 +1076,19 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
 }
 
 std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline() {
-    const auto frontend_started = std::chrono::steady_clock::now();
+    const auto frontend_started = detailed_pipeline_diagnostics
+        ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
     GraphicsEnvironments environments;
     GetGraphicsEnvironments(environments, graphics_key.unique_hashes);
 
     main_pools.ReleaseContents();
     auto pipeline{
         CreateGraphicsPipeline(main_pools, graphics_key, environments.Span(), nullptr, true)};
-    pipeline_build_monitor.RecordFrontendCompile(
-        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
-                                                             frontend_started));
+    if (detailed_pipeline_diagnostics) {
+        pipeline_build_monitor.RecordFrontendCompile(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
+                                                               frontend_started));
+    }
     if (!pipeline || pipeline_cache_filename.empty()) {
         return pipeline;
     }
@@ -1100,7 +1108,8 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline() {
 
 std::unique_ptr<ComputePipeline> PipelineCache::CreateComputePipeline(
     const ComputePipelineCacheKey& key, const ShaderInfo* shader) {
-    const auto frontend_started = std::chrono::steady_clock::now();
+    const auto frontend_started = detailed_pipeline_diagnostics
+        ? std::chrono::steady_clock::now() : std::chrono::steady_clock::time_point{};
     const GPUVAddr program_base{kepler_compute->regs.code_loc.Address()};
     const auto& qmd{kepler_compute->launch_description};
     ComputeEnvironment env{*kepler_compute, *gpu_memory, program_base, qmd.program_start};
@@ -1108,9 +1117,11 @@ std::unique_ptr<ComputePipeline> PipelineCache::CreateComputePipeline(
 
     main_pools.ReleaseContents();
     auto pipeline{CreateComputePipeline(main_pools, key, env, nullptr, true)};
-    pipeline_build_monitor.RecordFrontendCompile(
-        std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
-                                                             frontend_started));
+    if (detailed_pipeline_diagnostics) {
+        pipeline_build_monitor.RecordFrontendCompile(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() -
+                                                               frontend_started));
+    }
     if (!pipeline || pipeline_cache_filename.empty()) {
         return pipeline;
     }
@@ -1184,7 +1195,7 @@ std::unique_ptr<ComputePipeline> PipelineCache::CreateComputePipeline(
     }
     Common::ThreadWorker* const thread_worker{build_in_parallel ? &workers : nullptr};
     PipelineBuildMonitor* const pipeline_build_monitor_ptr{
-        build_in_parallel ? &pipeline_build_monitor : nullptr};
+        build_in_parallel && detailed_pipeline_diagnostics ? &pipeline_build_monitor : nullptr};
     return std::make_unique<ComputePipeline>(device, scheduler, vulkan_pipeline_cache, descriptor_pool,
                                              guest_descriptor_queue, descriptor_buffer_ring,
                                              thread_worker, statistics, pipeline_build_monitor_ptr,
