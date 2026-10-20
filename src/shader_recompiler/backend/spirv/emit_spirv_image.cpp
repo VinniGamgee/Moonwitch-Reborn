@@ -4,6 +4,8 @@
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <cmath>
+
 #include <boost/container/static_vector.hpp>
 
 #include "common/settings.h"
@@ -404,10 +406,10 @@ Id BitTest(EmitContext& ctx, Id mask, Id bit) {
 
 Id ImageGatherSubpixelOffset(EmitContext& ctx, const IR::TextureInstInfo& info, Id texture,
                              Id coords) {
-    // Apply a subpixel offset of 1/512 the texel size of the texture to ensure same rounding on
-    // AMD hardware as on Maxwell or other Nvidia architectures.
+    // Half a host subtexel step, matching Maxwell gather rounding. Turnip support
+    // follows Ryujinx Neo 734fe55f (Sunshinin11); see docs/RYUJINX_NEO_PORTS.md.
     const auto calculate_coords{[&](size_t dim) {
-        const Id nudge{ctx.Const(0x1p-9f)};
+        const Id nudge{ctx.Const(std::ldexp(1.0f, -static_cast<int>(ctx.profile.gather_subpixel_precision_bits) - 1))};
         const Id image_size{ctx.OpImageQuerySizeLod(ctx.U32[dim], texture, ctx.u32_zero_value)};
         Id offset{dim == 2 ? ctx.ConstantComposite(ctx.F32[dim], nudge, nudge)
                            : ctx.ConstantComposite(ctx.F32[dim], nudge, nudge, ctx.f32_zero_value)};

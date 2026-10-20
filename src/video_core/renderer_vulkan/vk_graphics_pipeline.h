@@ -32,6 +32,8 @@ class ShaderNotify;
 
 namespace Vulkan {
 
+class GraphicsPipelineLibraryCache;
+
 struct GraphicsPipelineCacheKey {
     std::array<u64, 6> unique_hashes;
     u64 moonwitch_shader_precision_mode;
@@ -88,7 +90,9 @@ public:
         PipelineStatistics* pipeline_statistics, PipelineBuildMonitor* pipeline_build_monitor,
         RenderPassCache& render_pass_cache,
         const GraphicsPipelineCacheKey& key, std::array<vk::ShaderModule, NUM_STAGES> stages,
-        const std::array<const Shader::Info*, NUM_STAGES>& infos);
+        const std::array<const Shader::Info*, NUM_STAGES>& infos,
+        GraphicsPipelineLibraryCache& pipeline_libraries,
+        std::array<std::vector<u32>, NUM_STAGES> library_code);
 
     bool HasDynamicVertexInput() const noexcept { return key.state.dynamic_vertex_input; }
     bool SupportsAlphaToCoverage() const noexcept {
@@ -166,6 +170,9 @@ private:
     std::vector<GraphicsPipeline*> transitions;
 
     std::array<vk::ShaderModule, NUM_STAGES> spv_modules;
+    GraphicsPipelineLibraryCache& pipeline_libraries;
+    std::array<std::vector<u32>, NUM_STAGES> library_code;
+    std::vector<u32> library_layout;
 
     std::array<Shader::Info, NUM_STAGES> stage_infos;
     std::array<u32, 5> enabled_uniform_buffer_masks{};

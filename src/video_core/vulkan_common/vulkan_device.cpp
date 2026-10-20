@@ -1229,6 +1229,12 @@ bool Device::GetSuitability(bool requires_swapchain) {
         SetNext(next, properties.custom_border_color);
     }
 
+    if (extensions.graphics_pipeline_library) {
+        properties.graphics_pipeline_library.sType =
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT;
+        SetNext(next, properties.graphics_pipeline_library);
+    }
+
     // Perform the property fetch.
     physical.GetProperties2(properties2);
 
@@ -1307,6 +1313,14 @@ bool Device::GetSuitability(bool requires_swapchain) {
 }
 
 void Device::RemoveUnsuitableExtensions() {
+    // Initial rollout targets Turnip, where the Android stutter reduction is needed.
+    extensions.graphics_pipeline_library = extensions.graphics_pipeline_library &&
+        extensions.pipeline_library && features.graphics_pipeline_library.graphicsPipelineLibrary &&
+        properties.graphics_pipeline_library.graphicsPipelineLibraryFastLinking &&
+        GetDriverID() == VK_DRIVER_ID_MESA_TURNIP;
+    RemoveExtensionFeatureIfUnsuitable(extensions.graphics_pipeline_library,
+        features.graphics_pipeline_library, VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME);
+
     // VK_EXT_color_write_enable
     extensions.color_write_enable = features.color_write_enable.colorWriteEnable;
     RemoveExtensionFeatureIfUnsuitable(extensions.color_write_enable, features.color_write_enable,

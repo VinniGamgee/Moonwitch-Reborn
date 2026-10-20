@@ -77,6 +77,7 @@ struct Profile {
     /// coordinates with the 16.8 format in the ImageGather instruction than the Maxwell
     /// architecture. Applying an offset does fix this mismatching rounding behaviour.
     bool need_gather_subpixel_offset{};
+    u32 gather_subpixel_precision_bits{8};
 
     /// OpFClamp is broken and OpFMax + OpFMin should be used instead
     bool has_broken_spirv_clamp{};

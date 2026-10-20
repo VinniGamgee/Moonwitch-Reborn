@@ -7,6 +7,7 @@
 add_library(yuzu-android SHARED
     emu_window/emu_window.cpp
     emu_window/emu_window.h
+    native_pgo.cpp
     native.cpp
     native.h
     native_performance_lab.cpp
@@ -45,3 +46,8 @@ endif()
 set(CPACK_PACKAGE_EXECUTABLES ${CPACK_PACKAGE_EXECUTABLES} yuzu-android kenjinxjni)
 
 target_link_options(yuzu-android PRIVATE "-Wl,-Bsymbolic")
+
+# Bound ThinLTO backend parallelism on the CI runner.
+if(ENABLE_LTO AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    target_link_options(yuzu-android PRIVATE "-Wl,--thinlto-jobs=2")
+endif()

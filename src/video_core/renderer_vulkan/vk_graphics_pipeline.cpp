@@ -21,6 +21,7 @@
 #include "video_core/renderer_vulkan/pipeline_statistics.h"
 #include "video_core/renderer_vulkan/vk_buffer_cache.h"
 #include "video_core/renderer_vulkan/vk_graphics_pipeline.h"
+#include "video_core/renderer_vulkan/vk_pipeline_library.h"
 #include "video_core/renderer_vulkan/vk_pipeline_cache.h"
 #include "video_core/renderer_vulkan/vk_render_pass_cache.h"
 #include "video_core/renderer_vulkan/vk_scheduler.h"
@@ -258,11 +259,14 @@ GraphicsPipeline::GraphicsPipeline(
     PipelineStatistics* pipeline_statistics, PipelineBuildMonitor* pipeline_build_monitor,
     RenderPassCache& render_pass_cache,
     const GraphicsPipelineCacheKey& key_, std::array<vk::ShaderModule, NUM_STAGES> stages,
-    const std::array<const Shader::Info*, NUM_STAGES>& infos)
+    const std::array<const Shader::Info*, NUM_STAGES>& infos,
+    GraphicsPipelineLibraryCache& pipeline_libraries_,
+    std::array<std::vector<u32>, NUM_STAGES> library_code_)
     : key{key_}, device{device_}, texture_cache{texture_cache_}, buffer_cache{buffer_cache_},
       pipeline_cache(pipeline_cache_), scheduler{scheduler_},
       guest_descriptor_queue{guest_descriptor_queue_},
-      descriptor_buffer_ring{descriptor_buffer_ring_}, spv_modules{std::move(stages)} {
+      descriptor_buffer_ring{descriptor_buffer_ring_}, spv_modules{std::move(stages)},
+      pipeline_libraries{pipeline_libraries_}, library_code{std::move(library_code_)} {
     if (shader_notify) {
         shader_notify->MarkShaderBuilding();
     }
@@ -301,6 +305,9 @@ GraphicsPipeline::GraphicsPipeline(
         }
     }
 
+    if (device.SupportsGraphicsPipelineLibrary()) {
+        library_layout = builder.GraphicsLibraryLayoutKey(uses_push_descriptor, uses_descriptor_buffer);
+    }
     const VkDescriptorSetLayout set_layout{*descriptor_set_layout};
     pipeline_layout = builder.CreatePipelineLayout(set_layout);
     if (!uses_descriptor_buffer) {
@@ -1089,7 +1096,7 @@ void GraphicsPipeline::MakePipeline(VkRenderPass render_pass) {
         flags |= VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
     }
 
-    pipeline = device.GetLogical().CreateGraphicsPipeline({
+    const VkGraphicsPipelineCreateInfo pipeline_ci{
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
         .pNext = nullptr,
         .flags = flags,
@@ -1109,7 +1116,16 @@ void GraphicsPipeline::MakePipeline(VkRenderPass render_pass) {
         .subpass = 0,
         .basePipelineHandle = nullptr,
         .basePipelineIndex = 0,
-    }, *pipeline_cache);
+    };
+    pipeline = pipeline_libraries.Build(device, *pipeline_cache, pipeline_ci, library_code, library_layout);
+    if (!pipeline) {
+        pipeline = device.GetLogical().CreateGraphicsPipeline(pipeline_ci, *pipeline_cache);
+    }
+    // The library cache owns its exact keys; pipeline instances need no extra SPIR-V copy.
+    for (auto& code : library_code) {
+        std::vector<u32>{}.swap(code);
+    }
+    std::vector<u32>{}.swap(library_layout);
 
     // Log graphics pipeline creation
     if (GPU::Logging::IsActive()) {

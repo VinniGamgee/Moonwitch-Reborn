@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <vector>
 
@@ -29,7 +30,9 @@
 #include "video_core/renderer_vulkan/fixed_pipeline_state.h"
 #include "video_core/renderer_vulkan/vk_buffer_cache.h"
 #include "video_core/renderer_vulkan/vk_compute_pipeline.h"
+#include "video_core/renderer_vulkan/vk_fragment_translation_cache.h"
 #include "video_core/renderer_vulkan/vk_graphics_pipeline.h"
+#include "video_core/renderer_vulkan/vk_pipeline_library.h"
 #include "video_core/renderer_vulkan/vk_texture_cache.h"
 #include "video_core/shader_cache.h"
 
@@ -182,6 +185,11 @@ public:
 
     [[nodiscard]] GraphicsPipeline* CurrentGraphicsPipeline();
 
+    /// Lemon Project: count of the current direct draw; unknown for indirect draws.
+    void SetDrawVertexCount(std::optional<u32> count) noexcept {
+        draw_vertex_count = count;
+    }
+
     [[nodiscard]] ComputePipeline* CurrentComputePipeline();
 
     void LoadDiskResources(u64 title_id, std::stop_token stop_loading,
@@ -237,6 +245,7 @@ private:
 
     GraphicsPipelineCacheKey graphics_key{};
     GraphicsPipeline* current_pipeline{};
+    std::optional<u32> draw_vertex_count;
     ComputePipeline* current_compute_pipeline{};
 
     ::Common::unordered_map<ComputePipelineCacheKey, std::unique_ptr<ComputePipeline>> compute_cache;
@@ -258,6 +267,9 @@ private:
 
     PipelineBuildMonitor pipeline_build_monitor;
     u64 next_pipeline_metrics_report{64};
+    FragmentTranslationCache fragment_translations;
+    GraphicsPipelineLibraryCache pipeline_libraries;
+
     Common::ThreadWorker workers;
     Common::ThreadWorker serialization_thread;
     DynamicFeatures dynamic_features;

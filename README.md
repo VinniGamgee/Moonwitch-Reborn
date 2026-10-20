@@ -41,3 +41,7 @@ Este projeto é mantido exclusivamente por seu autor e **não aceita contribuiç
 ## Licença
 
 Este projeto segue a licença do projeto original, o Eden Emulator. Veja o arquivo `LICENSE` no repositório.
+
+As adaptações de gather bias e bibliotecas Vulkan seguem as implementações de
+**[Sunshinin11 / Ryujinx Neo](https://github.com/Sunshinin11/Ryujinx_Neo)**, com
+[créditos, referências e licença preservados](docs/RYUJINX_NEO_PORTS.md).

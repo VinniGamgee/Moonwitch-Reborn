@@ -81,6 +81,7 @@ android {
                         "-DCPMUTIL_FORCE_BUNDLED=ON",
                         "-DYUZU_USE_BUNDLED_FFMPEG=ON",
                         "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+                        "-DENABLE_LTO=ON",
                         "-DBUILD_TESTING=OFF",
                         "-DYUZU_TESTS=OFF",
                         "-DDYNARMIC_TESTS=OFF",
@@ -124,7 +125,10 @@ android {
                 signingConfigs.getByName("default")
             }
 
-            manifestPlaceholders += mapOf("appNameSuffix" to "")
+            val pgoTraining = (project.findProperty("YUZU_ANDROID_ARGS") as? String)
+                ?.contains("-DMOONWITCH_PGO_MODE=GENERATE") == true
+            manifestPlaceholders += mapOf("appNameSuffix" to if (pgoTraining) " PGO Training" else "")
+            if (pgoTraining) versionNameSuffix = "-pgo-training"
 
             isMinifyEnabled = true
             isDebuggable = false

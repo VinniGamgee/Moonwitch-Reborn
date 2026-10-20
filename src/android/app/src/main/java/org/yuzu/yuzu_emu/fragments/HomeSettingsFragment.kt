@@ -352,6 +352,12 @@ class HomeSettingsFragment : Fragment() {
             )
         }
 
+        if (NativeLibrary.isPgoTraining()) {
+            optionsList.add(HomeSetting(
+                R.string.pgo_export, R.string.pgo_export_description, R.drawable.ic_share,
+                { org.yuzu.yuzu_emu.utils.PgoProfiles.export(this) }
+            ))
+        }
         allOptions = optionsList
         fun pick(vararg ids: Int): List<HomeSetting> =
             ids.asIterable().mapNotNull { id -> allOptions.firstOrNull { it.titleId == id } }
@@ -366,7 +372,7 @@ class HomeSettingsFragment : Fragment() {
             })
         ) + pick(R.string.profile_manager, R.string.multiplayer, R.string.applets, R.string.advanced_settings)
         val dataOptions = pick(R.string.manage_game_folders, R.string.manage_yuzu_data, R.string.verify_installed_content, R.string.open_user_folder)
-        val supportOptions = pick(R.string.system_information, R.string.share_log, R.string.share_gpu_log, R.string.about)
+        val supportOptions = pick(R.string.pgo_export, R.string.system_information, R.string.share_log, R.string.share_gpu_log, R.string.about)
         rootOptions = pick(R.string.mw_ui_graphics, R.string.mw_ui_performance, R.string.mw_ui_audio, R.string.preferences_controls, R.string.mw_drivers_components) +
             group(R.string.mw_cat_system, R.string.mw_cat_system_desc, R.drawable.ic_system, systemOptions) +
             pick(R.string.app_settings) +

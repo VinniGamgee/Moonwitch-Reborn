@@ -5,6 +5,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -63,8 +64,8 @@ using VideoCommon::FileEnvironment;
 using VideoCommon::GenericEnvironment;
 using VideoCommon::GraphicsEnvironment;
 
-// Pipeline keys now contain the Moonwitch shader-precision variant.
-constexpr u32 CACHE_VERSION = 19;
+// Rebuild cached SPIR-V after enabling precision-aware gather compensation on Turnip.
+constexpr u32 CACHE_VERSION = 20;
 constexpr size_t VULKAN_CACHE_FLUSH_PIPELINES = 128;
 constexpr size_t VULKAN_CACHE_FLUSH_MIN_SECONDS = 30;
 constexpr std::array<char, 8> VULKAN_CACHE_MAGIC_NUMBER{'y', 'u', 'z', 'u', 'v', 'k', 'c', 'h'};
@@ -461,7 +462,10 @@ PipelineCache::PipelineCache(Tegra::MaxwellDeviceMemoryManager& device_memory_,
                                        driver_id == VK_DRIVER_ID_AMD_OPEN_SOURCE ||
                                        driver_id == VK_DRIVER_ID_MESA_RADV ||
                                        driver_id == VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS ||
-                                       driver_id == VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA,
+                                       driver_id == VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA ||
+                                       driver_id == VK_DRIVER_ID_MESA_TURNIP,
+        .gather_subpixel_precision_bits = driver_id == VK_DRIVER_ID_MESA_TURNIP
+                                              ? device.GetSubTexelPrecisionBits() : 8,
 
         .has_broken_spirv_clamp = driver_id == VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS,
         .has_broken_spirv_position_input = driver_id == false,
@@ -878,9 +882,13 @@ GraphicsPipeline* PipelineCache::BuiltPipeline(GraphicsPipeline* pipeline) const
     }
     // If games are using a small index count, we can assume these are full screen quads.
     // Usually these shaders are only used once for building textures so we can assume they
-    // can't be built async
+    // can't be built async.
+    // Lemon Project: the unused count belongs to an earlier draw and can incorrectly force
+    // large scene draws to wait. Use the current draw's count; indirect draws keep the old guess.
     const auto& draw_state = maxwell3d->draw_manager.draw_state;
-    if (draw_state.index_buffer.count <= 6 || draw_state.vertex_buffer.count <= 6) {
+    const u32 count = draw_vertex_count.value_or(
+        (std::min)(draw_state.index_buffer.count, draw_state.vertex_buffer.count));
+    if (count <= 6) {
         return pipeline;
     }
     return nullptr;
@@ -899,6 +907,9 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
 
     // Layer passthrough generation for devices without VK_EXT_shader_viewport_index_layer
     Shader::IR::Program* layer_source_program{};
+    // Lemon Project: translate fragment stages only after their reuse key is known.
+    constexpr size_t fragment_index = static_cast<size_t>(Maxwell::ShaderType::Pixel);
+    Shader::Environment* fragment_env{};
 
     for (size_t index = 0; index < Maxwell::MaxShaderProgram; ++index) {
         const bool is_emulated_stage = layer_source_program != nullptr &&
@@ -914,6 +925,10 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
         }
         Shader::Environment& env{*envs[env_index]};
         ++env_index;
+        if (index == fragment_index) {
+            fragment_env = &env;
+            continue;
+        }
 
         const u32 cfg_offset{static_cast<u32>(env.StartAddress() + sizeof(Shader::ProgramHeader))};
         Shader::Maxwell::Flow::CFG cfg(env, pools.flow_block, cfg_offset, index == 0);
@@ -937,6 +952,8 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
     }
     std::array<const Shader::Info*, Maxwell::MaxShaderStage> infos{};
     std::array<vk::ShaderModule, Maxwell::MaxShaderStage> modules;
+    std::array<std::vector<u32>, Maxwell::MaxShaderStage> library_code;
+    Shader::Info fragment_info;
 
     const Shader::Profile shader_profile{ShaderProfileForPrecisionMode(
         profile, key.moonwitch_shader_precision_mode)};
@@ -955,11 +972,47 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
         const size_t stage_index{index - 1};
         infos[stage_index] = &program.info;
 
-        const auto runtime_info{MakeRuntimeInfo(programs, key, program, previous_stage, device)};
-        ConvertLegacyToGeneric(program, runtime_info);
-        const std::vector<u32> code{
-            EmitSPIRV(shader_profile, runtime_info, program, binding,
-                      optimize_spirv_output.load(std::memory_order_relaxed))};
+        const bool optimize = optimize_spirv_output.load(std::memory_order_relaxed);
+        std::vector<u32> code;
+        if (index == fragment_index && fragment_env != nullptr) {
+            program.stage = Shader::Stage::Fragment;
+            const auto runtime_info{
+                MakeRuntimeInfo(programs, key, program, previous_stage, device)};
+            std::vector<u8> variant_key{
+                FragmentTranslationCache::MakeVariantKey(runtime_info, binding)};
+            // Moonwitch-specific settings also affect the generated SPIR-V.
+            variant_key.push_back(static_cast<u8>(key.moonwitch_shader_precision_mode));
+            variant_key.push_back(static_cast<u8>(optimize));
+            auto [slot, slot_lock] = fragment_translations.Acquire(key.unique_hashes[index]);
+            if (auto cached = slot->Find(*fragment_env, variant_key)) {
+                code = std::move(cached->code);
+                fragment_info = std::move(cached->info);
+            } else {
+                const auto start{std::chrono::steady_clock::now()};
+                RecordingEnvironment recorder{*fragment_env};
+                const u32 cfg_offset{static_cast<u32>(fragment_env->StartAddress() +
+                                                      sizeof(Shader::ProgramHeader))};
+                Shader::Maxwell::Flow::CFG cfg(recorder, pools.flow_block, cfg_offset, false);
+                program = TranslateProgram(pools.inst, pools.block, recorder, cfg, host_info);
+                if (Settings::values.dump_guest_shaders) {
+                    fragment_env->Dump(hash, key.unique_hashes[index]);
+                }
+                ConvertLegacyToGeneric(program, runtime_info);
+                code = EmitSPIRV(shader_profile, runtime_info, program, binding, optimize);
+                fragment_info = program.info;
+                // Only translations worth the memory: most shaders take a few milliseconds.
+                constexpr auto worth_keeping = std::chrono::milliseconds{30};
+                if (std::chrono::steady_clock::now() - start >= worth_keeping) {
+                    slot->Add(recorder.TakeQueries(), std::move(variant_key),
+                              {.code = code, .info = fragment_info});
+                }
+            }
+            infos[stage_index] = &fragment_info;
+        } else {
+            const auto runtime_info{MakeRuntimeInfo(programs, key, program, previous_stage, device)};
+            ConvertLegacyToGeneric(program, runtime_info);
+            code = EmitSPIRV(shader_profile, runtime_info, program, binding, optimize);
+        }
         device.SaveShader(code);
         modules[stage_index] = BuildShader(device, code);
 
@@ -985,6 +1038,9 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
             const std::string name{fmt::format("Shader {:016x}", key.unique_hashes[index])};
             modules[stage_index].SetObjectNameEXT(name.c_str());
         }
+        if (device.SupportsGraphicsPipelineLibrary()) {
+            library_code[stage_index] = std::move(code);
+        }
         previous_stage = &program;
     }
     Common::ThreadWorker* const thread_worker{build_in_parallel ? &workers : nullptr};
@@ -993,7 +1049,8 @@ std::unique_ptr<GraphicsPipeline> PipelineCache::CreateGraphicsPipeline(
     return std::make_unique<GraphicsPipeline>(
         scheduler, buffer_cache, texture_cache, vulkan_pipeline_cache, &shader_notify, device,
         descriptor_pool, guest_descriptor_queue, descriptor_buffer_ring, thread_worker, statistics,
-        pipeline_build_monitor_ptr, render_pass_cache, key, std::move(modules), infos);
+        pipeline_build_monitor_ptr, render_pass_cache, key, std::move(modules), infos,
+        pipeline_libraries, std::move(library_code));
 
 } catch (const Shader::Exception& exception) {
     auto hash = key.Hash();

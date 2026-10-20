@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <optional>
+#include <vector>
 
 #include <boost/container/small_vector.hpp>
 
@@ -146,6 +147,19 @@ inline void WriteDescriptorBuffer(const Device& device, const DescriptorBufferLa
 class DescriptorLayoutBuilder {
 public:
     DescriptorLayoutBuilder(const Device& device_) : device{&device_} {}
+
+    // Exact set-layout definition, independent of transient Vulkan object handles.
+    // Graphics push constants are identical for all layouts made by this builder.
+    std::vector<u32> GraphicsLibraryLayoutKey(bool push, bool buffer) const {
+        std::vector<u32> result{static_cast<u32>(push), static_cast<u32>(buffer),
+            static_cast<u32>(!push && device->IsDescriptorBindingPartiallyBoundSupported()),
+            static_cast<u32>(bindings.size())};
+        for (const auto& entry : bindings) {
+            result.insert(result.end(), {entry.binding, static_cast<u32>(entry.descriptorType),
+                                         entry.descriptorCount, entry.stageFlags});
+        }
+        return result;
+    }
 
     bool CanUsePushDescriptor() const noexcept {
         if (!device->IsKhrPushDescriptorSupported() ||
