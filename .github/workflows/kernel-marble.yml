@@ -1,0 +1,41 @@
+name: Marble EvoX Full LTO
+on:
+  push:
+    branches: [kernel-marble-evox]
+    paths: ['kernel-marble/**', '.github/workflows/kernel-marble.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: marble-kernel-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison flex libssl-dev libelf-dev make gcc g++ git python3 zip xz-utils
+          sudo fallocate -l 20G /swap-marble
+          sudo chmod 600 /swap-marble
+          sudo mkswap /swap-marble
+          sudo swapon /swap-marble
+      - name: Validate profile controller
+        run: python3 kernel-marble/tests/test_profiles.py
+      - name: Compile and package
+        run: |
+          set -o pipefail
+          bash kernel-marble/scripts/build.sh 2>&1 | tee kernel-marble-build.log
+      - name: Save build outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Marble-EvoX-12.3-FullLTO-591.5
+          path: |
+            kernel-marble/dist/*
+            kernel-marble-build.log
+          if-no-files-found: error
+          retention-days: 30

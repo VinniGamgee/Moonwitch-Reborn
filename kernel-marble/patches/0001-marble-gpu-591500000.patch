@@ -1,0 +1,19 @@
+diff --git a/qcom/marble-sm7475.dtsi b/qcom/marble-sm7475.dtsi
+--- a/qcom/marble-sm7475.dtsi
++++ b/qcom/marble-sm7475.dtsi
+@@ -4,6 +4,15 @@
+ */
+ #include "marble-pinctrl.dtsi"
+ #include "xiaomi-sm7475-common.dtsi"
++
++/* Keep stock voltage and interconnect votes; change only the top GPU OPP. */
++&msm_gpu {
++	qcom,gpu-pwrlevels {
++		qcom,gpu-pwrlevel@0 {
++			qcom,gpu-freq = <591500000>;
++		};
++	};
++};
+ &qupv3_se15_i2c {
+ 	status = "ok";
+ 	/* TOP Smart PA */

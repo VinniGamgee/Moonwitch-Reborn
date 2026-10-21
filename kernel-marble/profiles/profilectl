@@ -1,0 +1,92 @@
+#!/system/bin/sh
+set -eu
+MODDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+SYS=${MARBLE_TEST_SYSROOT:-/sys}
+fail() { echo "Erro: $*" >&2; exit 1; }
+number() { case "$1" in ''|*[!0-9]*) return 1;; esac; }
+get() {
+  v=$(awk -F= -v k="$1" '$1==k {v=$2;n++} END{if(n==1) print v;else exit 1}' "$MODDIR/profiles.conf") || fail "Chave ausente/duplicada: $1"
+  number "$v" || fail "Valor invalido: $1"
+  echo "$v"
+}
+floor_freq() {
+  best=0
+  for f in $1; do
+    if [ "$f" -le "$2" ] && [ "$f" -gt "$best" ]; then best=$f; fi
+  done
+  [ "$best" -gt 0 ] || best=$(printf '%s\n' $1 | sort -n | head -n1)
+  echo "$best"
+}
+contains() { for f in $1; do [ "$f" = "$2" ] && return 0; done; return 1; }
+cleanup() { rm -f "$MODDIR/plan" "$MODDIR/snapshot"; rmdir "$MODDIR/.lock" 2>/dev/null || :; }
+restore() {
+  while read -r dir low high smallest prefix; do
+    [ "$prefix" != _ ] || prefix=
+    echo "$smallest" > "$dir/${prefix}min_freq" 2>/dev/null || :
+    echo "$high" > "$dir/${prefix}max_freq" 2>/dev/null || :
+    echo "$low" > "$dir/${prefix}min_freq" 2>/dev/null || :
+  done < "$MODDIR/snapshot"
+}
+cmd=${1:-status}
+if [ "$cmd" = status ]; then
+  echo "Perfil: $(cat "$MODDIR/selected" 2>/dev/null || echo balanced)"
+  for dir in "$SYS"/devices/system/cpu/cpufreq/policy*; do
+    [ -d "$dir" ] || continue
+    echo "${dir##*/}: $(cat "$dir/scaling_min_freq") - $(cat "$dir/scaling_max_freq") kHz"
+  done
+  for dir in "$SYS"/class/kgsl/kgsl-3d0/devfreq "$SYS"/class/devfreq/*kgsl*; do
+    [ -r "$dir/available_frequencies" ] || continue
+    echo "GPU: $(cat "$dir/min_freq") - $(cat "$dir/max_freq") Hz"
+    echo "Disponiveis: $(cat "$dir/available_frequencies")"
+    break
+  done
+  exit 0
+fi
+[ "$cmd" = apply ] || fail 'Uso: profilectl status | apply powersave|balanced|performance'
+[ "$(id -u)" = 0 ] || fail 'Requer root'
+mode=${2:-}
+case "$mode" in powersave|balanced|performance) ;; *) fail 'Perfil invalido';; esac
+mkdir "$MODDIR/.lock" 2>/dev/null || fail 'Outra alteracao esta em andamento'
+trap cleanup EXIT
+trap 'cleanup; exit 1' HUP INT TERM
+gmin=$(get "$mode.gpu_min"); gmax=$(get "$mode.gpu_max")
+cmin=$(get "$mode.cpu_min_pct"); cmax=$(get "$mode.cpu_max_pct")
+[ "$gmin" -ge 220000000 ] && [ "$gmin" -le "$gmax" ] && [ "$gmax" -le 591500000 ] || fail 'Limites GPU invalidos'
+[ "$cmin" -le "$cmax" ] && [ "$cmax" -gt 0 ] && [ "$cmax" -le 100 ] || fail 'Limites CPU invalidos'
+gpu=
+for dir in "$SYS"/class/kgsl/kgsl-3d0/devfreq "$SYS"/class/devfreq/*kgsl*; do
+  [ -r "$dir/available_frequencies" ] || continue
+  gpu=$dir;break
+done
+[ -n "$gpu" ] || fail 'Devfreq Adreno nao encontrado'
+freqs=$(cat "$gpu/available_frequencies")
+contains "$freqs" "$gmin" && contains "$freqs" "$gmax" || fail 'Frequencia GPU indisponivel no kernel instalado'
+: > "$MODDIR/plan"; : > "$MODDIR/snapshot"
+echo "$gpu $gmin $gmax $(floor_freq "$freqs" 0) _" >> "$MODDIR/plan"
+count=0
+for dir in "$SYS"/devices/system/cpu/cpufreq/policy*; do
+  [ -d "$dir" ] || continue
+  freqs=$(cat "$dir/scaling_available_frequencies")
+  max=$(cat "$dir/cpuinfo_max_freq")
+  low=$(floor_freq "$freqs" "$((max*cmin/100))")
+  high=$(floor_freq "$freqs" "$((max*cmax/100))")
+  echo "$dir $low $high $(floor_freq "$freqs" 0) scaling_" >> "$MODDIR/plan"
+  count=$((count+1))
+done
+[ "$count" -gt 0 ] || fail 'Politicas CPU nao encontradas'
+while read -r dir low high smallest prefix; do
+  [ "$prefix" != _ ] || prefix=
+  [ -w "$dir/${prefix}min_freq" ] && [ -w "$dir/${prefix}max_freq" ] || fail "Sem acesso: $dir"
+  echo "$dir $(cat "$dir/${prefix}min_freq") $(cat "$dir/${prefix}max_freq") $smallest ${prefix:-_}" >> "$MODDIR/snapshot"
+done < "$MODDIR/plan"
+trap 'restore; cleanup; exit 1' HUP INT TERM
+while read -r dir low high smallest prefix; do
+  [ "$prefix" != _ ] || prefix=
+  if [ "$(cat "$dir/${prefix}min_freq")" = "$low" ] && [ "$(cat "$dir/${prefix}max_freq")" = "$high" ]; then continue; fi
+  if ! { echo "$smallest" > "$dir/${prefix}min_freq" && echo "$high" > "$dir/${prefix}max_freq" && echo "$low" > "$dir/${prefix}min_freq"; }; then
+    restore; fail 'Falha ao aplicar; restauracao dos limites anteriores solicitada'
+  fi
+done < "$MODDIR/plan"
+printf '%s\n' "$mode" > "$MODDIR/selected.tmp"
+mv "$MODDIR/selected.tmp" "$MODDIR/selected"
+echo "Perfil aplicado: $mode"
