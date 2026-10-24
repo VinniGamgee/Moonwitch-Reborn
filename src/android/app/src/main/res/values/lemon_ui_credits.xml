@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+  <string name="mw_lemon_ui_credit_title">Interface by Lemon Project</string>
+  <string name="mw_lemon_ui_credit_body">Interface design and original implementation: Ghael-V and Lemon Project contributors. Adapted for Moonwitch with its colors and features. Upstream yuzu and Eden credits and licenses are retained.</string>
+  <string name="mw_lemon_ui_source" translatable="false">https://github.com/Ghael-V/Lemon-Project</string>
+</resources>

@@ -1,7 +1,14 @@
+// SPDX-FileCopyrightText: Copyright 2026 Lemon-Project
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.fragments
+
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.runtime.mutableStateOf
+import androidx.constraintlayout.widget.ConstraintLayout
+import org.yuzu.yuzu_emu.ui.modern.ModernHomeSettings
 
 import android.Manifest
 import android.content.ActivityNotFoundException
@@ -52,6 +59,7 @@ class HomeSettingsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var mainActivity: MainActivity
+    private val modernOptions = mutableStateOf<List<HomeSetting>>(emptyList())
     private var allOptions: List<HomeSetting> = emptyList()
     private var rootOptions: List<HomeSetting> = emptyList()
     private var currentOptions: List<HomeSetting> = emptyList()
@@ -399,6 +407,27 @@ class HomeSettingsFragment : Fragment() {
             if (it.itemId == R.id.mw_nav_library) findNavController().popBackStack(R.id.gamesFragment, false)
             it.itemId == R.id.mw_nav_settings
         }
+        binding.scrollViewSettings.visibility = View.GONE
+        binding.settingsNavigation.visibility = View.GONE
+        val modern = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent { ModernHomeSettings(modernOptions.value, allOptions) { option ->
+                if (option.isEnabled()) option.onClick() else MessageDialogFragment.newInstance(
+                    requireActivity(), titleId = option.disabledTitleId, descriptionId = option.disabledMessageId
+                ).show(parentFragmentManager, MessageDialogFragment.TAG)
+            } }
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(modern) { v, insets ->
+            val safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            v.setPadding(safe.left, 0, safe.right, safe.bottom)
+            insets
+        }
+        (binding.root as ViewGroup).addView(modern, ConstraintLayout.LayoutParams(0, 0).apply {
+            topToBottom = binding.appbarHomeSettings.id
+            bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+            endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+        })
         showOptions(rootOptions, null)
 
         setInsets()
@@ -407,11 +436,11 @@ class HomeSettingsFragment : Fragment() {
     private fun showOptions(options: List<HomeSetting>, title: Int?) {
         groupTitle = title
         currentOptions = options
+        modernOptions.value = options
         groupBack.isEnabled = title != null
         binding.toolbarHomeSettings.setTitle(title ?: R.string.mw_reform_settings)
-        binding.toolbarHomeSettings.navigationIcon = if (title == null) null else
-            androidx.appcompat.content.res.AppCompatResources.getDrawable(requireContext(), R.drawable.ic_back)
-        binding.settingsNavigation.isVisible = title == null
+        binding.toolbarHomeSettings.navigationIcon = androidx.appcompat.content.res.AppCompatResources.getDrawable(requireContext(), R.drawable.ic_back)
+        binding.settingsNavigation.isVisible = false
         binding.settingsSearch.setText("")
         binding.homeSettingsList.adapter = HomeSettingAdapter(requireActivity() as AppCompatActivity, viewLifecycleOwner, options)
         binding.scrollViewSettings.scrollTo(0, 0)

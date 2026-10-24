@@ -14,5 +14,6 @@ data class HomeSetting(
     val isEnabled: () -> Boolean = { true },
     val disabledTitleId: Int = 0,
     val disabledMessageId: Int = 0,
-    val details: StateFlow<String> = MutableStateFlow("")
+    val details: StateFlow<String> = MutableStateFlow(""),
+    val isDestructive: Boolean = false
 )

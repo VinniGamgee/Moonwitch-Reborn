@@ -717,6 +717,9 @@ class SettingsFragmentPresenter(
         }
     }
 
+    fun rootSections(): List<SubmenuSetting> =
+        arrayListOf<SettingsItem>().also { addConfigSettings(it) }.filterIsInstance<SubmenuSetting>()
+
     private fun addConfigSettings(sl: ArrayList<SettingsItem>) {
         sl.apply {
             add(

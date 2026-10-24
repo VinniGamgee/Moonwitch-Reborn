@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2026 Lemon-Project
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -5,6 +6,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 package org.yuzu.yuzu_emu.fragments
+
+import org.yuzu.yuzu_emu.ui.modern.*
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
@@ -492,6 +499,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
                                 if (_binding != null) {
                                     // Hide loading indicator immediately for intent launches
+                                    modernLoadingVisible.value = false
                                     binding.loadingIndicator.visibility = View.GONE
                                     binding.surfaceEmulation.visibility = View.VISIBLE
 
@@ -648,6 +656,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         binding.surfaceInputOverlay.setIsInEditMode(true)
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         binding.surfaceInputOverlay.visibility = View.VISIBLE
+        modernLoadingVisible.value = false
         binding.loadingIndicator.visibility = View.GONE
 
         // in gameless edit mode, back = done
@@ -689,6 +698,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
         binding.drawerLayout.addDrawerListener(object : DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                if (drawerView == binding.inGameMenu) modernMenuVisible.value = slideOffset > 0f
                 binding.surfaceInputOverlay.dispatchTouchEvent(
                     MotionEvent.obtain(
                         SystemClock.uptimeMillis(),
@@ -702,6 +712,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             }
 
             override fun onDrawerOpened(drawerView: View) {
+                if (drawerView == binding.inGameMenu) { modernMenuVisible.value = true; menuTick.intValue++; inGameMenuPanel?.requestFocus() }
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                 binding.inGameMenu.requestFocus()
                 emulationViewModel.setDrawerOpen(true)
@@ -714,6 +725,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             }
 
             override fun onDrawerClosed(drawerView: View) {
+                if (drawerView == binding.inGameMenu) modernMenuVisible.value = false
                 binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
                 emulationViewModel.setDrawerOpen(false)
             }
@@ -874,6 +886,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
 
         addQuickSettings()
+        binding.quickSettingsSheet.setBackgroundResource(R.drawable.moonwitch_side_panel)
+        setupModernInGameMenu()
+        setupModernLoadingScreen()
 
         binding.drawerLayout.addDrawerListener(object : DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
@@ -959,6 +974,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             if (it) {
                 binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
                 ViewUtils.showView(binding.surfaceInputOverlay)
+                modernLoadingVisible.value = false
                 ViewUtils.hideView(binding.loadingIndicator)
 
                 emulationState.updateSurface()
@@ -989,6 +1005,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         emulationViewModel.isEmulationStopping.collect(viewLifecycleOwner) {
             if (it) {
                 binding.loadingText.setText(R.string.shutting_down)
+                modernLoadingVisible.value = true
                 ViewUtils.showView(binding.loadingIndicator)
                 ViewUtils.hideView(binding.inputContainer)
                 ViewUtils.hideView(binding.showStatsOverlayText)
@@ -1015,6 +1032,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 binding.drawerLayout
                     .setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 ViewUtils.hideView(binding.surfaceInputOverlay)
+                modernLoadingVisible.value = true
                 ViewUtils.showView(binding.loadingIndicator)
             }
         }
@@ -1081,6 +1099,93 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 }
             }
         }
+    }
+
+    private val modernMenuVisible = mutableStateOf(false)
+    private val modernLoadingVisible = mutableStateOf(false)
+    private val menuTick = mutableIntStateOf(0)
+    private var inGameMenuPanel: ComposeView? = null
+    private var menuAnchor: View? = null
+    private fun setupModernInGameMenu() {
+        val nav = binding.inGameMenu
+        for (i in 0 until nav.childCount) {
+            nav.getChildAt(i).visibility = View.GONE
+        }
+        // The panel draws its own background; the drawer's would show as a strip beside it.
+        nav.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        val panel = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                if (modernMenuVisible.value) InGameMenuPanel(
+                    menu = nav.menu,
+                    game = game,
+                    tick = menuTick.intValue,
+                    performance = if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE)
+                        PerformanceInfo(emptyList(), { -1 }, {
+                            val values = resources.getIntArray(R.array.rendererResolutionValues)
+                            val labels = resources.getStringArray(R.array.rendererResolutionNames)
+                            labels.getOrNull(values.indexOf(IntSetting.RENDERER_RESOLUTION.getInt())) ?: "-"
+                        }, {
+                            if (BooleanSetting.RENDERER_USE_SPEED_LIMIT.getBoolean(false))
+                                "${ShortSetting.RENDERER_SPEED_LIMIT.getShort(false)}%" else "∞"
+                        }, { driverViewModel.selectedDriverTitle.value }, {}) else null,
+                    onItem = { id -> nav.menu.performIdentifierAction(id, 0) }
+                )
+            }
+        }
+        nav.addView(panel, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        inGameMenuPanel = panel
+        // NavigationView caps a wrap_content drawer at 360dp; an exact width has no cap, and the
+        // panel plus its floating performance card need room.
+        val metrics = resources.displayMetrics
+        val room = metrics.widthPixels - (64 * metrics.density).toInt()
+        nav.layoutParams = nav.layoutParams.apply {
+            width = minOf(((if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 730 else 360) * metrics.density).toInt(), room)
+        }
+        // The classic menu's rows no longer exist, so the small pop-up menus that were anchored to
+        // them (controller layout, overlay options) hang from this point inside the panel instead.
+        val density = resources.displayMetrics.density
+        menuAnchor = View(requireContext()).also {
+            nav.addView(
+                it,
+                FrameLayout.LayoutParams(1, 1).apply {
+                    gravity = android.view.Gravity.TOP or android.view.Gravity.START
+                    leftMargin = (200 * density).toInt()
+                    topMargin = (150 * density).toInt()
+                }
+            )
+        }
+    }
+
+    private fun setupModernLoadingScreen() {
+        val card = binding.loadingIndicator as com.google.android.material.card.MaterialCardView
+        card.layoutParams = FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.MATCH_PARENT
+        )
+        card.strokeWidth = 0
+        card.radius = 0f
+        card.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
+        binding.loadingLayout.visibility = View.GONE
+        val screen = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                if (modernLoadingVisible.value) ModernLoadingScreen(
+                    isActive = { _binding != null && card.visibility == View.VISIBLE },
+                    read = {
+                        val b = _binding
+                        LoadingSnapshot(
+                            game = game,
+                            message = b?.loadingText?.text?.toString().orEmpty(),
+                            progress = b?.loadingProgressIndicator?.progress ?: 0,
+                            max = b?.loadingProgressIndicator?.max ?: 0,
+                            indeterminate = b?.loadingProgressIndicator?.isIndeterminate ?: true
+                        )
+                    }
+                )
+            }
+        }
+        card.addView(screen, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
     }
 
     private fun updateGameTitle() {
@@ -1525,6 +1630,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     }
 
     override fun onDestroyView() {
+        modernMenuVisible.value = false
+        modernLoadingVisible.value = false
+        inGameMenuPanel = null
+        menuAnchor = null
         super.onDestroyView()
         amiiboLoadJob?.cancel()
         amiiboLoadJob = null
@@ -2052,7 +2161,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         emulationViewModel.setIsEmulationStopping(true)
         _binding?.let {
             binding.loadingText.setText(R.string.shutting_down)
-            ViewUtils.showView(binding.loadingIndicator)
+            modernLoadingVisible.value = true
+                ViewUtils.showView(binding.loadingIndicator)
             ViewUtils.hideView(binding.inputContainer)
             ViewUtils.hideView(binding.showStatsOverlayText)
         }
@@ -2069,7 +2179,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     }
 
     private fun showOverlayOptions() {
-        val anchor = binding.inGameMenu.findViewById<View>(R.id.menu_overlay_controls)
+        val anchor = menuAnchor ?: binding.inGameMenu.findViewById<View>(R.id.menu_overlay_controls)
         val popup = PopupMenu(requireContext(), anchor)
 
         popup.menuInflater.inflate(R.menu.menu_overlay_options, popup.menu)

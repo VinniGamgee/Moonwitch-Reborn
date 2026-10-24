@@ -51,6 +51,10 @@ class LicensesFragment : Fragment() {
         }
 
         val licenses = listOf(
+            License(R.string.mw_font_bricolage_title, R.string.mw_font_bricolage_description,
+                R.string.mw_font_bricolage_link, R.string.mw_font_bricolage_copyright, R.string.mw_font_bricolage_text),
+            License(R.string.mw_font_dmsans_title, R.string.mw_font_dmsans_description,
+                R.string.mw_font_dmsans_link, R.string.mw_font_dmsans_copyright, R.string.mw_font_dmsans_text),
             License(
                 R.string.license_fidelityfx_fsr,
                 R.string.license_fidelityfx_fsr_description,

@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- SPDX-FileCopyrightText: Copyright 2026 Lemon-Project -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+  <string name="lemon_library">Biblioteca</string>
+  <string name="lemon_view_details">Ver detalhes</string>
+  <string name="lemon_all_games">Todos os jogos</string>
+  <string name="lemon_game_folders">Pastas de jogos</string>
+  <string name="lemon_install_content">Instalar conteúdo</string>
+  <string name="lemon_more_options">Mais opções</string>
+  <string name="lemon_stat_games">Jogos</string>
+  <string name="lemon_stat_playtime">Tempo total de jogo</string>
+  <string name="lemon_stat_sessions">Sessões</string>
+  <string name="lemon_perf_title">Desempenho</string>
+  <string name="lemon_perf_resolution">Resolução</string>
+  <string name="lemon_perf_speed">Limite de velocidade</string>
+  <string name="lemon_perf_driver">Driver da GPU</string>
+  <string name="lemon_tab_data">Dados e saves</string>
+  <string name="lemon_search_settings">Buscar configurações</string>
+  <string name="settings_search_no_results">Nenhuma configuração encontrada</string>
+  <string name="lemon_welcome_title">Bem-vindo ao Moonwitch</string>
+  <string name="lemon_welcome_subtitle">Seus jogos no Android, do seu jeito</string>
+  <string name="lemon_welcome_start">Começar</string>
+  <string name="setup_step_of">Etapa %1$d de %2$d</string>
+  <string name="setup_required">Obrigatório</string>
+  <string name="setup_later">Depois</string>
+  <string name="library_view">Visualização</string>
+  <string name="library_view_carousel">Carrossel</string>
+  <string name="library_view_grid">Grade</string>
+  <string name="library_view_list">Lista</string>
+  <string name="pull_to_refresh">Puxe para atualizar</string>
+  <string name="pull_release">Solte para atualizar</string>
+  <string name="filter_favorites">Favoritos</string>
+  <string name="github_link_button">GitHub</string>
+  <string name="performance_preset">Perfil de desempenho</string>
+  <string name="add_to_favorites">Adicionar aos favoritos</string>
+  <string name="remove_from_favorites">Remover dos favoritos</string>
+  <string name="add_to_home_screen">Adicionar à tela inicial</string>
+  <string name="game_never_played">Nunca jogado</string>
+  <string name="statistics">Estatísticas</string>
+  <string name="statistics_sort_by">Ordenar por</string>
+  <string name="statistics_sort_playtime">Tempo de jogo</string>
+  <string name="statistics_sort_last_played">Última vez jogado</string>
+  <string name="statistics_sort_sessions">Sessões jogadas</string>
+  <plurals name="game_sessions_count">
+    <item quantity="one">%d sessão</item>
+    <item quantity="other">%d sessões</item>
+  </plurals>
+</resources>

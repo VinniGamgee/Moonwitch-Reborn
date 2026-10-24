@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/gamesFragment"
-        android:name="org.yuzu.yuzu_emu.ui.GamesFragment"
+        android:name="org.yuzu.yuzu_emu.ui.ModernGamesFragment"
         android:label="PlatformGamesFragment" />
         <action
             android:id="@+id/action_gamesFragment_to_homeSettingsFragment"
@@ -196,4 +196,6 @@
         android:name="org.yuzu.yuzu_emu.fragments.EditUserDialogFragment"
         android:label="NewUserDialogFragment" />
 
+    <fragment android:id="@+id/statisticsFragment" android:name="org.yuzu.yuzu_emu.fragments.StatisticsFragment" android:label="@string/statistics" />
+    <action android:id="@+id/action_global_statisticsFragment" app:destination="@id/statisticsFragment" />
 </navigation>

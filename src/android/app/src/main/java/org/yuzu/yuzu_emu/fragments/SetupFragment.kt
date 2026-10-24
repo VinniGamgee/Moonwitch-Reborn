@@ -1,7 +1,15 @@
+// SPDX-FileCopyrightText: Copyright 2026 Lemon-Project
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.fragments
+
+import org.yuzu.yuzu_emu.ui.modern.*
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 
 import android.Manifest
 import android.content.Intent
@@ -303,6 +311,7 @@ class SetupFragment : Fragment() {
             var previousPosition: Int = 0
 
             override fun onPageSelected(position: Int) {
+                (binding.viewPager2.adapter as? SetupAdapter)?.refreshStates()
                 super.onPageSelected(position)
 
                 val isFirstPage = position == 0
@@ -390,6 +399,7 @@ class SetupFragment : Fragment() {
         }
 
         setInsets()
+        showModernWelcome()
     }
 
 
@@ -497,6 +507,29 @@ class SetupFragment : Fragment() {
                 mainActivity.processGamesDir(result)
             }
         }
+
+    override fun onResume() {
+        super.onResume()
+        (_binding?.viewPager2?.adapter as? SetupAdapter)?.refreshStates()
+    }
+
+    private fun showModernWelcome() {
+        // The steps sit on the same dark surface as the welcome screen and the rest of the app.
+        binding.root.setBackgroundColor(LemonColors.Background.toArgb())
+        val welcome = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                var shown by rememberSaveable { mutableStateOf(true) }
+                if (shown) {
+                    ModernWelcomeScreen(onStart = { shown = false })
+                }
+            }
+        }
+        (binding.root as ViewGroup).addView(
+            welcome,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        )
+    }
 
     private fun finishSetup() {
         PreferenceManager.getDefaultSharedPreferences(YuzuApplication.appContext)

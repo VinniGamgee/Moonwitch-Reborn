@@ -1,3 +1,4 @@
+// SPDX-FileCopyrightText: Copyright 2026 Lemon-Project
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -5,6 +6,14 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 package org.yuzu.yuzu_emu.features.settings.ui
+
+import org.yuzu.yuzu_emu.ui.modern.*
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import com.google.android.material.appbar.AppBarLayout
+import androidx.recyclerview.widget.RecyclerView
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -179,8 +188,78 @@ class SettingsFragment : Fragment() {
 
         presenter.onViewCreated()
         setInsets()
+        setupModernList()
     }
-private fun getPlayerIndex(): Int =
+    private fun setupModernList() {
+        val adapter = settingsAdapter ?: return
+        val tick = mutableIntStateOf(0)
+        val rail = presenter.rootSections()
+        val actions = SettingsActions(
+            onSwitch = { item, checked, position -> adapter.onBooleanClick(item, checked, position) },
+            onSingleChoice = { item, position -> adapter.onSingleChoiceClick(item, position) },
+            onStringSingleChoice = { item, position -> adapter.onStringSingleChoiceClick(item, position) },
+            onIntSingleChoice = { item, position -> adapter.onIntSingleChoiceClick(item, position) },
+            onSlider = { item, position -> adapter.onSliderClick(item, position) },
+            onSpinBox = { item, position -> adapter.onSpinBoxClick(item, position) },
+            onDateTime = { item, position -> adapter.onDateTimeClick(item, position) },
+            onStringInput = { item, position -> adapter.onStringInputClick(item, position) },
+            onPath = { item, position -> adapter.onPathClick(item, position) },
+            onSubmenu = { item -> adapter.onSubmenuClick(item) },
+            onLaunchable = { item -> adapter.onLaunchableClick(item) },
+            onInput = { item, position -> adapter.onInputClick(item, position) },
+            onInputOptions = { anchor, item, position -> adapter.onInputOptionsClick(anchor, item, position) },
+            onInputProfile = { item, position -> adapter.onInputProfileClick(item, position) },
+            onGpuUnswizzle = { item, position -> adapter.onGpuUnswizzleClick(item, position) },
+            onClear = { item, position -> adapter.onClearClick(item, position) },
+            onLongClick = { item, position -> adapter.onLongClick(item, position) },
+            onRailSection = { section -> adapter.onSubmenuClick(section) }
+        )
+
+        val composeView = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val t = tick.intValue
+                ModernSettingsList(
+                    items = adapter.currentList,
+                    tick = t,
+                    isRoot = args.menuTag == Settings.MenuTag.SECTION_ROOT,
+                    currentSection = args.menuTag.name,
+                    railSections = rail,
+                    actions = actions,
+                    highlight = -1,
+                    onHighlightShown = {}
+                )
+            }
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(composeView) { v, insets ->
+            val safe = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+            v.setPadding(safe.left, 0, safe.right, safe.bottom)
+            insets
+        }
+        val params = CoordinatorLayout.LayoutParams(
+            CoordinatorLayout.LayoutParams.MATCH_PARENT,
+            CoordinatorLayout.LayoutParams.MATCH_PARENT
+        ).apply { behavior = AppBarLayout.ScrollingViewBehavior() }
+        (binding.root as ViewGroup).addView(composeView, params)
+
+        fun refresh() {
+            val drawable = adapter.currentList.all { it.type in ModernSupportedTypes }
+            composeView.visibility = if (drawable) View.VISIBLE else View.GONE
+            binding.listSettings.visibility = if (drawable) View.GONE else View.VISIBLE
+            tick.intValue++
+        }
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() = refresh()
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) = refresh()
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) = refresh()
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = refresh()
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = refresh()
+            override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) = refresh()
+        })
+        refresh()
+    }
+
+    private fun getPlayerIndex(): Int =
         when (args.menuTag) {
             Settings.MenuTag.SECTION_INPUT_PLAYER_ONE -> 0
             Settings.MenuTag.SECTION_INPUT_PLAYER_TWO -> 1

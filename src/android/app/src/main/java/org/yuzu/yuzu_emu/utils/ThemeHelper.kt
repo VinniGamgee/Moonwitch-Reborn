@@ -18,6 +18,7 @@ object ThemeHelper {
     fun setTheme(activity: AppCompatActivity) {
         setThemeMode(activity)
         activity.setTheme(MoonwitchTheme.style(activity))
+        org.yuzu.yuzu_emu.ui.modern.LemonColors.apply(activity)
         setDarkModeSystemBars(WindowCompat.getInsetsController(activity.window, activity.window.decorView))
     }
 

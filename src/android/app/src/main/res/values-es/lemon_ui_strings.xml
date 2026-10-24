@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- SPDX-FileCopyrightText: Copyright 2026 Lemon-Project -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<resources>
+  <string name="lemon_library">Biblioteca</string>
+  <string name="lemon_view_details">Ver detalles</string>
+  <string name="lemon_all_games">Todos los juegos</string>
+  <string name="lemon_game_folders">Carpetas de juegos</string>
+  <string name="lemon_install_content">Instalar contenido</string>
+  <string name="lemon_more_options">Más opciones</string>
+  <string name="lemon_stat_games">Juegos</string>
+  <string name="lemon_stat_playtime">Tiempo total</string>
+  <string name="lemon_stat_sessions">Sesiones</string>
+  <string name="lemon_perf_title">Perfil de rendimiento</string>
+  <string name="lemon_perf_resolution">Resolución</string>
+  <string name="lemon_perf_speed">Límite de velocidad</string>
+  <string name="lemon_perf_driver">Controlador de GPU</string>
+  <string name="lemon_tab_data">Datos y guardado</string>
+  <string name="lemon_search_settings">Buscar ajustes</string>
+  <string name="settings_search_no_results">Ningún ajuste coincide con la búsqueda</string>
+  <string name="lemon_welcome_title">Bienvenido a Moonwitch</string>
+  <string name="lemon_welcome_subtitle">Switch en tu Android, afinado para Adreno</string>
+  <string name="lemon_welcome_start">Empezar</string>
+  <string name="setup_step_of">Paso %1$d de %2$d</string>
+  <string name="setup_required">Obligatorio</string>
+  <string name="setup_later">Después</string>
+  <string name="library_view">Vista</string>
+  <string name="library_view_carousel">Carrusel</string>
+  <string name="library_view_grid">Cuadrícula</string>
+  <string name="library_view_list">Lista</string>
+  <string name="pull_to_refresh">Desliza hacia abajo para actualizar</string>
+  <string name="pull_release">Suelta para actualizar</string>
+  <string name="game_never_played">Nunca jugado</string>
+  <plurals name="game_sessions_count">
+    <item quantity="one">%d partida</item>
+    <item quantity="other">%d partidas</item>
+  </plurals>
+  <string name="statistics">Estadísticas</string>
+  <string name="statistics_sort_by">Ordenar por</string>
+  <string name="statistics_sort_playtime">Tiempo jugado</string>
+  <string name="statistics_sort_last_played">Última vez jugado</string>
+  <string name="statistics_sort_sessions">Partidas jugadas</string>
+  <string name="filter_favorites">Favoritos</string>
+  <string name="github_link_button">GitHub (espejo)</string>
+  <string name="performance_preset">Perfil de rendimiento</string>
+  <string name="add_to_favorites">Añadir a favoritos</string>
+  <string name="remove_from_favorites">Quitar de favoritos</string>
+  <string name="add_to_home_screen">Añadir a la pantalla de inicio</string>
+</resources>

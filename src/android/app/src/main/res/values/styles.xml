@@ -202,7 +202,8 @@
     </style>
 
     <style name="Widget.Eden.TransparentTopToolbar" parent="">
-        <item name="android:background">@drawable/mw_reformulation_toolbar_surface</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Moonwitch.LemonTitle</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:elevation">0dp</item>
         <item name="backgroundTint">@android:color/transparent</item>
         <item name="titleTextColor">?attr/mwText</item>
@@ -308,4 +309,9 @@
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
 
+    <style name="TextAppearance.Moonwitch.LemonTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/lemon_title</item>
+        <item name="android:textColor">?attr/mwText</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

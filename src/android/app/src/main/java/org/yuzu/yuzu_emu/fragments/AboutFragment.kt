@@ -1,7 +1,12 @@
+// SPDX-FileCopyrightText: Copyright 2026 Lemon-Project
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.fragments
+
+import org.yuzu.yuzu_emu.ui.modern.*
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -108,6 +113,18 @@ class AboutFragment : Fragment() {
             openLink(getString(R.string.github_link))
         }
 
+        val root = binding.root as ViewGroup
+        for (i in 0 until root.childCount) root.getChildAt(i).visibility = View.GONE
+        root.addView(ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent { ModernAbout(fullVersionText, AboutActions(
+                onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() },
+                onCopyVersion = { binding.buttonVersionName.performClick() },
+                onLicenses = { binding.buttonLicenses.performClick() },
+                onCheckUpdates = { openLink(getString(R.string.github_link)) },
+                onLink = { openLink(getString(it)) }
+            )) }
+        }, ViewGroup.LayoutParams(-1, -1))
         setInsets()
     }
 

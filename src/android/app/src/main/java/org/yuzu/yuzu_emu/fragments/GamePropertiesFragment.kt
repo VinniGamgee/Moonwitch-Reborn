@@ -1,7 +1,13 @@
+// SPDX-FileCopyrightText: Copyright 2026 Lemon-Project
 // SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 package org.yuzu.yuzu_emu.fragments
+
+import org.yuzu.yuzu_emu.ui.modern.*
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.runtime.mutableStateOf
 
 import android.content.Intent
 import android.graphics.Color
@@ -125,6 +131,7 @@ class GamePropertiesFragment : Fragment() {
 
         if (GameHelper.cachedGameList.isEmpty()) {
             binding.buttonStart.isEnabled = false
+            modernPlayEnabled.value = false
             viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) {
                     GameHelper.restoreContentForGame(args.game)
@@ -134,9 +141,11 @@ class GamePropertiesFragment : Fragment() {
                 }
                 addonViewModel.onAddonsViewStarted(args.game)
                 binding.buttonStart.isEnabled = true
+                modernPlayEnabled.value = true
             }
         }
 
+        setupModernDetail()
         reloadList()
 
         homeViewModel.openImportSaves.collect(
@@ -252,8 +261,46 @@ class GamePropertiesFragment : Fragment() {
         }
     }
 
+    private val modernPlaytime = mutableStateOf("")
+    private val modernProperties = mutableStateOf<List<GameProperty>>(emptyList())
+    private val modernPlayEnabled = mutableStateOf(true)
+    private fun setupModernDetail() {
+        // The classic views stay in place (their state is read and their clicks reused) but hidden.
+        binding.listAll.visibility = View.GONE
+        binding.buttonStart.visibility = View.GONE
+        val shortcutManager = requireActivity().getSystemService(ShortcutManager::class.java)
+        val actions = GameDetailActions(
+            onBack = { binding.root.findNavController().popBackStack() },
+            onPlay = {
+                LaunchGameDialogFragment.newInstance(args.game)
+                    .show(childFragmentManager, LaunchGameDialogFragment.TAG)
+            },
+            onShortcut = { requestPinnedShortcut() },
+            onEditPlaytime = { showEditPlaytimeDialog() }
+        )
+        val composeView = ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                ModernGameDetail(
+                    game = args.game,
+                    playtime = modernPlaytime.value,
+                    usage = org.yuzu.yuzu_emu.utils.GameStatsUtils.buildFullSummary(requireContext(), args.game).orEmpty(),
+                    properties = modernProperties.value,
+                    playEnabled = modernPlayEnabled.value,
+                    canPinShortcut = shortcutManager.isRequestPinShortcutSupported,
+                    actions = actions
+                )
+            }
+        }
+        (binding.root as ViewGroup).addView(
+            composeView,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        )
+    }
+
     private fun getPlayTime() {
         binding.statPlaytimeValue.text = readablePlayTime()
+        modernPlaytime.value = readablePlayTime()
     }
 
     private fun buildGameMeta(): String {
@@ -316,6 +363,7 @@ class GamePropertiesFragment : Fragment() {
     )
 
     private fun setupGameCover() {
+        MoonwitchArtworkChanges.notifyChanged()
         val coverArtwork = findCoverArtwork()
         if (coverArtwork == null) {
             applyFallbackCover()
@@ -349,6 +397,7 @@ class GamePropertiesFragment : Fragment() {
     }
 
     private fun setupGameArtwork() {
+        MoonwitchArtworkChanges.notifyChanged()
         val heroArtwork = findHeroArtwork()
         if (heroArtwork == null) {
             applyFallbackBackdrop()
@@ -374,6 +423,7 @@ class GamePropertiesFragment : Fragment() {
     }
 
     private fun setupGameLogo() {
+        MoonwitchArtworkChanges.notifyChanged()
         val logoArtwork = findLogoArtwork()
         if (logoArtwork == null) {
             binding.imageGameLogo.setImageDrawable(null)
@@ -902,6 +952,28 @@ class GamePropertiesFragment : Fragment() {
         _binding ?: return
 
         val properties = mutableListOf<GameProperty>().apply {
+            add(SubmenuProperty(R.string.mw_gamehub_info, R.string.mw_gamehub_info_desc, R.drawable.ic_info_outline,
+                action = { binding.root.findNavController().navigate(HomeNavigationDirections.actionGlobalSettingsSubscreenActivity(SettingsSubscreen.GAME_INFO, args.game)) }))
+            add(SubmenuProperty(R.string.mw_ui_performance, R.string.mw_gamehub_performance_desc,
+                R.drawable.ic_mw_gauge, action = { openSettings(Settings.MenuTag.SECTION_MOONWITCH_PERFORMANCE) }))
+            add(SubmenuProperty(R.string.mw_ui_graphics, R.string.mw_gamehub_graphics_desc,
+                R.drawable.ic_graphics, action = { openSettings(Settings.MenuTag.SECTION_RENDERER) }))
+            add(SubmenuProperty(R.string.mw_gamehub_v23_driver, R.string.mw_drivers_components,
+                R.drawable.ic_graphics, action = { openSettings(Settings.MenuTag.SECTION_DRIVERS_COMPONENTS) }))
+            if (!args.game.isHomebrew) {
+                add(SubmenuProperty(R.string.mw_gamehub_v23_mods, R.string.mw_gamehub_content_desc,
+                    R.drawable.ic_settings, action = { openContent(SettingsSubscreen.ADDONS_MODS) }))
+                add(SubmenuProperty(R.string.mw_gamehub_v23_updates_dlc, R.string.mw_gamehub_content_desc,
+                    R.drawable.ic_install, action = { openContent(SettingsSubscreen.ADDONS_UPDATES_DLC) }))
+            }
+            add(SubmenuProperty(R.string.mw_gamehub_statistics, R.string.mw_gamehub_statistics_desc,
+                R.drawable.ic_info_outline, action = { showStatistics() }))
+            add(SubmenuProperty(R.string.mw_gamehub_v23_customize, R.string.mw_gamehub_v23_customize_subtitle,
+                R.drawable.ic_palette, action = { showCustomizeActions() }))
+            add(SubmenuProperty(if (isFavorite()) R.string.remove_from_favorites else R.string.add_to_favorites, 0,
+                if (isFavorite()) R.drawable.ic_mw_star_filled else R.drawable.ic_mw_star,
+                action = { toggleFavorite(); reloadList() }))
+
             add(
                 SubmenuProperty(
                     R.string.post_processing,
@@ -1061,6 +1133,7 @@ class GamePropertiesFragment : Fragment() {
                 }
             }
         }
+        modernProperties.value = properties
         binding.listProperties.apply {
             layoutManager = androidx.recyclerview.widget.GridLayoutManager(requireContext(), if (resources.configuration.screenWidthDp / resources.configuration.fontScale < 500) 1 else 2).apply {
                 spanSizeLookup = object : androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup() {

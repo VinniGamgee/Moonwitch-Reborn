@@ -28,6 +28,8 @@
     </style>
 
     <style name="Theme.Moonwitch.Main" parent="Theme.Moonwitch.Palette">
+        <item name="android:fontFamily">@font/lemon_body</item>
+        <item name="fontFamily">@font/lemon_body</item>
         <item name="android:windowBackground">?attr/mwCanvas</item>
         <item name="colorSurfaceContainer">?attr/mwSurface</item>
         <item name="colorSurfaceContainerLow">?attr/mwBackgroundSoft</item>
