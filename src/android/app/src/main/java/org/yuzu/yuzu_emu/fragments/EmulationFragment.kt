@@ -677,10 +677,13 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         requireActivity().finish()
     }
 
+    private var viewSetupComplete = false
+
     private fun completeViewSetup() {
-        if (_binding == null || game == null) {
+        if (_binding == null || game == null || viewSetupComplete) {
             return
         }
+        viewSetupComplete = true
         Log.info("[EmulationFragment] Starting view setup for game: ${game?.title}")
 
         gpuModel = GpuDriverHelper.hookLibPath?.let { GpuDriverHelper.getGpuModel(hookLibPath = it).toString() } ?: "Unknown"
@@ -700,22 +703,26 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         binding.drawerLayout.addDrawerListener(object : DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 if (drawerView == binding.inGameMenu) modernMenuVisible.value = slideOffset > 0f
-                binding.surfaceInputOverlay.dispatchTouchEvent(
-                    MotionEvent.obtain(
-                        SystemClock.uptimeMillis(),
-                        SystemClock.uptimeMillis() + 100,
-                        MotionEvent.ACTION_UP,
-                        0f,
-                        0f,
-                        0
-                    )
+                if (slideOffset > 0f) emulationViewModel.setDrawerOpen(true)
+                val release = MotionEvent.obtain(
+                    SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
+                    MotionEvent.ACTION_UP, 0f, 0f, 0
                 )
+                try {
+                    binding.surfaceInputOverlay.dispatchTouchEvent(release)
+                } finally {
+                    release.recycle()
+                }
             }
 
             override fun onDrawerOpened(drawerView: View) {
-                if (drawerView == binding.inGameMenu) { modernMenuVisible.value = true; menuTick.intValue++; inGameMenuPanel?.requestFocus() }
+                if (drawerView == binding.inGameMenu) {
+                    modernMenuVisible.value = true
+                    menuTick.intValue++
+                    inGameMenuPanel?.requestFocus()
+                }
                 binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                binding.inGameMenu.requestFocus()
+                drawerView.requestFocus()
                 emulationViewModel.setDrawerOpen(true)
                 updateQuickOverlayMenuEntry(BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean())
                 if (drawerView == binding.inGameMenu) {
@@ -727,8 +734,17 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
 
             override fun onDrawerClosed(drawerView: View) {
                 if (drawerView == binding.inGameMenu) modernMenuVisible.value = false
-                binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
-                emulationViewModel.setDrawerOpen(false)
+                val anyVisible = binding.drawerLayout.isDrawerVisible(binding.inGameMenu) ||
+                    binding.drawerLayout.isDrawerVisible(binding.quickSettingsSheet)
+                emulationViewModel.setDrawerOpen(anyVisible)
+                if (!anyVisible) {
+                    binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
+                    if (!BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean()) {
+                        binding.drawerLayout.setDrawerLockMode(
+                            DrawerLayout.LOCK_MODE_LOCKED_CLOSED, binding.quickSettingsSheet
+                        )
+                    }
+                }
             }
 
             override fun onDrawerStateChanged(newState: Int) {
@@ -816,13 +832,18 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         setInsets()
 
         requireActivity().onBackPressedDispatcher.addCallback(
-            requireActivity(),
+            viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
                     if (!NativeLibrary.isRunning()) {
                         return
                     }
-                    emulationViewModel.setDrawerOpen(!binding.drawerLayout.isOpen)
+                    if (binding.drawerLayout.isDrawerVisible(binding.inGameMenu) ||
+                        binding.drawerLayout.isDrawerVisible(binding.quickSettingsSheet)) {
+                        binding.drawerLayout.closeDrawers()
+                    } else {
+                        openMoonwitchInGameDrawer()
+                    }
                 }
             }
         )
@@ -888,16 +909,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 finishGameSetup()
             }
         }
-        emulationViewModel.drawerOpen.collect(viewLifecycleOwner) {
-            if (it) {
-                binding.drawerLayout.open()
-                binding.inGameMenu.requestFocus()
-            } else {
-                binding.drawerLayout.close()
-            }
-        }
         emulationViewModel.programChanged.collect(viewLifecycleOwner) {
-            if (it != 0) {
+            if (it >= 0) {
                 emulationViewModel.setEmulationStarted(false)
                 binding.drawerLayout.close()
                 binding.drawerLayout
@@ -946,6 +959,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         val b = _binding ?: return
 
         updateScreenLayout()
+        if (inGameMenuPanel != null) updateInGameMenuWidth()
         val showInputOverlay = BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean()
         if (emulationActivity?.isInPictureInPictureMode == true) {
             if (b.drawerLayout.isOpen) {
@@ -1117,13 +1131,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         }
         nav.addView(panel, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         inGameMenuPanel = panel
-        // NavigationView caps a wrap_content drawer at 360dp; an exact width has no cap, and the
-        // panel plus its floating performance card need room.
-        val metrics = resources.displayMetrics
-        val room = metrics.widthPixels - (64 * metrics.density).toInt()
-        nav.layoutParams = nav.layoutParams.apply {
-            width = minOf(((if (resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) 730 else 360) * metrics.density).toInt(), room)
-        }
+        updateInGameMenuWidth()
         // The classic menu's rows no longer exist, so the small pop-up menus that were anchored to
         // them (controller layout, overlay options) hang from this point inside the panel instead.
         val density = resources.displayMetrics.density
@@ -1136,6 +1144,15 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                     topMargin = (150 * density).toInt()
                 }
             )
+        }
+    }
+
+    private fun updateInGameMenuWidth() {
+        val metrics = resources.displayMetrics
+        val room = (metrics.widthPixels - (64 * metrics.density).toInt()).coerceAtLeast(1)
+        val desiredDp = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 730 else 360
+        binding.inGameMenu.layoutParams = binding.inGameMenu.layoutParams.apply {
+            width = minOf((desiredDp * metrics.density).toInt(), room)
         }
     }
 
@@ -1182,9 +1199,10 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                 owned = true
             }
         }
-        action()
-        if (owned) {
-            NativeConfig.unloadPerGameConfig()
+        try {
+            action()
+        } finally {
+            if (owned) NativeConfig.unloadPerGameConfig()
         }
     }
 
@@ -1606,6 +1624,8 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     }
 
     override fun onDestroyView() {
+        viewSetupComplete = false
+        emulationViewModel.setDrawerOpen(false)
         modernMenuVisible.value = false
         modernLoadingVisible.value = false
         inGameMenuPanel = null

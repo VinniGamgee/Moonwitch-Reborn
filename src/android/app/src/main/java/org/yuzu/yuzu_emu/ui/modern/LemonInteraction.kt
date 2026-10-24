@@ -94,12 +94,18 @@ fun Modifier.lemonInteractive(
         animationSpec = tween(260),
         label = "lemonSelectedGlow"
     )
-    val pulse by rememberInfiniteTransition(label = "lemonPulse").animateFloat(
-        initialValue = 0.65f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Reverse),
-        label = "lemonPulseValue"
-    )
+    // Only selected tiles pulse. Idle buttons must not keep the UI rendering continuously.
+    val pulse = if (selected) {
+        val animatedPulse by rememberInfiniteTransition(label = "lemonPulse").animateFloat(
+            initialValue = 0.65f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(tween(1400, easing = LinearEasing), RepeatMode.Reverse),
+            label = "lemonPulseValue"
+        )
+        animatedPulse
+    } else {
+        1f
+    }
 
     val glow = maxOf(focusGlow * 0.9f, selectedGlow * pulse * 0.75f)
 
