@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,6 +36,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +69,7 @@ fun LemonButton(
     val contentColor = if (primary) LemonColors.OnLemon else LemonColors.Text
     Row(
         modifier = modifier
-            .height(height)
+            .heightIn(min = height)
             .lemonInteractive(
                 shape = shape,
                 cornerRadius = height / 2,
@@ -78,7 +81,7 @@ fun LemonButton(
             .then(
                 if (primary) Modifier else Modifier.border(1.dp, LemonColors.Text.copy(alpha = 0.16f), shape)
             )
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 12.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -91,7 +94,7 @@ fun LemonButton(
             )
             Spacer(Modifier.width(10.dp))
         }
-        BasicText(text = text, style = LemonType.Button.copy(color = contentColor))
+        BasicText(text = text, style = LemonType.Button.copy(color = contentColor, textAlign = TextAlign.Center), modifier = Modifier.weight(1f, fill = false))
     }
 }
 
@@ -193,7 +196,7 @@ fun ShortcutTile(
             .clip(shape)
             .background(LemonColors.SurfaceRaised.copy(alpha = 0.55f))
             .border(1.dp, LemonColors.Text.copy(alpha = 0.16f), shape)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 6.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -206,8 +209,9 @@ fun ShortcutTile(
         Spacer(Modifier.height(8.dp))
         BasicText(
             text = label,
-            style = LemonType.Button.copy(fontSize = 14.sp),
-            maxLines = 1
+            style = LemonType.Button.copy(fontSize = 13.sp, textAlign = TextAlign.Center),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

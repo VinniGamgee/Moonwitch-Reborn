@@ -29,3 +29,22 @@ The About page prominently credits Lemon and links to its source repository.
 
 Loading and menu compositions are removed while hidden, so their timers, focus
 requests and animations do not continue during normal emulation.
+
+## Responsive layout and menu follow-up
+
+Settings values now live below their titles in the same weighted text column. Previously a long
+unweighted value plus trailing controls could consume the entire row width, leaving the title and
+description with zero width and a huge wrapped height. This applies to all choice, slider, path,
+input and GPU-unswizzle rows. Home cards grow with their content and use adaptive grid columns.
+Library actions share available width, long titles use two lines with ellipsis, and shortcut labels
+wrap. Buttons grow for translated labels and larger system fonts.
+
+The in-game Compose panel calls the fragment's shared action handler directly. MoonwitchControlPanel
+is a FrameLayout with a PopupMenu model, not a NavigationView: performIdentifierAction does not call
+its separately stored navigation listener. The old Material buttons previously called that listener
+themselves. The panel now honors exact widths, hides the performance card when it cannot fit, and
+uses one menu column on narrow drawers. Hidden legacy buttons no longer sync on every pre-draw.
+
+Validation: XML resource validation and whitespace checks; CI compiles the Android interface before
+the native APK build. Device checks should cover long Portuguese values, increased system font size,
+portrait/landscape library buttons, and pause/overlay/quick settings/settings/exit menu actions.

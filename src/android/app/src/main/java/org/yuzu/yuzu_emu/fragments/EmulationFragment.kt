@@ -775,115 +775,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             )
         }
 
-        binding.inGameMenu.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.menu_pause_emulation -> {
-                    if (emulationState.isPaused) {
-                        resumeEmulationFromUi()
-                    } else {
-                        pauseEmulationAndCaptureFrame()
-                    }
-                    binding.inGameMenu.requestFocus()
-                    true
-                }
-
-                R.id.menu_quick_overlay -> {
-                    val newState = !BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean()
-                    toggleOverlay(newState)
-                    updateQuickOverlayMenuEntry(BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean())
-                    NativeConfig.saveGlobalConfig()
-                    true
-                }
-
-                R.id.menu_settings -> {
-                    val action = HomeNavigationDirections.actionGlobalSettingsActivity(
-                        null,
-                        Settings.MenuTag.SECTION_ROOT
-                    )
-                    binding.inGameMenu.requestFocus()
-                    binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
-                    binding.root.findNavController().navigate(action)
-                    true
-                }
-
-            if (BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean())
-                R.id.menu_quick_settings else 0 -> {
-                openQuickSettingsMenu()
-                true
-            }
-
-                R.id.menu_settings_per_game -> {
-                    val action = HomeNavigationDirections.actionGlobalSettingsActivity(
-                        args.game,
-                        Settings.MenuTag.SECTION_ROOT
-                    )
-                    binding.inGameMenu.requestFocus()
-                    binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
-                    binding.root.findNavController().navigate(action)
-                    true
-                }
-
-                R.id.menu_multiplayer -> {
-                    emulationActivity?.displayMultiplayerDialog()
-                    true
-                }
-
-                R.id.menu_load_amiibo -> handleLoadAmiiboSelection()
-
-                R.id.menu_controls -> {
-                    val action = HomeNavigationDirections.actionGlobalSettingsActivity(
-                        null,
-                        Settings.MenuTag.SECTION_INPUT
-                    )
-                    binding.root.findNavController().navigate(action)
-                    true
-                }
-
-                R.id.menu_overlay_controls -> {
-                    showOverlayOptions()
-                    true
-                }
-
-                R.id.menu_lock_drawer -> {
-                    when (IntSetting.LOCK_DRAWER.getInt()) {
-                        DrawerLayout.LOCK_MODE_UNLOCKED -> {
-                            IntSetting.LOCK_DRAWER.setInt(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                            it.title = resources.getString(R.string.unlock_drawer)
-                            it.icon = ResourcesCompat.getDrawable(
-                                resources,
-                                R.drawable.ic_lock,
-                                requireContext().theme
-                            )
-                        }
-
-                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED -> {
-                            IntSetting.LOCK_DRAWER.setInt(DrawerLayout.LOCK_MODE_UNLOCKED)
-                            it.title = resources.getString(R.string.lock_drawer)
-                            it.icon = ResourcesCompat.getDrawable(
-                                resources,
-                                R.drawable.ic_unlock,
-                                requireContext().theme
-                            )
-                        }
-                    }
-                    binding.inGameMenu.requestFocus()
-                    NativeConfig.saveGlobalConfig()
-                    true
-                }
-
-                R.id.menu_exit -> {
-                    clearPausedFrame()
-                    emulationState.stop()
-                    NativeConfig.reloadGlobalConfig()
-                    emulationViewModel.setIsEmulationStopping(true)
-                    binding.drawerLayout.close()
-                    binding.inGameMenu.requestFocus()
-                    true
-                }
-
-                else -> true
-            }
-        }
+        binding.inGameMenu.setNavigationItemSelectedListener(::handleInGameMenuItem)
 
         addQuickSettings()
         binding.quickSettingsSheet.setBackgroundResource(R.drawable.moonwitch_side_panel)
@@ -1106,6 +998,117 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
     private val menuTick = mutableIntStateOf(0)
     private var inGameMenuPanel: ComposeView? = null
     private var menuAnchor: View? = null
+    private fun handleInGameMenuItem(item: android.view.MenuItem): Boolean {
+        if (!item.isEnabled || !item.isVisible) return false
+        return when (item.itemId) {
+            R.id.menu_pause_emulation -> {
+                if (emulationState.isPaused) {
+                    resumeEmulationFromUi()
+                } else {
+                    pauseEmulationAndCaptureFrame()
+                }
+                binding.inGameMenu.requestFocus()
+                true
+            }
+
+            R.id.menu_quick_overlay -> {
+                val newState = !BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean()
+                toggleOverlay(newState)
+                updateQuickOverlayMenuEntry(BooleanSetting.SHOW_INPUT_OVERLAY.getBoolean())
+                NativeConfig.saveGlobalConfig()
+                true
+            }
+
+            R.id.menu_settings -> {
+                val action = HomeNavigationDirections.actionGlobalSettingsActivity(
+                    null,
+                    Settings.MenuTag.SECTION_ROOT
+                )
+                binding.inGameMenu.requestFocus()
+                binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
+                binding.root.findNavController().navigate(action)
+                true
+            }
+
+            R.id.menu_quick_settings -> {
+                if (!BooleanSetting.ENABLE_QUICK_SETTINGS.getBoolean()) return false
+                openQuickSettingsMenu()
+                true
+            }
+
+            R.id.menu_settings_per_game -> {
+                val action = HomeNavigationDirections.actionGlobalSettingsActivity(
+                    args.game,
+                    Settings.MenuTag.SECTION_ROOT
+                )
+                binding.inGameMenu.requestFocus()
+                binding.drawerLayout.closeDrawer(binding.quickSettingsSheet)
+                binding.root.findNavController().navigate(action)
+                true
+            }
+
+            R.id.menu_multiplayer -> {
+                emulationActivity?.displayMultiplayerDialog()
+                true
+            }
+
+            R.id.menu_load_amiibo -> handleLoadAmiiboSelection()
+
+            R.id.menu_controls -> {
+                val action = HomeNavigationDirections.actionGlobalSettingsActivity(
+                    null,
+                    Settings.MenuTag.SECTION_INPUT
+                )
+                binding.root.findNavController().navigate(action)
+                true
+            }
+
+            R.id.menu_overlay_controls -> {
+                showOverlayOptions()
+                true
+            }
+
+            R.id.menu_lock_drawer -> {
+                when (IntSetting.LOCK_DRAWER.getInt()) {
+                    DrawerLayout.LOCK_MODE_UNLOCKED -> {
+                        IntSetting.LOCK_DRAWER.setInt(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                        item.title = resources.getString(R.string.unlock_drawer)
+                        item.icon = ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_lock,
+                            requireContext().theme
+                        )
+                    }
+
+                    DrawerLayout.LOCK_MODE_LOCKED_CLOSED -> {
+                        IntSetting.LOCK_DRAWER.setInt(DrawerLayout.LOCK_MODE_UNLOCKED)
+                        item.title = resources.getString(R.string.lock_drawer)
+                        item.icon = ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_unlock,
+                            requireContext().theme
+                        )
+                    }
+                }
+                binding.inGameMenu.requestFocus()
+                NativeConfig.saveGlobalConfig()
+                true
+            }
+
+            R.id.menu_exit -> {
+                clearPausedFrame()
+                emulationState.stop()
+                NativeConfig.reloadGlobalConfig()
+                emulationViewModel.setIsEmulationStopping(true)
+                binding.drawerLayout.close()
+                binding.inGameMenu.requestFocus()
+                true
+            }
+
+            else -> false
+        }
+    }
+
     private fun setupModernInGameMenu() {
         val nav = binding.inGameMenu
         for (i in 0 until nav.childCount) {
@@ -1129,11 +1132,11 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                             if (BooleanSetting.RENDERER_USE_SPEED_LIMIT.getBoolean(false))
                                 "${ShortSetting.RENDERER_SPEED_LIMIT.getShort(false)}%" else "∞"
                         }, { driverViewModel.selectedDriverTitle.value }, {}) else null,
-                    onItem = { id -> nav.menu.performIdentifierAction(id, 0) }
+                    onItem = { id -> nav.menu.findItem(id)?.let(::handleInGameMenuItem) }
                 )
             }
         }
-        nav.addView(panel, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        nav.addView(panel, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         inGameMenuPanel = panel
         // NavigationView caps a wrap_content drawer at 360dp; an exact width has no cap, and the
         // panel plus its floating performance card need room.

@@ -29,7 +29,7 @@ class MoonwitchControlPanel @JvmOverloads constructor(
     private var listener: NavigationView.OnNavigationItemSelectedListener? = null
     private val buttons = mutableMapOf<Int, MaterialButton>()
     private val icons = mutableMapOf<Int, android.graphics.drawable.Drawable?>()
-    private val update = ViewTreeObserver.OnPreDrawListener { if (isShown) sync(); true }
+    private val update = ViewTreeObserver.OnPreDrawListener { if (grid.isShown) sync(); true }
 
     init {
         isFocusableInTouchMode = true
@@ -96,7 +96,13 @@ class MoonwitchControlPanel @JvmOverloads constructor(
     override fun onAttachedToWindow() { super.onAttachedToWindow(); viewTreeObserver.addOnPreDrawListener(update) }
     override fun onDetachedFromWindow() { viewTreeObserver.removeOnPreDrawListener(update); super.onDetachedFromWindow() }
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val width = minOf(MeasureSpec.getSize(widthMeasureSpec), dp(360))
-        super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), heightMeasureSpec)
+        // The Compose panel supplies an exact responsive width, including its landscape card.
+        // Keep the legacy cap only when the parent asks us to choose a wrap-content width.
+        val widthSpec = if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+            MeasureSpec.makeMeasureSpec(minOf(MeasureSpec.getSize(widthMeasureSpec), dp(360)), MeasureSpec.EXACTLY)
+        } else {
+            widthMeasureSpec
+        }
+        super.onMeasure(widthSpec, heightMeasureSpec)
     }
 }

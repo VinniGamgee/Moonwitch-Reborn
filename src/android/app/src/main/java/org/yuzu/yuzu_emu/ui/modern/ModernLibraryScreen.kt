@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -542,45 +543,38 @@ private fun SearchField(value: String, onValueChange: (String) -> Unit, modifier
 internal fun HeroInfo(game: Game, actions: LibraryActions, centered: Boolean = false, onMore: () -> Unit) {
     val context = LocalContext.current
     val playtime = remember(game.path) { GameStatsUtils.buildAbbreviated(context, game) }
-    val arrangement = if (centered) Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally) else Arrangement.spacedBy(12.dp)
     Column(
         Modifier.fillMaxWidth().padding(top = 6.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = arrangement) {
-            BasicText(
-                text = game.title,
-                style = LemonType.Display,
-                maxLines = 1,
-                modifier = Modifier.weight(1f, fill = false)
-            )
-            if (playtime != null) {
-                BasicText(
-                    text = playtime,
-                    style = LemonType.Body,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(LemonColors.Background.copy(alpha = 0.55f))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                )
-            }
+        BasicText(
+            text = game.title,
+            style = LemonType.Heading.copy(fontSize = 24.sp),
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.fillMaxWidth()
+        )
+        if (playtime != null) {
+            BasicText(playtime, style = LemonType.Body.copy(fontSize = 13.sp))
         }
-        Row(horizontalArrangement = arrangement, verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             LemonButton(
                 text = stringResource(R.string.play),
                 iconRes = R.drawable.ic_play,
                 primary = true,
-                height = 46.dp,
-                modifier = Modifier.width(180.dp)
+                height = 48.dp,
+                modifier = Modifier.weight(1f)
             ) { actions.onLaunch(game) }
-            LemonButton(text = stringResource(R.string.lemon_view_details), height = 46.dp) {
-                actions.onDetails(game)
-            }
+            LemonButton(
+                text = stringResource(R.string.lemon_view_details),
+                height = 48.dp,
+                modifier = Modifier.weight(1f)
+            ) { actions.onDetails(game) }
             LemonIconButton(
                 R.drawable.ic_more_vert,
                 stringResource(R.string.lemon_more_options),
-                size = 46.dp,
+                size = 48.dp,
                 onClick = onMore
             )
         }
@@ -589,8 +583,8 @@ internal fun HeroInfo(game: Game, actions: LibraryActions, centered: Boolean = f
 
 @Composable
 internal fun ShortcutRow(actions: LibraryActions, showQLaunch: Boolean, onShowAll: () -> Unit, tileHeight: Dp) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-        val modifier = Modifier.weight(1f).height(tileHeight)
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        val modifier = Modifier.weight(1f).heightIn(min = tileHeight)
         ShortcutTile(R.drawable.ic_home, stringResource(R.string.lemon_all_games), modifier, onShowAll)
         ShortcutTile(R.drawable.ic_folder_open, stringResource(R.string.lemon_game_folders), modifier, actions.onManageFolders)
         ShortcutTile(R.drawable.ic_install, stringResource(R.string.lemon_install_content), modifier, actions.onInstallContent)

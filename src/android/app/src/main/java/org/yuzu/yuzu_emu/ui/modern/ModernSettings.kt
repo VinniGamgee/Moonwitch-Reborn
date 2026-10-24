@@ -130,7 +130,7 @@ fun ModernHomeSettings(
         )
         if (query.isBlank()) {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(if (landscape) 3 else 1),
+                columns = GridCells.Adaptive(minSize = 240.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(bottom = 28.dp),
@@ -165,8 +165,8 @@ private fun HomeCard(option: HomeSetting, onClick: (HomeSetting) -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
-            // One height for every card, so the grid reads as tidy rows.
-            .height(124.dp)
+            // Grow with translated text and the system font size.
+            .heightIn(min = 100.dp)
             .lemonInteractive(
                 shape = shape,
                 cornerRadius = 22.dp,
@@ -682,17 +682,17 @@ private fun SettingRow(
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             BasicText(item.title, style = LemonType.Button.copy(fontSize = 15.sp))
+            // Values share the text column: trailing controls must never squeeze the title to zero.
+            if (!value.isNullOrEmpty()) {
+                BasicText(
+                    value,
+                    style = LemonType.Button.copy(fontSize = 14.sp, color = LemonColors.Lemon),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             if (item.description.isNotEmpty()) {
                 BasicText(item.description, style = LemonType.Body.copy(fontSize = 13.sp))
             }
-        }
-        if (!value.isNullOrEmpty()) {
-            BasicText(
-                value,
-                style = LemonType.Button.copy(fontSize = 14.sp, color = LemonColors.Lemon),
-                maxLines = 1,
-                modifier = Modifier.widthIn(max = 220.dp)
-            )
         }
         if (switchState != null) {
             LemonSwitch(switchState)

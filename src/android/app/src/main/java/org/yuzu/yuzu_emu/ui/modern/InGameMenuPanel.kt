@@ -11,6 +11,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -85,22 +87,23 @@ fun InGameMenuPanel(
         runCatching { first.requestFocus() }
     }
 
-    Row(
-        Modifier.fillMaxHeight().windowInsetsPadding(WindowInsets.systemBars),
-        horizontalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Panel(menu, game, tick + localTick, first) { id ->
-            onItem(id)
-            localTick++
-        }
-        if (performance != null) {
-            PerformanceCard(performance, tick + localTick) { localTick++ }
+    BoxWithConstraints(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.systemBars)) {
+        val showPerformance = performance != null && maxWidth >= 680.dp
+        val panelWidth = if (showPerformance) maxWidth - 314.dp else maxWidth
+        Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Panel(menu, game, tick + localTick, first, Modifier.width(panelWidth), panelWidth >= 360.dp) { id ->
+                onItem(id)
+                localTick++
+            }
+            if (showPerformance) {
+                PerformanceCard(requireNotNull(performance), tick + localTick) { localTick++ }
+            }
         }
     }
 }
 
 @Composable
-private fun Panel(menu: Menu, game: Game?, version: Int, first: FocusRequester, onItem: (Int) -> Unit) {
+private fun Panel(menu: Menu, game: Game?, version: Int, first: FocusRequester, modifier: Modifier, twoColumns: Boolean, onItem: (Int) -> Unit) {
     val context = LocalContext.current
     val items = remember(version) { (0 until menu.size()).map { menu.getItem(it) }.filter { it.isVisible } }
     val pause = items.firstOrNull { it.itemId == R.id.menu_pause_emulation }
@@ -116,8 +119,7 @@ private fun Panel(menu: Menu, game: Game?, version: Int, first: FocusRequester, 
     val rest = items.filter { it.itemId !in special }
 
     Column(
-        Modifier
-            .width(400.dp)
+        modifier
             .fillMaxHeight()
             .background(LemonColors.Background.copy(alpha = 0.97f))
             .padding(horizontal = 14.dp, vertical = 12.dp),
@@ -158,10 +160,10 @@ private fun Panel(menu: Menu, game: Game?, version: Int, first: FocusRequester, 
             Modifier.weight(1f).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            rest.chunked(2).forEach { pair ->
+            rest.chunked(if (twoColumns) 2 else 1).forEach { pair ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     pair.forEach { item -> MenuRow(item, Modifier.weight(1f)) { onItem(item.itemId) } }
-                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    if (twoColumns && pair.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
         }
@@ -299,7 +301,7 @@ private fun MenuRow(item: MenuItem, modifier: Modifier, onClick: () -> Unit) {
     Row(
         modifier
             .heightIn(min = 48.dp)
-            .lemonInteractive(shape = shape, cornerRadius = 14.dp, focusScale = 1.03f, onClick = onClick)
+            .lemonInteractive(shape = shape, cornerRadius = 14.dp, focusScale = 1.03f, onClick = { if (item.isEnabled) onClick() })
             .clip(shape)
             .background(LemonColors.SurfaceRaised.copy(alpha = 0.55f))
             .padding(horizontal = 12.dp, vertical = 6.dp),
@@ -311,7 +313,7 @@ private fun MenuRow(item: MenuItem, modifier: Modifier, onClick: () -> Unit) {
             Spacer(Modifier.size(18.dp))
         }
         Spacer(Modifier.width(10.dp))
-        BasicText(item.title?.toString().orEmpty(), style = LemonType.Button.copy(fontSize = 13.sp), maxLines = 2)
+        BasicText(item.title?.toString().orEmpty(), style = LemonType.Button.copy(fontSize = 13.sp), modifier = Modifier.weight(1f))
     }
 }
 
