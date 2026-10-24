@@ -10,6 +10,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -300,19 +302,19 @@ private fun LandscapeLayout(
         Modifier
             .fillMaxSize()
             .windowInsetsPadding(WindowInsets.systemBars)
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 36.dp, vertical = 12.dp)
     ) {
         TopBar(search, searching, onSearch, onSearching, onSort, onViews, actions)
         Spacer(Modifier.height(10.dp))
 
-        // The row of tiles takes whatever height is left after the title, buttons and shortcuts,
-        // so the same screen fits a 1080p handheld (about 400 dp once the system bars are out) and
-        // a tablet alike.
-        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
+        // Allow short landscape windows and enlarged fonts to scroll instead of overlapping
+        // the shortcuts with the title/actions. No estimated text-height subtraction.
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
             if (visible.isEmpty()) {
                 EmptyState(actions, loading)
             } else {
-                val rowHeight = (maxHeight - 100.dp).coerceIn(112.dp, 214.dp)
+                val rowHeight = 152.dp
                 val selectedSize = rowHeight - 14.dp
                 // Every tile takes the same slot; the selected one is only drawn bigger. That keeps
                 // the scroll maths exact, so the selected tile always lands in the middle.
