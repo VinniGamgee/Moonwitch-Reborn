@@ -8,6 +8,7 @@
 package org.yuzu.yuzu_emu.fragments
 
 import org.yuzu.yuzu_emu.ui.modern.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.runtime.mutableStateOf
@@ -498,9 +499,9 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
                                 )
 
                                 if (_binding != null) {
-                                    // Hide loading indicator immediately for intent launches
-                                    modernLoadingVisible.value = false
-                                    binding.loadingIndicator.visibility = View.GONE
+                                    // Intent launches use the same shader/first-frame loading screen.
+                                    modernLoadingVisible.value = true
+                                    binding.loadingIndicator.visibility = View.VISIBLE
                                     binding.surfaceEmulation.visibility = View.VISIBLE
 
                                     completeViewSetup()
@@ -839,37 +840,15 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             .windowLayoutInfo(requireActivity()).collect(viewLifecycleOwner) {
                 updateFoldableLayout(requireActivity() as EmulationActivity, it)
             }
-        emulationViewModel.shaderProgress.collect(viewLifecycleOwner) {
-            if (it > 0 && it != emulationViewModel.totalShaders.value) {
-                binding.loadingProgressIndicator.isIndeterminate = false
-
-                if (it < binding.loadingProgressIndicator.max) {
-                    binding.loadingProgressIndicator.progress = it
-                }
-            }
-
-            if (it == emulationViewModel.totalShaders.value) {
-                binding.loadingText.setText(R.string.loading)
-                binding.loadingProgressIndicator.isIndeterminate = true
-            }
-        }
-        emulationViewModel.totalShaders.collect(viewLifecycleOwner) {
-            binding.loadingProgressIndicator.max = it
-        }
-        emulationViewModel.shaderMessage.collect(viewLifecycleOwner) {
-            if (it.isNotEmpty()) {
-                binding.loadingText.text = it
-            }
-        }
-
         emulationViewModel.emulationStarted.collect(viewLifecycleOwner) {
-            if (it) {
-                binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
-                ViewUtils.showView(binding.surfaceInputOverlay)
+            if (it) emulationState.updateSurface()
+        }
+        emulationViewModel.firstFrameDisplayed.collect(viewLifecycleOwner) { displayed ->
+            if (displayed && !emulationViewModel.isEmulationStopping.value) {
                 modernLoadingVisible.value = false
                 ViewUtils.hideView(binding.loadingIndicator)
-
-                emulationState.updateSurface()
+                binding.drawerLayout.setDrawerLockMode(IntSetting.LOCK_DRAWER.getInt())
+                ViewUtils.showView(binding.surfaceInputOverlay)
 
                 updateShowStatsOverlay()
                 updateSocOverlay()
@@ -979,7 +958,7 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
             val shouldShowOverlay = if (args.overlayGamelessEditMode) {
                 true
             } else {
-                showInputOverlay && emulationViewModel.emulationStarted.value &&
+                showInputOverlay && emulationViewModel.firstFrameDisplayed.value &&
                     !hasPhysicalControllerConnected
             }
             b.surfaceInputOverlay.setVisible(shouldShowOverlay)
@@ -1170,22 +1149,16 @@ class EmulationFragment : Fragment(), SurfaceHolder.Callback {
         card.radius = 0f
         card.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
         binding.loadingLayout.visibility = View.GONE
+        modernLoadingVisible.value = !emulationViewModel.firstFrameDisplayed.value ||
+            emulationViewModel.isEmulationStopping.value
         val screen = ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                if (modernLoadingVisible.value) ModernLoadingScreen(
-                    isActive = { _binding != null && card.visibility == View.VISIBLE },
-                    read = {
-                        val b = _binding
-                        LoadingSnapshot(
-                            game = game,
-                            message = b?.loadingText?.text?.toString().orEmpty(),
-                            progress = b?.loadingProgressIndicator?.progress ?: 0,
-                            max = b?.loadingProgressIndicator?.max ?: 0,
-                            indeterminate = b?.loadingProgressIndicator?.isIndeterminate ?: true
-                        )
-                    }
-                )
+                if (modernLoadingVisible.value) {
+                    val progress = emulationViewModel.startupProgress.collectAsState().value
+                    val stopping = emulationViewModel.isEmulationStopping.collectAsState().value
+                    MoonwitchLoadingScreen(game, progress, stopping)
+                }
             }
         }
         card.addView(screen, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))

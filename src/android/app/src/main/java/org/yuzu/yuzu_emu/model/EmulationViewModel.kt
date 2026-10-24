@@ -21,19 +21,45 @@ class EmulationViewModel : ViewModel() {
     private val _programChanged = MutableStateFlow(-1)
     val programChanged = _programChanged.asStateFlow()
 
-    val shaderProgress: StateFlow<Int> get() = _shaderProgress
-    private val _shaderProgress = MutableStateFlow(0)
+    private val _startupProgress = MutableStateFlow(StartupProgress())
+    val startupProgress = _startupProgress.asStateFlow()
+    private val _firstFrameDisplayed = MutableStateFlow(false)
+    val firstFrameDisplayed = _firstFrameDisplayed.asStateFlow()
 
-    val totalShaders: StateFlow<Int> get() = _totalShaders
-    private val _totalShaders = MutableStateFlow(0)
+    fun setFirstFrameDisplayed() {
+        if (_emulationStarted.value && !_isEmulationStopping.value && !_emulationStopped.value) {
+            _firstFrameDisplayed.value = true
+        }
+    }
 
-    val shaderMessage: StateFlow<String> get() = _shaderMessage
-    private val _shaderMessage = MutableStateFlow("")
+    fun prepareShaderCache() {
+        _startupProgress.value = StartupProgress(StartupStage.READING_CACHE)
+    }
+
+    fun updateShaderCache(completed: Int, total: Int) {
+        _startupProgress.value = StartupProgress(
+            StartupStage.BUILDING_SHADERS,
+            completed.coerceIn(0, total.coerceAtLeast(0)),
+            total.coerceAtLeast(0)
+        )
+    }
+
+    fun completeShaderCache() {
+        val previous = _startupProgress.value
+        _startupProgress.value = previous.copy(
+            stage = StartupStage.STARTING_GAME,
+            completed = previous.total
+        )
+    }
 
     private val _drawerOpen = MutableStateFlow(false)
     val drawerOpen = _drawerOpen.asStateFlow()
 
     fun setEmulationStarted(started: Boolean) {
+        if (!started) {
+            _firstFrameDisplayed.value = false
+            _startupProgress.value = StartupProgress()
+        }
         _emulationStarted.value = started
     }
 
@@ -43,7 +69,7 @@ class EmulationViewModel : ViewModel() {
 
     fun setEmulationStopped(value: Boolean) {
         if (value) {
-            _emulationStarted.value = false
+            setEmulationStarted(false)
         }
         _emulationStopped.value = value
     }
@@ -52,25 +78,17 @@ class EmulationViewModel : ViewModel() {
         _programChanged.value = programIndex
     }
 
-    fun setShaderProgress(progress: Int) {
-        _shaderProgress.value = progress
-    }
-
-    fun setTotalShaders(max: Int) {
-        _totalShaders.value = max
-    }
-
-    fun setShaderMessage(msg: String) {
-        _shaderMessage.value = msg
-    }
-
-    fun updateProgress(msg: String, progress: Int, max: Int) {
-        setShaderMessage(msg)
-        setShaderProgress(progress)
-        setTotalShaders(max)
-    }
-
     fun setDrawerOpen(value: Boolean) {
         _drawerOpen.value = value
     }
+}
+
+enum class StartupStage { INITIALIZING, READING_CACHE, BUILDING_SHADERS, STARTING_GAME }
+
+data class StartupProgress(
+    val stage: StartupStage = StartupStage.INITIALIZING,
+    val completed: Int = 0,
+    val total: Int = 0
+) {
+    val percent: Int get() = if (total > 0) (completed.toLong() * 100 / total).toInt() else 0
 }

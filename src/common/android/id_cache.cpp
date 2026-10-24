@@ -22,6 +22,7 @@ static jmethodID s_game_dir_constructor;
 static jmethodID s_exit_emulation_activity;
 static jmethodID s_disk_cache_load_progress;
 static jmethodID s_on_emulation_started;
+static jmethodID s_on_first_frame_displayed;
 static jmethodID s_on_emulation_stopped;
 static jmethodID s_on_program_changed;
 static jmethodID s_copy_to_storage;
@@ -165,6 +166,10 @@ namespace Common::Android {
 
     jmethodID GetOnEmulationStarted() {
         return s_on_emulation_started;
+    }
+
+    jmethodID GetOnFirstFrameDisplayed() {
+        return s_on_first_frame_displayed;
     }
 
     jmethodID GetOnEmulationStopped() {
@@ -464,6 +469,8 @@ namespace Common::Android {
                                                "(Ljava/lang/String;)Ljava/lang/String;");
         s_on_emulation_started =
                 env->GetStaticMethodID(s_native_library_class, "onEmulationStarted", "()V");
+        s_on_first_frame_displayed =
+                env->GetStaticMethodID(s_native_library_class, "onFirstFrameDisplayed", "()V");
         s_on_emulation_stopped =
                 env->GetStaticMethodID(s_native_library_class, "onEmulationStopped", "(I)V");
         s_on_program_changed =

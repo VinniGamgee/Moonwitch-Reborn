@@ -397,8 +397,9 @@ void EmulationSession::RunEmulation() {
         LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Prepare, 0, 0);
         m_system.Renderer().ReadRasterizer()->LoadDiskResources(
             m_system.GetApplicationProcessProgramID(), std::stop_token{}, LoadDiskCacheProgress);
-        LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
     }
+    // Also finish the loading phase when the disk cache is disabled or empty.
+    LoadDiskCacheProgress(VideoCore::LoadCallbackStage::Complete, 0, 0);
 
     void(m_system.Run());
 
@@ -437,6 +438,12 @@ void EmulationSession::OnEmulationStarted() {
     JNIEnv* env = Common::Android::GetEnvForThread();
     env->CallStaticVoidMethod(Common::Android::GetNativeLibraryClass(),
                               Common::Android::GetOnEmulationStarted());
+}
+
+void EmulationSession::OnFirstFrameDisplayed() {
+    JNIEnv* env = Common::Android::GetEnvForThread();
+    env->CallStaticVoidMethod(Common::Android::GetNativeLibraryClass(),
+                             Common::Android::GetOnFirstFrameDisplayed());
 }
 
 void EmulationSession::OnEmulationStopped(Core::SystemResultStatus result) {

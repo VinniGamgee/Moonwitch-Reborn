@@ -6,22 +6,11 @@ package org.yuzu.yuzu_emu.disk_shader_cache
 import androidx.annotation.Keep
 import androidx.lifecycle.ViewModelProvider
 import org.yuzu.yuzu_emu.NativeLibrary
-import org.yuzu.yuzu_emu.R
-import org.yuzu.yuzu_emu.activities.EmulationActivity
 import org.yuzu.yuzu_emu.model.EmulationViewModel
 import org.yuzu.yuzu_emu.utils.Log
 
 @Keep
 object DiskShaderCacheProgress {
-    private lateinit var emulationViewModel: EmulationViewModel
-
-    private fun prepareViewModel() {
-        emulationViewModel =
-            ViewModelProvider(
-                NativeLibrary.sEmulationActivity.get() as EmulationActivity
-            )[EmulationViewModel::class.java]
-    }
-
     @JvmStatic
     fun loadProgress(stage: Int, progress: Int, max: Int) {
         val emulationActivity = NativeLibrary.sEmulationActivity.get()
@@ -31,15 +20,12 @@ object DiskShaderCacheProgress {
         }
 
         emulationActivity.runOnUiThread {
-            when (LoadCallbackStage.values()[stage]) {
-                LoadCallbackStage.Prepare -> prepareViewModel()
-                LoadCallbackStage.Build -> emulationViewModel.updateProgress(
-                    emulationActivity.getString(R.string.building_shaders),
-                    progress,
-                    max
-                )
-
-                LoadCallbackStage.Complete -> {}
+            val model = ViewModelProvider(emulationActivity)[EmulationViewModel::class.java]
+            when (LoadCallbackStage.values().getOrNull(stage)) {
+                LoadCallbackStage.Prepare -> model.prepareShaderCache()
+                LoadCallbackStage.Build -> model.updateShaderCache(progress, max)
+                LoadCallbackStage.Complete -> model.completeShaderCache()
+                null -> Unit
             }
         }
     }

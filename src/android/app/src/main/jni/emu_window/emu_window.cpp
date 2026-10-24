@@ -70,7 +70,7 @@ void EmuWindow_Android::OnFrameDisplayed() {
 
     if (!m_first_frame) {
         Common::Android::RunJNIOnFiber<void>(
-            [&](JNIEnv* env) { EmulationSession::GetInstance().OnEmulationStarted(); });
+            [&](JNIEnv* env) { EmulationSession::GetInstance().OnFirstFrameDisplayed(); });
         m_first_frame = true;
     }
 }

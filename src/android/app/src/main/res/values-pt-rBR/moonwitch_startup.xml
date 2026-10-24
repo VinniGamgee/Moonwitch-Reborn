@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mw_startup_game">Preparando jogo…</string>
+    <string name="mw_startup_reading">Lendo cache de shaders…</string>
+    <string name="mw_startup_shaders">Preparando shaders…</string>
+    <string name="mw_startup_first_frame">Iniciando jogo…</string>
+    <string name="mw_startup_shader_count">%1$d / %2$d shaders do cache processados</string>
+    <string name="mw_startup_step_game">Jogo</string>
+    <string name="mw_startup_step_shaders">Shaders</string>
+    <string name="mw_startup_step_start">Iniciar</string>
+</resources>

@@ -68,7 +68,7 @@ jobs:
         working-directory: src/android
         run: |
           chmod +x gradlew
-          ./gradlew :app:compileMainlineReleaseKotlin --no-daemon --max-workers=2
+          ./gradlew :app:compileMainlineReleaseKotlin :app:testMainlineReleaseUnitTest --tests org.yuzu.yuzu_emu.model.EmulationStartupTest --no-daemon --max-workers=2
 
       - name: Build APK
         shell: bash

@@ -42,6 +42,7 @@ jmethodID GetFileExtension();
 
 jmethodID GetExitEmulationActivity();
 jmethodID GetOnEmulationStarted();
+jmethodID GetOnFirstFrameDisplayed();
 jmethodID GetOnEmulationStopped();
 jmethodID GetOnProgramChanged();
 

@@ -58,6 +58,7 @@ public:
     Common::Android::SoftwareKeyboard::AndroidKeyboard* SoftwareKeyboard();
 
     static void OnEmulationStarted();
+    static void OnFirstFrameDisplayed();
 
     static u64 GetProgramId(JNIEnv* env, jstring jprogramId);
 

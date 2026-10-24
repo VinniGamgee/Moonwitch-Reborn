@@ -790,6 +790,10 @@ class EmulationActivity : AppCompatActivity(), SensorEventListener, InputManager
         processSessionGame?.let { GameSessionStats.start(this, it) }
     }
 
+    fun onFirstFrameDisplayed() {
+        runOnUiThread { emulationViewModel.setFirstFrameDisplayed() }
+    }
+
     fun onEmulationStopped(status: Int) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             mainHandler.post { onEmulationStopped(status) }

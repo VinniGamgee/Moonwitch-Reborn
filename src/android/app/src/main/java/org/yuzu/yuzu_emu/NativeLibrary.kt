@@ -447,6 +447,12 @@ object NativeLibrary {
 
     @Keep
     @JvmStatic
+    fun onFirstFrameDisplayed() {
+        sEmulationActivity.get()?.onFirstFrameDisplayed()
+    }
+
+    @Keep
+    @JvmStatic
     fun onEmulationStopped(status: Int) {
         org.yuzu.yuzu_emu.utils.PgoProfiles.saveSession()
         sEmulationActivity.get()!!.onEmulationStopped(status)

@@ -48,3 +48,21 @@ uses one menu column on narrow drawers. Hidden legacy buttons no longer sync on 
 Validation: XML resource validation and whitespace checks; CI compiles the Android interface before
 the native APK build. Device checks should cover long Portuguese values, increased system font size,
 portrait/landscape library buttons, and pause/overlay/quick settings/settings/exit menu actions.
+
+## Moonwitch shader startup screen
+
+The startup screen is now a separate Moonwitch layout: game icon, three phase markers, native cache
+entry counts, percentage and a progress bar. It reads a single immutable StateFlow snapshot instead
+of polling hidden progress Views. It does not perform additional shader compilation or discover
+shaders from unvisited gameplay. Counts describe processed disk-cache entries (pipelines), not a
+promise that every entry was successfully compiled or that all shaders in the game are known.
+
+Session initialization remains independent from first-frame presentation. The existing early native
+session callback still initializes session accounting; a new JNI first-frame callback reveals the
+surface and input controls. Disk-cache completion retains 100% and transitions to Starting game;
+empty/disabled caches go directly to that phase. Intent launches follow the same path. Shutdown
+has its own indeterminate display and late first-frame callbacks cannot dismiss it.
+
+Regression coverage: EmulationStartupTest exercises early initialization, cache completion,
+empty/disabled cache, stop/next-game reset and bounded/large counts. CI runs it before building the
+APK. On-device checks still need cached/uncached launches, intent launches, rotation and game swaps.
